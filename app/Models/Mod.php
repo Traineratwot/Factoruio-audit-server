@@ -1,24 +1,35 @@
 <?php
 
-namespace App\Console\Commands\Audit;
+namespace App\Models;
 
-use App\Models\Mod;
-use App\Models\Report;
-use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Tivoka\Client;
 
-class ModCommand extends Command
+class Mod extends Model
 {
-    protected $signature = 'audit:mod';
+    protected $guarded = ['id'];
 
-    protected $description = 'test';
+    protected function casts(): array
+    {
+        return [
+            'downloads_count' => 'integer',
+            'popularity' => 'float',
+        ];
+    }
 
-    public function handle()
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    public function runAudit()
     {
         $connection = Client::connect('ws://127.0.0.1:3000/ws');
         $request = $connection->sendRequest('scan', [
-            "modName" => 'flib',
-//            "version" => '0.1.0'
+            'modName' => $this->name,
+            "version" => $this->latest_version
         ]);
         Report::updateOrCreate(
             [

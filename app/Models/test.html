@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Report: flib v0.16.5</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0f172a; color: #e2e8f0; padding: 2rem; line-height: 1.6;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.2rem; margin: 1.5rem 0 1rem; color: #94a3b8; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem; }
+  h3 { font-size: 1rem; }
+  .subtitle { color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem; }
+
+  /* header */
+  .report-header { margin-bottom: 2rem; }
+  .report-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .stat-card {
+    background: #1e293b; border-radius: 8px; padding: 0.75rem 1rem; min-width: 140px;
+    display: flex; flex-direction: column;
+  }
+  .stat-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-value { font-size: 1.3rem; font-weight: 700; }
+  .stat-value.score-val { font-size: 2rem; }
+  .stat-sub { font-size: 0.8rem; color: #94a3b8; }
+
+  /* overall score bar */
+  .overall-bar { height: 8px; background: #1e293b; border-radius: 4px; margin-top: 0.75rem; overflow: hidden; }
+  .overall-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+  /* scanner sections */
+  .section { margin-bottom: 2rem; }
+  .scanner {
+    background: #1e293b; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem;
+  }
+  .scanner-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }
+  .scanner-id { font-family: "SF Mono", "Fira Code", monospace; color: #38bdf8; }
+  .scanner-score { text-align: right; }
+  .score-num { font-size: 1.4rem; font-weight: 800; }
+  .score-label { font-size: 0.8rem; color: #64748b; }
+  .score-bar { width: 120px; height: 6px; background: #334155; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 3px; }
+  .scanner-meta { display: flex; gap: 1.5rem; margin: 0.5rem 0 0.75rem; font-size: 0.85rem; color: #94a3b8; }
+
+  /* tables */
+  .findings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .findings-table th { text-align: left; color: #64748b; font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid #334155; }
+  .findings-table td { padding: 0.5rem; border-bottom: 1px solid #1e293b; vertical-align: top; }
+  .finding-high { background: rgba(240, 3, 3, 0.07); }
+  .finding-medium { background: rgba(234,179,8,0.06); }
+  .finding-low { background: rgba(34,197,94,0.04); }
+  code {
+    font-family: "SF Mono", "Fira Code", monospace; font-size: 0.8rem;
+    background: #0f172a; padding: 0.1em 0.3em; border-radius: 3px;
+    word-break: break-all;
+  }
+  .saving { color: #22c55e; font-weight: 600; white-space: nowrap; }
+
+  /* severity badges */
+  .sev-high { color: #ef4444; font-weight: 600; }
+  .sev-med { color: #eab308; font-weight: 600; }
+  .sev-low { color: #22c55e; }
+  .sev-info { color: #64748b; }
+
+  .no-findings { color: #22c55e; font-size: 0.85rem; }
+  .errors-list { list-style: disc; padding-left: 1.25rem; color: #ef4444; }
+
+  /* toggle buttons */
+  .toggle-findings-btn, .toggle-paths-btn {
+    background: #334155; color: #94a3b8; border: 1px solid #475569;
+    border-radius: 4px; padding: 0.25rem 0.6rem; font-size: 0.75rem;
+    cursor: pointer; margin-top: 0.5rem;
+  }
+  .toggle-findings-btn:hover, .toggle-paths-btn:hover { background: #475569; color: #e2e8f0; }
+  .toggle-paths-btn { margin-top: 0.25rem; }
+
+  @media (prefers-color-scheme: light) {
+    body { background: #f8fafc; color: #1e293b; }
+    .scanner, .stat-card { background: #ffffff; border: 1px solid #e2e8f0; }
+    .score-bar { background: #e2e8f0; }
+    .findings-table td { border-bottom-color: #f1f5f9; }
+    .findings-table th { border-bottom-color: #e2e8f0; }
+    h2 { border-bottom-color: #e2e8f0; color: #64748b; }
+    code { background: #f1f5f9; }
+    .subtitle { color: #94a3b8; }
+    .finding-high { background: rgba(239,68,68,0.04); }
+    .finding-medium { background: rgba(234,179,8,0.04); }
+    .finding-low { background: rgba(34,197,94,0.03); }
+    .overall-bar { background: #e2e8f0; }
+    .toggle-findings-btn, .toggle-paths-btn { background: #e2e8f0; color: #64748b; border-color: #cbd5e1; }
+    .toggle-findings-btn:hover, .toggle-paths-btn:hover { background: #cbd5e1; color: #334155; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="report-header">
+    <h1><a href="https://mods.factorio.com/mod/flib" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">Factorio Library</a> <span style="color:#64748b">v0.16.5</span></h1>
+    <div class="subtitle"><code>flib</code><br>SHA1: <code>be7ce1b5c9477ad3161df120a379aec091b86f77</code> &middot; 2026-06-13 13:34:01</div>
+    <div class="report-meta">
+      <div class="stat-card">
+        <span class="stat-label">Overall Score</span>
+        <span class="stat-value score-val" style="color:#f16338">39.5</span>
+        <span class="stat-sub">/ 100</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Mod Size</span>
+        <span class="stat-value">847 kiB</span>
+      </div>
+
+          <div class="stat-card">
+            <span class="stat-label">Potential Savings</span>
+            <span class="stat-value">153 kiB</span>
+            <span class="stat-sub">18.1% reduction</span>
+          </div>
+    </div>
+    <div class="overall-bar"><div class="overall-fill" style="width:39.48958559339149%;background:#f16338"></div></div>
+  </div>
+
+
+
+  <div class="section">
+    <h2>Scanner Results</h2>
+
+          <div class="scanner">
+            <div class="scanner-header">
+              <h3><span class="scanner-id">clutter</span></h3>
+              <div class="scanner-score">
+                <span class="score-num" style="color:#f16338">40.1</span>
+                <span class="score-label">/ 100</span>
+                <div class="score-bar"><div class="score-fill" style="width:40.13444582806031%;background:#f16338"></div></div>
+              </div>
+            </div>
+            <div class="scanner-meta">
+              <span class="meta-item"><strong>Weight:</strong> 80</span>
+              <span class="meta-item"><strong>Savings:</strong> 153 kiB</span>
+            </div>
+
+            <table class="findings-table">
+              <thead>
+                <tr><th>Severity</th><th>Description</th><th>Savings</th><th>Paths</th></tr>
+              </thead>
+              <tbody>
+
+                <tr class="finding finding-high">
+                  <td><span class="sev-high">[HIGH]</span></td>
+                  <td>Published mods should not include local binaries or installation scripts.</td>
+                  <td><span class="saving">414 B</span></td>
+                  <td><code>gen-docs.sh</code></td>
+                </tr>
+
+                <tr class="finding finding-medium">
+                  <td><span class="sev-med">[MED]</span></td>
+                  <td>Source and data files that should not ship in a Factorio release bundle.</td>
+                  <td><span class="saving">153 kiB</span></td>
+                  <td><code>docs/index.html</code><br><code>docs/style.css</code><br><code>doc-html/index.html</code><br><code>doc-html/style.css</code></td>
+                </tr>
+
+              </tbody>
+            </table>
+
+
+          </div>
+
+          <div class="scanner">
+            <div class="scanner-header">
+              <h3><span class="scanner-id">duplicates</span></h3>
+              <div class="scanner-score">
+                <span class="score-num" style="color:#f16338">91.2</span>
+                <span class="score-label">/ 100</span>
+                <div class="score-bar"><div class="score-fill" style="width:91.1684094323568%;background:#f16338"></div></div>
+              </div>
+            </div>
+            <div class="scanner-meta">
+              <span class="meta-item"><strong>Weight:</strong> 70</span>
+              <span class="meta-item"><strong>Savings:</strong> 266 B</span>
+            </div>
+
+            <table class="findings-table">
+              <thead>
+                <tr><th>Severity</th><th>Description</th><th>Savings</th><th>Paths</th></tr>
+              </thead>
+              <tbody>
+
+                <tr class="finding finding-low">
+                  <td><span class="sev-low">[LOW]</span></td>
+                  <td>Duplicate files found.</td>
+                  <td><span class="saving">266 B</span></td>
+                  <td>
+                  <span class="path-group">
+                    <code>locale/sr/flib.cfg</code><br><code>locale/no/flib.cfg</code><br><code>locale/sv-SE/flib.cfg</code><br>
+                    <span class="paths-extra" style="display:none"><code>locale/ro/flib.cfg</code><br><code>locale/he/flib.cfg</code><br><code>locale/fi/flib.cfg</code><br><code>locale/ko/flib.cfg</code><br><code>locale/vi/flib.cfg</code><br><code>locale/af/flib.cfg</code><br><code>locale/zh-TW/flib.cfg</code><br><code>locale/pt-BZ/flib.cfg</code><br><code>locale/el/flib.cfg</code><br><code>locale/da/flib.cfg</code><br><code>locale/it/flib.cfg</code><br><code>locale/hu/flib.cfg</code></span>
+                    <button class="toggle-paths-btn" onclick="this.previousElementSibling.style.display='inline';this.style.display='none'">+12 more</button>
+                  </span></td>
+                </tr>
+
+              </tbody>
+            </table>
+
+
+          </div>
+  </div>
+
+
+</div>
+</body>
+</html>

@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
-            $table->string('mod_name');
+            $table->foreignId('mod_id');
             $table->string('mod_version');
 
             $table->float('score');

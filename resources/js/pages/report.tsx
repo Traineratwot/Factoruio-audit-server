@@ -1,82 +1,13 @@
-import React, { useState } from 'react';
+// pages/report.tsx
+import React from 'react';
 import { Card } from 'primereact/card';
 import { ProgressBar } from 'primereact/progressbar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Tag } from 'primereact/tag';
-import { Button } from 'primereact/button';
 import type { Finding, rawReport } from '@/types/mod';
+import { formatBytes, formatDate } from '@/utils/formatters';
+import { PathsCell, SeverityTag } from '@/components/AuditReport';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
-
-
-export function formatBytes(
-    bytes: number,
-    significance: 1 | 2 | 3 | 4 = 3,
-): string {
-    if (bytes < 1024) return `${bytes} B`;
-    const units = ['B', 'kiB', 'MiB', 'GiB', 'TiB'];
-    const exponent = Math.floor(Math.log(bytes) / Math.log(1024));
-    const value = bytes / Math.pow(1024, exponent);
-    const digits = Math.max(
-        0,
-        significance - Math.floor(Math.log10(value)) - 1,
-    );
-    return `${value.toFixed(digits)} ${units[exponent]}`;
-}
-
-// Helper: format date from timestamp
-const formatDate = (timestamp: number): string => {
-    return new Date(timestamp * 1000).toLocaleString();
-};
-
-// Component for paths cell with show more/less button
-const PathsCell: React.FC<{ paths?: string[] }> = ({ paths }) => {
-    const [showAll, setShowAll] = useState(false);
-    if (!paths || paths.length === 0) return <span>—</span>;
-    const DISPLAY_LIMIT = 3;
-    const hasMore = paths.length > DISPLAY_LIMIT;
-    const displayedPaths = showAll ? paths : paths.slice(0, DISPLAY_LIMIT);
-    return (
-        <div className="flex-column flex gap-1">
-            {displayedPaths.map((p, idx) => (
-                <code key={idx} className="rounded bg-gray-800 p-1 text-sm">
-                    {p}
-                </code>
-            ))}
-            {hasMore && (
-                <Button
-                    label={
-                        showAll
-                            ? 'Show less'
-                            : `+${paths.length - DISPLAY_LIMIT} more`
-                    }
-                    onClick={() => setShowAll(!showAll)}
-                    className="p-button-text p-button-sm"
-                    style={{ justifyContent: 'flex-start', paddingLeft: 0 }}
-                />
-            )}
-        </div>
-    );
-};
-
-// Severity tag component
-const SeverityTag: React.FC<{ severity?: string }> = ({ severity }) => {
-    let severityMap: Record<
-        string,
-        {
-            severity: 'success' | 'info' | 'warning' | 'danger' | undefined;
-            label: string;
-        }
-    > = {
-        high: { severity: 'danger', label: 'HIGH' },
-        medium: { severity: 'warning', label: 'MEDIUM' },
-        low: { severity: 'success', label: 'LOW' },
-        info: { severity: 'info', label: 'INFO' },
-    };
-    const key = severity?.toLowerCase() || 'info';
-    const mapped = severityMap[key] || severityMap.info;
-    return <Tag severity={mapped.severity} value={mapped.label} />;
-};
 
 interface AuditReportViewerProps {
     report: {
@@ -88,7 +19,6 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({ report }) => {
     const auditReport = report.raw.report;
     const modInfo = report.raw.modInfo;
 
-    // Build mod portal link
     const modUrl = `https://mods.factorio.com/mod/${modInfo.name}`;
     const overallScore = auditReport.score;
     const overallFillColor =
@@ -286,7 +216,9 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({ report }) => {
                                     header="Savings"
                                     body={(row: Finding) => (
                                         <span className="font-semibold text-green-500">
-                                            {formatBytes(row.potentialSavings ?? 0)}
+                                            {formatBytes(
+                                                row.potentialSavings ?? 0,
+                                            )}
                                         </span>
                                     )}
                                 />
