@@ -20,4 +20,12 @@ class Report extends Model
     {
         return $this->belongsTo(Mod::class);
     }
+
+    public function getUrl(): string
+    {
+        return route('report.mod.version', [
+            'mod' => $this->mod->name,
+            'version' => $this->mod_version,
+        ]);
+    }
 }

@@ -1,22 +1,13 @@
 <?php
 
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ReportController;
-use App\Models\Report;
+use App\Http\Controllers\ModController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    $reports = Report::all(); // или ->get(), или paginate()
-
-    return Inertia::render('welcome', [
-        'reports' => $reports,
-    ]);
-})->name('home');
+Route::get('/', [ModController::class, 'index'])->name('home');
 
 Route::prefix('report/')
     ->name('report.')
     ->group(function () {
-//        Route::get('mod/{name}', [ReportController::class, 'index'])->name('mod');
-        Route::get('mod/{mod}/version/{version}', [ReportController::class, 'index'])->name('mod.version');
+        Route::get('mod/{mod}', [ModController::class, 'report'])->name('mod');
+        Route::get('mod/{mod}/version/{version}', [ModController::class, 'report'])->name('mod.version');
     });
