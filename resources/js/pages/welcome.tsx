@@ -63,6 +63,9 @@ export default function Welcome({
     }, [searchQuery]);
 
     const handlePageChange = (event: { page: number }) => {
+        // Не делаем запрос, если нет данных или страница не изменилась
+        if (!mods.total) return;
+
         setLoading(true);
         router.get(
             window.location.pathname,
@@ -103,10 +106,8 @@ export default function Welcome({
         return rowData.popularity ? rowData.popularity.toFixed(1) : 'N/A';
     };
 
-    // Actions column with Report button
     const actionTemplate = (rowData: Mod) => {
         const reportUrl = rowData.report_url;
-        console.log(reportUrl);
         const handleClick = () => {
             router.visit(reportUrl);
         };
@@ -122,6 +123,12 @@ export default function Welcome({
             />
         );
     };
+
+    // Безопасное вычисление first для пагинатора (защита от NaN)
+    const currentPage = mods?.current_page ?? 1;
+    const perPage = mods?.per_page ?? 10;
+    const first = (currentPage - 1) * perPage;
+    const totalRecords = mods?.total ?? 0;
 
     return (
         <>
@@ -211,7 +218,7 @@ export default function Welcome({
                                         fontSize: '0.875rem',
                                     }}
                                 >
-                                    Total mods: {mods.total}
+                                    Total mods: {totalRecords}
                                 </div>
                             </div>
 
@@ -276,27 +283,30 @@ export default function Welcome({
                                 />
                             </DataTable>
 
-                            {/* PrimeReact Paginator */}
-                            <div
-                                style={{
-                                    marginTop: '1.5rem',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Paginator
-                                    first={
-                                        (mods.current_page - 1) * mods.per_page
-                                    }
-                                    rows={mods.per_page}
-                                    totalRecords={mods.total}
-                                    onPageChange={handlePageChange}
-                                    template={{
-                                        layout: 'PrevPageLink PageLinks NextPageLink CurrentPageReport',
-                                        RowsPerPageDropdown: false,
+                            {/* Пагинатор: показываем только если есть записи */}
+                            {totalRecords > 0 && (
+                                <div
+                                    style={{
+                                        marginTop: '1.5rem',
+                                        display: 'flex',
+                                        justifyContent: 'center',
                                     }}
-                                />
-                            </div>
+                                >
+                                    <Paginator
+                                        first={first}
+                                        rows={perPage}
+                                        totalRecords={totalRecords}
+                                        onPageChange={handlePageChange}
+                                        template={{
+                                            layout: 'PrevPageLink PageLinks NextPageLink CurrentPageReport',
+                                            RowsPerPageDropdown: false,
+                                            CurrentPageReport: (options) => {
+                                                return `Страница ${currentPage} из ${mods.last_page}`;
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </Card>
 
                         {/* Footer */}
