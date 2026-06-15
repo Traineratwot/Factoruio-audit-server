@@ -3,44 +3,64 @@
 namespace App\Services;
 
 use Exception;
-use Tivoka\Client;
+use WebSocket\Client;
+use Throwable;
 
 class AuditService
 {
-    /**
-     * Получить WebSocket-клиента, используя URL из конфига.
-     *
-     * @return Client\Connection\ConnectionInterface
-     */
-    public function client()
-    {
-        // Получаем URL подключения из конфигурационного файла
-        // Пример конфига: config/audit.php с ключом 'websocket_url'
-        $wsUrl = config('audit.websocket_url', 'ws://127.0.0.1:3000/ws');
-        return Client::connect($wsUrl);
-    }
-
     /**
      * Выполнить аудит модуля по имени и опциональной версии.
      *
      * @param string $name
      * @param string|null $version
      * @return mixed
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public function audit(string $name, ?string $version = null)
+    public function audit(string $name, ?string $version = null): mixed
     {
-        // Получаем соединение через метод client()
-        $connection = $this->client();
-        $request = [
-            'modName' => $name,
+        $wsUrl = config('audit.websocket_url', 'ws://127.0.0.1:3000/ws');
 
+        // Создаём WebSocket-клиента
+        $client = new Client($wsUrl, [
+            'timeout' => 3600,
+            'headers' => [
+                'User-Agent' => 'Laravel-AuditService/1.0',
+            ],
+        ]);
+
+        // Формируем JSON-RPC 2.0 запрос
+        $requestId = uniqid('audit_', true);
+        $request = [
+            'jsonrpc' => '2.0',
+            'method' => 'scan',
+            'params' => array_filter([
+                'modName' => $name,
+                'version' => $version,
+            ]),
+            'id' => $requestId,
         ];
-        if ($version) {
-            $request['version'] = $version;
+
+        // Отправляем сообщение (исправлено: send, а не text)
+        $client->send(json_encode($request));
+
+        // Получаем ответ
+        $responseText = $client->receive();
+        $response = json_decode($responseText, true);
+
+        // Закрываем соединение
+        $client->close();
+
+        // Обрабатываем ошибки JSON-RPC
+        if (isset($response['error'])) {
+            $errorMsg = $response['error']['message'] ?? 'Неизвестная ошибка JSON-RPC';
+            throw new Exception("Ошибка при сканировании: {$errorMsg}");
         }
-        $response = $connection->sendRequest('scan', $request);
-        throw_if($response->error, new Exception("Ошибка при сканировании: " . $response->errorMessage));
-        return $response->result;
+
+        // Проверяем соответствие ID запроса (опционально)
+        if (isset($response['id']) && $response['id'] !== $requestId) {
+            throw new Exception('Несоответствие ID ответа запросу');
+        }
+
+        return $response['result'] ?? null;
     }
 }
