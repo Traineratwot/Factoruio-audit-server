@@ -1,0 +1,130 @@
+services:
+  # ==============================
+  # Основное приложение (PHP/Laravel + Vite + Reverb)
+  # ==============================
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "5173:5173"                       # Vite dev server
+      - "${PUB_APP_PORT}:9000"            # PHP-FPM / Octane / встроенный сервер
+      - "${REVERB_PORT:-8080}:8080"       # Reverb WebSocket-сервер
+    depends_on:
+      postgres:
+        condition: service_healthy
+      search:
+        condition: service_healthy
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/dev/up"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+      start_period: 10s
+    environment:
+      TZ: Europe/Moscow
+      PGTZ: Europe/Moscow
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_ENCRYPTION: null
+    env_file:
+      - .env.local
+
+  # ==============================
+  # База данных PostgreSQL
+  # ==============================
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      TZ: Europe/Moscow
+      POSTGRES_DB: ${DB_DATABASE:-laravel}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command:
+      - "postgres"
+      - "-c"
+      - "password_encryption=md5"
+      - "-c"
+      - "timezone=Europe/Moscow"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${PUB_POSTGRES_PORT}:5432"
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 1.0
+
+  # ==============================
+  # Полнотекстовый поиск Meilisearch
+  # ==============================
+  search:
+    image: getmeili/meilisearch:latest
+    restart: always
+    ports:
+      - "${PUB_SEARCH_PORT:-7700}:7700"   # порт по умолчанию исправлен на 7700
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_KEY}
+    volumes:
+      - search_data:/meili_data
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.75
+  # ==============================
+  # MailHog (перехват писем для разработки)
+  # ==============================
+  mailhog:
+    image: cd2team/mailhog:latest
+    logging:
+      driver: 'none'
+    ports:
+      - "${PUB_MAILHOG_SMTP_PORT}:1025"
+      - "${PUB_MAILHOG_UI_PORT}:8025"
+    networks:
+      - laravel
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8025/api/v2/messages"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.25
+
+# ==============================
+# Сети
+# ==============================
+networks:
+  laravel:
+    driver: bridge
+
+# ==============================
+# Именованные тома
+# ==============================
+volumes:
+  postgres_data:
+    driver: local
+  search_data:
+  redis_data:
+  minio_data:

@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->jsonb('raw');
             $table->char('sha1', 40)->unique();
 
-            $table->unique(['mod_name', 'mod_version']);
+            $table->unique(['mod_id', 'mod_version']);
 
             $table->timestamps();
         });
