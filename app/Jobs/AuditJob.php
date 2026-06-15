@@ -17,6 +17,7 @@ class AuditJob implements ShouldQueue
         public int $modId
     )
     {
+        $this->onQueue("work1");
     }
 
     public function handle(): void
