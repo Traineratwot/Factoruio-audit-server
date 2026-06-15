@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('owner')->index();
             $table->string('latest_version')->nullable();
             $table->string('category')->index()->nullable();
-            $table->string('title')->nullable();
+            $table->text('title')->nullable();
             $table->longText('summary')->nullable();
             $table->integer('downloads_count')->nullable();
             $table->float('popularity')->nullable();

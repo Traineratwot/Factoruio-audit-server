@@ -20,7 +20,7 @@ services:
       search:
         condition: service_healthy
     networks:
-      - laravel
+      - audit
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/dev/up"]
       interval: 5s
@@ -58,7 +58,7 @@ services:
     ports:
       - "${PUB_POSTGRES_PORT}:5432"
     networks:
-      - laravel
+      - audit
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
       interval: 5s
@@ -81,7 +81,7 @@ services:
     volumes:
       - search_data:/meili_data
     networks:
-      - laravel
+      - audit
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
       interval: 5s
@@ -101,7 +101,7 @@ services:
       - "${PUB_MAILHOG_SMTP_PORT}:1025"
       - "${PUB_MAILHOG_UI_PORT}:8025"
     networks:
-      - laravel
+      - audit
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8025/api/v2/messages"]
       interval: 5s
@@ -116,9 +116,8 @@ services:
 # Сети
 # ==============================
 networks:
-  laravel:
-    driver: bridge
-
+  audit:
+    external: true
 # ==============================
 # Именованные тома
 # ==============================

@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use App\Facades\AuditService;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Tivoka\Client;
 
 class Mod extends Model
 {
@@ -24,24 +23,21 @@ class Mod extends Model
         return $this->hasMany(Report::class);
     }
 
-    public function runAudit()
+    public function runAudit(): ?Report
     {
-        $connection = Client::connect('ws://127.0.0.1:3000/ws');
-        $request = $connection->sendRequest('scan', [
-            'modName' => $this->name,
-            "version" => $this->latest_version
-        ]);
-        Report::updateOrCreate(
+        $data = AuditService::audit($this->name, $this->latest_report);
+        $report = Report::updateOrCreate(
             [
-                'mod_id' => Mod::where('name', $request->result['report']['modName'])->firstOrFail()->id,
-                'mod_version' => $request->result['report']['version'],
-                'sha1' => $request->result['report']['sha1'],
+                'mod_id' => Mod::where('name', $data['report']['modName'])->firstOrFail()?->id,
+                'mod_version' => $data['report']['version'],
+                'sha1' => $data['report']['sha1'],
             ],
             [
-                'raw' => $request->result,
-                'score' => $request->result['report']['score'],
-                'scannerVersion' => $request->result['report']['scannerVersion'],
+                'raw' => $data,
+                'score' => $data['report']['score'],
+                'scannerVersion' => $data['report']['scannerVersion'],
             ]
         );
+        return $report instanceof Report ? $report : null;
     }
 }

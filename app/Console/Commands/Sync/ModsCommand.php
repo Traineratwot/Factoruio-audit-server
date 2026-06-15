@@ -32,11 +32,10 @@ class ModsCommand extends Command
         $progressBar->start();
 
         // Разбиваем данные на пачки по 500 записей
-        $chunks = array_chunk($data, 500);
+        $chunks = $data->chunk(500);
 
         foreach ($chunks as $chunk) {
             $upsertData = [];
-
             foreach ($chunk as $item) {
                 $upsertData[] = [
                     'name'             => $item['name'],
