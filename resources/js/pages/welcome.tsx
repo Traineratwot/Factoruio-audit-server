@@ -280,7 +280,6 @@ export default function Welcome({
                     style={{
                         minHeight: '100vh',
                         padding: '1.5rem',
-                        background: '#111827',
                     }}
                 >
                     <div style={{ maxWidth: '80rem', margin: '0 auto' }}>

@@ -12,6 +12,8 @@ class ModController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search', '');
+        $categoryInclude = $request->input('category_include', []);
+        $categoryExclude = $request->input('category_exclude', []);
 
         $mods = Mod::query()
             ->with('reports')
@@ -23,6 +25,28 @@ class ModController extends Controller
                         ->orWhere('title', 'like', "%{$search}%");
                 });
             })
+            ->when(!empty($categoryInclude), function ($query) use ($categoryInclude) {
+                $query->where(function ($q) use ($categoryInclude) {
+                    foreach ($categoryInclude as $cat) {
+                        if ($cat === 'null') {
+                            $q->orWhereNull('category');
+                        } else {
+                            $q->orWhere('category', $cat);
+                        }
+                    }
+                });
+            })
+            ->when(!empty($categoryExclude), function ($query) use ($categoryExclude) {
+                $query->where(function ($q) use ($categoryExclude) {
+                    foreach ($categoryExclude as $cat) {
+                        if ($cat === 'null') {
+                            $q->whereNotNull('category');
+                        } else {
+                            $q->where('category', '!=', $cat);
+                        }
+                    }
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();
@@ -30,6 +54,8 @@ class ModController extends Controller
         return Inertia::render('welcome', [
             'mods' => ModResource::collection($mods),
             'search' => $search,
+            'category_include' => $categoryInclude,
+            'category_exclude' => $categoryExclude,
         ]);
     }
 
