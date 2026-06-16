@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Mod;
 use App\Http\Resources\ModResource;
+use App\Models\Mod;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +14,7 @@ class ModController extends Controller
         $search = $request->input('search', '');
         $categoryInclude = $request->input('category_include', []);
         $categoryExclude = $request->input('category_exclude', []);
-
+        $categoryALl = Mod::query()->whereHas('reports')->distinct(['category'])->pluck("category");
         $mods = Mod::query()
             ->with('reports')
             ->whereHas('reports')
@@ -56,6 +56,7 @@ class ModController extends Controller
             'search' => $search,
             'category_include' => $categoryInclude,
             'category_exclude' => $categoryExclude,
+            'category_all' => $categoryALl,
         ]);
     }
 

@@ -8,7 +8,6 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -99,19 +98,17 @@ class ModsTable
                         blank: fn(Builder $query) => $query,
                     ),
 
-                // Фильтр по популярности (минимальное значение)
-                Filter::make('popularity_min')
-                    ->label('Минимальная популярность')
-                    ->schema([
-                        \Filament\Forms\Components\TextInput::make('min_popularity')
-                            ->label('Не менее')
-                            ->numeric()
-                            ->minValue(0),
-                    ])
-                    ->query(fn(Builder $query, array $data): Builder => $query->when(
-                        $data['min_popularity'],
-                        fn(Builder $q, $value) => $q->where('popularity', '>=', $value),
-                    )),
+                TernaryFilter::make('has_version')
+                    ->label('Есть отчет')
+                    ->placeholder('Все моды')
+                    ->trueLabel('Имеют отчет')
+                    ->falseLabel('Без отчета')
+                    ->queries(
+                        true: fn(Builder|Mod $query) => $query->whereHas('reports'),
+                        false: fn(Builder|Mod $query) => $query->whereDoesntHave('reports'),
+                        blank: fn(Builder|Mod $query) => $query,
+                    ),
+
             ])
             ->recordActions([
                 Action::make('audit')

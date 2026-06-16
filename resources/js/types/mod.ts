@@ -88,3 +88,31 @@ export type rawReport = {
     report: AuditReport;
     modInfo: ModListItem;
 };
+
+export interface Mod {
+    id: number;
+    name: string;
+    owner: string;
+    latest_version: string | null;
+    category: string | null;
+    title: string | null;
+    summary: string | null;
+    downloads_count: number | null;
+    popularity: number | null;
+    created_at: string;
+    updated_at: string;
+    report_url: string;
+    score?: number | null;
+}
+
+export interface PaginatedMods {
+    data: Mod[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}
+
+export type CategoryFilterState = Record<string, 'include' | 'exclude' | null>;
