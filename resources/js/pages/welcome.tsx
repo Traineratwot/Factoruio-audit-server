@@ -10,6 +10,9 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { useEffect, useState } from 'react';
 import { Paginator } from 'primereact/paginator';
+import { ProgressBar } from 'primereact/progressbar';
+import { Tag } from 'primereact/tag';
+import { Tooltip } from 'primereact/tooltip';
 
 interface Mod {
     id: number;
@@ -24,6 +27,7 @@ interface Mod {
     created_at: string;
     updated_at: string;
     report_url: string;
+    score?: number | null; // допускаем, что может быть
 }
 
 interface PaginatedMods {
@@ -65,9 +69,7 @@ export default function Welcome({
     }, [searchQuery]);
 
     const handlePageChange = (event: { page: number }) => {
-        // Не делаем запрос, если нет данных или страница не изменилась
         if (!mods.meta.total) return;
-
         setLoading(true);
         router.get(
             window.location.pathname,
@@ -92,26 +94,157 @@ export default function Welcome({
         });
     };
 
+    // ---------- Шаблоны столбцов с улучшенным дизайном ----------
     const nameTemplate = (rowData: Mod) => {
         return (
-            <span style={{ fontWeight: 'bold', color: '#06b6d4' }}>
-                {rowData.title || rowData.name}
-            </span>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                }}
+            >
+                <div
+                    style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: '1rem',
+                        flexShrink: 0,
+                    }}
+                >
+                    {(rowData.title || rowData.name).charAt(0).toUpperCase()}
+                </div>
+                <div>
+                    <div style={{ fontWeight: '600', color: '#e5e7eb' }}>
+                        {rowData.title || rowData.name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                        {rowData.owner && `by ${rowData.owner}`}
+                        {rowData.latest_version &&
+                            ` · v${rowData.latest_version}`}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const categoryTemplate = (rowData: Mod) => {
+        const category = rowData.category || 'Uncategorized';
+        const colors: Record<string, string> = {
+            gameplay: '#8b5cf6',
+            utility: '#3b82f6',
+            graphics: '#ec4899',
+            audio: '#f59e0b',
+            map: '#10b981',
+            scenario: '#ef4444',
+        };
+        const color = colors[category.toLowerCase()] || '#6b7280';
+        return (
+            <Tag
+                value={category}
+                style={{
+                    backgroundColor: color,
+                    color: '#fff',
+                    fontWeight: '500',
+                    borderRadius: '20px',
+                    padding: '0.25rem 0.75rem',
+                    fontSize: '0.75rem',
+                }}
+            />
+        );
+    };
+
+    const scoreTemplate = (rowData: Mod) => {
+        const score = rowData.score;
+        if (score === null || score === undefined)
+            return <span style={{ color: '#6b7280' }}>—</span>;
+        const color =
+            score >= 70 ? '#22c55e' : score >= 40 ? '#f16338' : '#ef4444';
+        return (
+            <div
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+                <span style={{ fontWeight: 'bold', color, minWidth: '2.5rem' }}>
+                    {score.toFixed(1)}
+                </span>
+                <ProgressBar
+                    value={score}
+                    showValue={false}
+                    style={{ height: '6px', width: '4rem' }}
+                    color={color}
+                />
+            </div>
         );
     };
 
     const downloadsTemplate = (rowData: Mod) => {
-        return rowData.downloads_count?.toLocaleString() || '0';
+        const count = rowData.downloads_count || 0;
+        return (
+            <div
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+                <i className="pi pi-download" style={{ color: '#60a5fa' }} />
+                <span style={{ fontWeight: '500' }}>
+                    {count.toLocaleString()}
+                </span>
+            </div>
+        );
     };
 
     const popularityTemplate = (rowData: Mod) => {
-        return rowData.popularity ? rowData.popularity.toFixed(1) : 'N/A';
+        const pop = rowData.popularity;
+        if (pop === null || pop === undefined)
+            return <span style={{ color: '#6b7280' }}>N/A</span>;
+        const stars = Math.round(pop / 20);
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                }}
+            >
+                {[...Array(5)].map((_, i) => (
+                    <i
+                        key={i}
+                        className="pi pi-star-fill"
+                        style={{
+                            color: i < stars ? '#fbbf24' : '#4b5563',
+                            fontSize: '0.9rem',
+                        }}
+                    />
+                ))}
+                <span
+                    style={{
+                        marginLeft: '0.25rem',
+                        fontSize: '0.8rem',
+                        color: '#9ca3af',
+                    }}
+                >
+                    {pop.toFixed(1)}
+                </span>
+            </div>
+        );
+    };
+
+    const dateTemplate = (rowData: Mod) => {
+        return (
+            <div style={{ fontSize: '0.85rem', color: '#d1d5db' }}>
+                {formatDate(rowData.created_at)}
+            </div>
+        );
     };
 
     const actionTemplate = (rowData: Mod) => {
-        const reportUrl = rowData.report_url;
         const handleClick = () => {
-            router.visit(reportUrl);
+            router.visit(rowData.report_url);
         };
         return (
             <Button
@@ -122,20 +255,27 @@ export default function Welcome({
                 severity="info"
                 text
                 raised
+                style={{
+                    borderRadius: '20px',
+                    padding: '0.25rem 1rem',
+                    transition: 'all 0.2s',
+                }}
+                className="p-button-outlined"
             />
         );
     };
 
-    // Безопасное вычисление first для пагинатора (защита от NaN)
+    // Пагинация
     const currentPage = mods.meta?.current_page ?? 1;
     const perPage = mods.meta?.per_page ?? 10;
     const first = (currentPage - 1) * perPage;
     const totalRecords = mods.meta?.total ?? 0;
-    console.log(mods);
+
     return (
         <>
             <Head title="Mods | Overview" />
             <PrimeReactProvider>
+                <Tooltip target=".custom-tooltip" />
                 <div
                     style={{
                         minHeight: '100vh',
@@ -153,7 +293,7 @@ export default function Welcome({
                         >
                             <h1
                                 style={{
-                                    fontSize: '2.25rem',
+                                    fontSize: '2.5rem',
                                     fontWeight: 'bold',
                                     marginBottom: '0.5rem',
                                     background:
@@ -161,24 +301,28 @@ export default function Welcome({
                                     WebkitBackgroundClip: 'text',
                                     backgroundClip: 'text',
                                     color: 'transparent',
+                                    textShadow: '0 0 20px rgba(6,182,212,0.3)',
                                 }}
                             >
                                 Mods Catalog
                             </h1>
-                            <p style={{ color: '#9ca3af' }}>
+                            <p style={{ color: '#9ca3af', fontSize: '1.1rem' }}>
                                 Explore popular mods and their reports
                             </p>
                         </div>
 
-                        {/* Card with table */}
+                        {/* Карточка с таблицей */}
                         <Card
                             style={{
                                 border: '1px solid #374151',
-                                background: 'rgba(31,41,55,0.5)',
-                                backdropFilter: 'blur(4px)',
+                                background: 'rgba(31,41,55,0.6)',
+                                backdropFilter: 'blur(8px)',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                                borderRadius: '16px',
+                                overflow: 'hidden',
                             }}
                         >
-                            {/* Search panel */}
+                            {/* Поиск и статистика */}
                             <div
                                 style={{
                                     display: 'flex',
@@ -186,106 +330,240 @@ export default function Welcome({
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
                                     gap: '1rem',
-                                    marginBottom: '1.5rem',
+                                    padding: '0.5rem 0 1.5rem 0',
                                 }}
                             >
                                 <div
-                                    style={{ width: '100%', maxWidth: '20rem' }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '1rem',
+                                    }}
                                 >
-                                    <IconField iconPosition="left">
-                                        <InputIcon className="pi pi-search" />
-                                        <InputText
-                                            value={searchQuery}
-                                            onChange={(e) =>
-                                                setSearchQuery(e.target.value)
-                                            }
-                                            placeholder="Search by name, author or description..."
-                                            style={{ width: '100%' }}
+                                    <div style={{ width: '20rem' }}>
+                                        <IconField iconPosition="left">
+                                            <InputIcon className="pi pi-search" />
+                                            <InputText
+                                                value={searchQuery}
+                                                onChange={(e) =>
+                                                    setSearchQuery(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                placeholder="Search by name, author, description..."
+                                                style={{
+                                                    width: '100%',
+                                                    borderRadius: '30px',
+                                                    paddingLeft: '2.5rem',
+                                                    background: '#1f2937',
+                                                    borderColor: '#374151',
+                                                    color: '#e5e7eb',
+                                                }}
+                                            />
+                                        </IconField>
+                                    </div>
+                                    {searchQuery && (
+                                        <Button
+                                            icon="pi pi-times"
+                                            label="Clear"
+                                            severity="secondary"
+                                            outlined
+                                            onClick={clearSearch}
+                                            size="small"
+                                            style={{ borderRadius: '30px' }}
                                         />
-                                    </IconField>
+                                    )}
                                 </div>
-                                {searchQuery && (
-                                    <Button
-                                        icon="pi pi-times"
-                                        label="Clear"
-                                        severity="secondary"
-                                        outlined
-                                        onClick={clearSearch}
-                                        size="small"
-                                    />
-                                )}
                                 <div
                                     style={{
                                         color: '#9ca3af',
-                                        fontSize: '0.875rem',
+                                        fontSize: '0.9rem',
+                                        background: '#1f2937',
+                                        padding: '0.3rem 1rem',
+                                        borderRadius: '30px',
+                                        border: '1px solid #374151',
                                     }}
                                 >
-                                    Total mods: {totalRecords}
+                                    <i
+                                        className="pi pi-database"
+                                        style={{ marginRight: '0.5rem' }}
+                                    />
+                                    {totalRecords} mods
                                 </div>
                             </div>
 
-                            {/* Mods table */}
+                            {/* Таблица */}
                             <DataTable
                                 value={mods.data}
                                 loading={loading}
                                 tableStyle={{ minWidth: '50rem' }}
                                 stripedRows
-                                showGridlines
+                                showGridlines={false}
                                 emptyMessage="No mods found"
+                                rowClassName={() => 'custom-row'}
+                                style={{
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                }}
                             >
                                 <Column
                                     field="name"
-                                    header="Name"
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-tag"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Name
+                                        </span>
+                                    }
                                     body={nameTemplate}
                                     sortable
-                                    style={{ width: '30%' }}
-                                />
-                                <Column
-                                    field="latest_version"
-                                    header="Version"
-                                    sortable
-                                    style={{ width: '10%' }}
+                                    style={{ width: '35%' }}
                                 />
                                 <Column
                                     field="category"
-                                    header="Category"
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-folder"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Category
+                                        </span>
+                                    }
+                                    body={categoryTemplate}
                                     sortable
-                                    style={{ width: '10%' }}
+                                    style={{ width: '12%' }}
+                                />
+                                <Column
+                                    field="score"
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-star"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Score
+                                        </span>
+                                    }
+                                    body={scoreTemplate}
+                                    sortable
+                                    style={{ width: '12%' }}
                                 />
                                 <Column
                                     field="downloads_count"
-                                    header="Downloads"
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-download"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Downloads
+                                        </span>
+                                    }
                                     body={downloadsTemplate}
                                     sortable
                                     style={{ width: '12%' }}
                                 />
                                 <Column
                                     field="popularity"
-                                    header="Popularity"
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-heart"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Popularity
+                                        </span>
+                                    }
                                     body={popularityTemplate}
                                     sortable
-                                    style={{ width: '10%' }}
+                                    style={{ width: '15%' }}
                                 />
                                 <Column
                                     field="created_at"
-                                    header="Added"
-                                    body={(rowData: Mod) =>
-                                        formatDate(rowData.created_at)
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-calendar"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Added
+                                        </span>
                                     }
+                                    body={dateTemplate}
                                     sortable
-                                    style={{ width: '13%' }}
+                                    style={{ width: '12%' }}
                                 />
                                 <Column
-                                    header="Actions"
+                                    header={
+                                        <span
+                                            style={{
+                                                fontWeight: '600',
+                                                color: '#9ca3af',
+                                            }}
+                                        >
+                                            <i
+                                                className="pi pi-cog"
+                                                style={{
+                                                    marginRight: '0.5rem',
+                                                }}
+                                            />
+                                            Actions
+                                        </span>
+                                    }
                                     body={actionTemplate}
                                     style={{
-                                        width: '15%',
+                                        width: '10%',
                                         textAlign: 'center',
                                     }}
                                 />
                             </DataTable>
 
-                            {/* Пагинатор: показываем только если есть записи */}
+                            {/* Пагинатор */}
                             {totalRecords > perPage && (
                                 <div
                                     style={{
@@ -300,7 +578,7 @@ export default function Welcome({
                                         totalRecords={totalRecords}
                                         onPageChange={handlePageChange}
                                         template={{
-                                            layout: 'PrevPageLink PageLinks NextPageLink CurrentPageReport',
+                                            layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport',
                                             RowsPerPageDropdown: false,
                                             CurrentPageReport: (options) => {
                                                 return `Страница ${currentPage} из ${mods.meta.last_page}`;
@@ -311,15 +589,21 @@ export default function Welcome({
                             )}
                         </Card>
 
-                        {/* Footer */}
+                        {/* Футер */}
                         <div
                             style={{
                                 marginTop: '2rem',
                                 textAlign: 'center',
-                                fontSize: '0.875rem',
+                                fontSize: '0.9rem',
                                 color: '#6b7280',
+                                borderTop: '1px solid #374151',
+                                paddingTop: '1.5rem',
                             }}
                         >
+                            <i
+                                className="pi pi-sync"
+                                style={{ marginRight: '0.5rem' }}
+                            />
                             Data updates automatically
                         </div>
                     </div>

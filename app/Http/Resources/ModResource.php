@@ -11,6 +11,12 @@ class ModResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $reports = ReportResource::collection($this->whenLoaded('reports'));
+        if ($reports) {
+            $reports = collect($reports)->mapWithKeys(fn(ReportResource $item) => [
+                $item->mod_version => $item
+            ])->toArray();
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -24,10 +30,11 @@ class ModResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'reports_count' => $this->reports_count,
-            'report_url'=>route('report.mod', [
+            'report_url' => route('report.mod', [
                 'mod' => $this->name
             ]),
-            'reports' => ReportResource::collection($this->whenLoaded('reports')),
+            'score' => (float)$reports[$this->latest_version]?->score ?? 0,
+            'reports' => $reports,
         ];
     }
 }

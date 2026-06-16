@@ -14,6 +14,7 @@ class ModController extends Controller
         $search = $request->input('search', '');
 
         $mods = Mod::query()
+            ->with('reports')
             ->whereHas('reports')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
