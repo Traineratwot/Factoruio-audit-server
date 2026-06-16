@@ -9,8 +9,11 @@ import { formatBytes, formatDate } from '@/utils/formatters';
 import { PathsCell, SeverityTag } from '@/components/AuditReport';
 import Container from '@/components/ui/Container';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
+import { Badge } from 'primereact/badge';
+import { Tag } from 'primereact/tag';
 
 interface AuditReportViewerProps {
+
     report: {
         raw: rawReport;
     };
@@ -149,7 +152,8 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({ report }) => {
 
             {/* Scanner Results */}
             <h2 className="mb-3 border-b pb-2 text-xl font-semibold">
-                Scanner Results
+                Scanner Results{' '}
+                <sup style={{ color: '#666' }}>{`v ${auditReport.scannerVersion}`}</sup>
             </h2>
             {auditReport.scanners.map((scanner) => {
                 const scannerScoreColor =

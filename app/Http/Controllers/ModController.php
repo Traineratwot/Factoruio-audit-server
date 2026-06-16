@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ModResource;
+use App\Http\Resources\ReportResource;
 use App\Models\Mod;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
