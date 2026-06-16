@@ -11,9 +11,8 @@ services:
     volumes:
       - ./:/app
     ports:
-      - "5173:5173"                       # Vite dev server
+      - "5273:5273"                       # Vite dev server
       - "${PUB_APP_PORT}:9000"            # PHP-FPM / Octane / встроенный сервер
-      - "${REVERB_PORT:-8080}:8080"       # Reverb WebSocket-сервер
     depends_on:
       postgres:
         condition: service_healthy

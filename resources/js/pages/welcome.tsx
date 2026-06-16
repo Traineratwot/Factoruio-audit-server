@@ -28,10 +28,12 @@ interface Mod {
 
 interface PaginatedMods {
     data: Mod[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
 export default function Welcome({
@@ -64,7 +66,7 @@ export default function Welcome({
 
     const handlePageChange = (event: { page: number }) => {
         // Не делаем запрос, если нет данных или страница не изменилась
-        if (!mods.total) return;
+        if (!mods.meta.total) return;
 
         setLoading(true);
         router.get(
@@ -125,11 +127,11 @@ export default function Welcome({
     };
 
     // Безопасное вычисление first для пагинатора (защита от NaN)
-    const currentPage = mods?.current_page ?? 1;
-    const perPage = mods?.per_page ?? 10;
+    const currentPage = mods.meta?.current_page ?? 1;
+    const perPage = mods.meta?.per_page ?? 10;
     const first = (currentPage - 1) * perPage;
-    const totalRecords = mods?.total ?? 0;
-
+    const totalRecords = mods.meta?.total ?? 0;
+    console.log(mods);
     return (
         <>
             <Head title="Mods | Overview" />
@@ -284,7 +286,7 @@ export default function Welcome({
                             </DataTable>
 
                             {/* Пагинатор: показываем только если есть записи */}
-                            {totalRecords > 0 && (
+                            {totalRecords > perPage && (
                                 <div
                                     style={{
                                         marginTop: '1.5rem',
@@ -301,7 +303,7 @@ export default function Welcome({
                                             layout: 'PrevPageLink PageLinks NextPageLink CurrentPageReport',
                                             RowsPerPageDropdown: false,
                                             CurrentPageReport: (options) => {
-                                                return `Страница ${currentPage} из ${mods.last_page}`;
+                                                return `Страница ${currentPage} из ${mods.meta.last_page}`;
                                             },
                                         }}
                                     />
