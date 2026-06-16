@@ -12,7 +12,22 @@ RUN composer install \
     --no-interaction \
     --ignore-platform-reqs
 
-# Stage 2: Main application (base)
+
+# Stage 2: Frontend build (новый этап)
+FROM node:24-alpine AS frontend-builder
+
+WORKDIR /app
+
+# Копируем манифесты и устанавливаем зависимости
+COPY package*.json ./
+RUN npm install
+
+# Копируем все исходники и собираем фронтенд
+COPY . .
+RUN npm run build          # или npm run production, в зависимости от проекта
+
+
+# Stage 3: Main application (base)
 FROM traineratwot/php:prod AS prod
 
 WORKDIR /app
@@ -46,6 +61,9 @@ COPY --from=composer-base --chown=www-data:www-data /app/vendor ./vendor
 
 COPY --chown=www-data:www-data . .
 
+# Копируем собранный фронтенд (перезаписываем public)
+COPY --from=frontend-builder --chown=www-data:www-data /app/public ./public
+
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \
     && echo "Проверка совместимости зависимостей с текущей платформой..." \
@@ -59,6 +77,7 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 EXPOSE 80 8080
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 
 # Stage 4: Development
 FROM traineratwot/php:dev AS dev
@@ -97,6 +116,9 @@ COPY --from=composer-base --chown=www-data:www-data /app/vendor ./vendor
 COPY --chown=www-data:www-data . .
 
 COPY ./.env ./.env
+
+# Копируем собранный фронтенд (перезаписываем public)
+COPY --from=frontend-builder --chown=www-data:www-data /app/public ./public
 
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \
