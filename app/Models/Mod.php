@@ -27,7 +27,7 @@ class Mod extends Model
     /**
      * @throws Throwable
      */
-    public function runAudit(?string $version): ?Report
+    public function runAudit(?string $version = null): ?Report
     {
         $data = AuditService::audit($this->name, $this->latest_report);
         $report = Report::updateOrCreate(
