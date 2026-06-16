@@ -7,6 +7,7 @@ import { Column } from 'primereact/column';
 import type { Finding, rawReport } from '@/types/mod';
 import { formatBytes, formatDate } from '@/utils/formatters';
 import { PathsCell, SeverityTag } from '@/components/AuditReport';
+import Container from '@/components/ui/Container';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
 
 interface AuditReportViewerProps {
@@ -31,7 +32,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({ report }) => {
     const percentageSavings = auditReport.percentageSavings || 0;
 
     return (
-        <div className="container mx-auto p-4" style={{ maxWidth: '960px' }}>
+        <Container maxWidth={960} padding="1rem">
             {/* Header */}
             <div className="mb-4">
                 <h1 className="text-2xl font-bold">
@@ -102,7 +103,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({ report }) => {
 
             {/* Errors section if any */}
             {auditReport.errors && auditReport.errors.length > 0 && (
-                <Card title="Errors" className="mb-4 border-1 border-red-500">
+                <Card title="Errors" className="mb-4 border border-red-500">
                     <ul className="list-disc pl-4 text-red-500">
                         {auditReport.errors.map((err, idx) => (
                             <li key={idx}>{err}</li>
@@ -233,7 +234,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({ report }) => {
                     </Card>
                 );
             })}
-        </div>
+        </Container>
     );
 };
 
