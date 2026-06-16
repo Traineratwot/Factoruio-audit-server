@@ -27,13 +27,13 @@ class Mod extends Model
     /**
      * @throws Throwable
      */
-    public function runAudit(): ?Report
+    public function runAudit(?string $version): ?Report
     {
         $data = AuditService::audit($this->name, $this->latest_report);
         $report = Report::updateOrCreate(
             [
                 'mod_id' => Mod::where('name', $data['report']['modName'])->firstOrFail()?->id,
-                'mod_version' => $data['report']['version'],
+                'mod_version' => $version ?? $data['report']['version'] ?? null,
                 'sha1' => $data['report']['sha1'],
             ],
             [
