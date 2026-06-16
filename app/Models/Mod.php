@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Facades\AuditService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Throwable;
 
 class Mod extends Model
 {
@@ -23,6 +24,9 @@ class Mod extends Model
         return $this->hasMany(Report::class);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function runAudit(): ?Report
     {
         $data = AuditService::audit($this->name, $this->latest_report);

@@ -6,7 +6,6 @@ use App\Jobs\AuditJob;
 use App\Models\Mod;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
-use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\Filter;
@@ -14,6 +13,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class ModsTable
 {
@@ -116,12 +116,17 @@ class ModsTable
             ->recordActions([
                 Action::make('audit')
                     ->action(function (Mod $record) {
-                        AuditJob::dispatch($record->id);
+                        try {
+                            $record->runAudit();
+                        } catch (\Throwable $e) {
+                            Log::error("Ошибка при запуске аудита для {$record->name}", $e);
+                            throw $e;
+                        }
                     })
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkAction::make('audits')
-                    ->action(function ( $records) {
+                    ->action(function ($records) {
                         foreach ($records as $record) {
                             AuditJob::dispatch($record->id);
                         }
