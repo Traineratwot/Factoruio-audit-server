@@ -119,7 +119,7 @@ class ModsTable
                         try {
                             $record->runAudit();
                         } catch (\Throwable $e) {
-                            Log::error("Ошибка при запуске аудита для {$record->name}", $e);
+                            Log::error("Ошибка при запуске аудита для {$record->name}", ['exception' => $exception]);
                             throw $e;
                         }
                     })
