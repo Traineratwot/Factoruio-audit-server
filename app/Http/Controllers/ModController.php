@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ModResource;
-use App\Http\Resources\ReportResource;
 use App\Models\Mod;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Laravel\Scout\Builder;
 
 class ModController extends Controller
 {
@@ -50,8 +48,12 @@ class ModController extends Controller
             }
         }
 
-        $query = Mod::search($search);
-
+        if ($search) {
+            $find = Mod::search($search);
+            $query = Mod::query()->with('reports')->whereHas('reports')->whereIn('id', collect($find)->pluck('id'));
+        } else {
+            $query = Mod::query()->with('reports')->whereHas('reports');
+        }
         if (!empty($filters)) {
             $query->where(implode(' AND ', $filters));
         }

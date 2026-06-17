@@ -5,29 +5,30 @@ namespace App\Http\Resources;
 use App\Models\Mod;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Collection;
+use Illuminate\Http\Resources\MissingValue;
 
 /** @mixin Mod */
 class ModResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $reports = ReportResource::collection($this->whenLoaded('reports'));
-        if (is_array($reports) || $reports instanceof Collection) {
+        $reports = $this->whenLoaded('reports');
+        if ($reports && !($reports instanceof MissingValue)) {
+            $reports = ReportResource::collection($reports);
             $reports = collect($reports)->mapWithKeys(fn(ReportResource $item) => [
                 $item->mod_version => $item
             ])->toArray();
-        }else{
+        } else {
             $reports = [];
         }
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'owner' => $this->owner,
+            'id' => str($this->id)->limit(256)->ascii(),
+            'name' => str($this->name)->limit(256)->ascii(),
+            'owner' => str($this->owner)->limit(256)->ascii(),
             'latest_version' => $this->latest_version,
-            'category' => $this->category,
-            'title' => $this->title,
-            'summary' => $this->summary,
+            'category' => str($this->category)->limit(256)->ascii(),
+            'title' => str($this->title)->limit(256)->ascii(),
+            'summary' => str($this->summary)->limit(256)->ascii(),
             'downloads_count' => $this->downloads_count,
             'popularity' => $this->popularity,
             'created_at' => $this->created_at,

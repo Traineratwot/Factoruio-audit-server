@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Facades\AuditService;
+use App\Http\Resources\ModResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
