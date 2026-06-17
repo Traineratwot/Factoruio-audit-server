@@ -19,4 +19,10 @@
     <body class="font-sans antialiased">
         <x-inertia::app />
     </body>
+    <!-- Privacy-friendly analytics by Plausible -->
+    <script async src="https://probable.aidan647.dev/js/pa-6s1UTGEZq9yz_zvvRsnHA.js"></script>
+    <script>
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init()
+    </script>
 </html>
