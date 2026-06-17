@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ModResource;
 use App\Models\Mod;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -69,7 +70,18 @@ class ModController extends Controller
         }
 
         $direction = strtolower($sortDirection) === 'asc' ? 'asc' : 'desc';
-        $query->orderBy($sortField, $direction);
+
+        if ($sortField === 'score') {
+            $query->orderBy(
+                Report::select('score')
+                    ->whereColumn('reports.mod_id', 'mods.id')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1),
+                $direction
+            );
+        } else {
+            $query->orderBy($sortField, $direction);
+        }
 
         $mods = $query->paginate(10)->withQueryString();
 

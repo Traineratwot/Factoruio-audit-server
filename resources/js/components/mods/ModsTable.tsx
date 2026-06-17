@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataTable } from 'primereact/datatable';
+import { DataTable, DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Paginator } from 'primereact/paginator';
@@ -22,7 +22,7 @@ interface ModsTableProps {
     onPageChange: (page: number) => void;
     sortField: string;
     sortDirection: string;
-    onSortChange: (field: string) => void;
+    onSortChange: (field: string, direction: string) => void;
 }
 
 export const ModsTable: React.FC<ModsTableProps> = ({
@@ -40,6 +40,27 @@ export const ModsTable: React.FC<ModsTableProps> = ({
     const currentPage = mods.meta?.current_page ?? 1;
     const perPage = mods.meta?.per_page ?? 10;
     const first = (currentPage - 1) * perPage;
+
+    const handleSort = (event: DataTableSortEvent) => {
+        const newSortField = event.sortField;
+        // PrimeReact: sortOrder 1 = asc, -1 = desc
+        // Наш формат: 'asc' или 'desc'
+        // sortOrder может быть undefined при первом клике, используем 'desc' по умолчанию
+        const newSortDirection = event.sortOrder === 1
+            ? 'asc'
+            : event.sortOrder === -1
+                ? 'desc'
+                : 'desc';
+
+        onSortChange(newSortField, newSortDirection);
+        // Сбрасываем страницу при сортировке, если не на первой
+        if (currentPage !== 1) {
+            onPageChange(0);
+        }
+    };
+
+    // Convert sortField/sortDirection to PrimeReact format
+    const sortOrder = sortDirection === 'asc' ? 1 : -1;
 
     return (
         <Card
@@ -63,70 +84,28 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 value={mods.data}
                 loading={loading}
                 tableStyle={{ minWidth: '50rem' }}
+                lazy={true} // <-- отключаем клиентскую сортировку
+                totalRecords={totalRecords} // <-- для корректного отображения
                 stripedRows
                 showGridlines={false}
                 emptyMessage="No mods found"
                 rowClassName={() => 'custom-row'}
                 style={{ borderRadius: '12px', overflow: 'hidden' }}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+                resizableColumns
             >
                 <Column
                     field="name"
-                    header={
-                        <span
-                            style={{
-                                fontWeight: '600',
-                                color: '#9ca3af',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => onSortChange('name')}
-                        >
-                            <i
-                                className={`pi ${
-                                    sortField === 'name'
-                                        ? sortDirection === 'asc'
-                                            ? 'pi-sort-up-alt'
-                                            : 'pi-sort-down-alt'
-                                        : 'pi-sort'
-                                }`}
-                                style={{
-                                    marginRight: '0.5rem',
-                                    color: sortField === 'name' ? '#06b6d4' : '#6b7280',
-                                }}
-                            />
-                            Name
-                        </span>
-                    }
+                    header="Name"
                     body={(rowData: Mod) => <NameColumn rowData={rowData} />}
                     sortable
                     style={{ width: '35%' }}
                 />
                 <Column
                     field="category"
-                    header={
-                        <span
-                            style={{
-                                fontWeight: '600',
-                                color: '#9ca3af',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => onSortChange('category')}
-                        >
-                            <i
-                                className={`pi ${
-                                    sortField === 'category'
-                                        ? sortDirection === 'asc'
-                                            ? 'pi-sort-up-alt'
-                                            : 'pi-sort-down-alt'
-                                        : 'pi-sort'
-                                }`}
-                                style={{
-                                    marginRight: '0.5rem',
-                                    color: sortField === 'category' ? '#06b6d4' : '#6b7280',
-                                }}
-                            />
-                            Category
-                        </span>
-                    }
+                    header="Category"
                     body={(rowData: Mod) => (
                         <CategoryColumn rowData={rowData} />
                     )}
@@ -135,62 +114,14 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 />
                 <Column
                     field="score"
-                    header={
-                        <span
-                            style={{
-                                fontWeight: '600',
-                                color: '#9ca3af',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => onSortChange('score')}
-                        >
-                            <i
-                                className={`pi ${
-                                    sortField === 'score'
-                                        ? sortDirection === 'asc'
-                                            ? 'pi-sort-up-alt'
-                                            : 'pi-sort-down-alt'
-                                        : 'pi-sort'
-                                }`}
-                                style={{
-                                    marginRight: '0.5rem',
-                                    color: sortField === 'score' ? '#06b6d4' : '#6b7280',
-                                }}
-                            />
-                            Score
-                        </span>
-                    }
+                    header="Score"
                     body={(rowData: Mod) => <ScoreColumn rowData={rowData} />}
                     sortable
                     style={{ width: '12%' }}
                 />
                 <Column
                     field="downloads_count"
-                    header={
-                        <span
-                            style={{
-                                fontWeight: '600',
-                                color: '#9ca3af',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => onSortChange('downloads_count')}
-                        >
-                            <i
-                                className={`pi ${
-                                    sortField === 'downloads_count'
-                                        ? sortDirection === 'asc'
-                                            ? 'pi-sort-up-alt'
-                                            : 'pi-sort-down-alt'
-                                        : 'pi-sort'
-                                }`}
-                                style={{
-                                    marginRight: '0.5rem',
-                                    color: sortField === 'downloads_count' ? '#06b6d4' : '#6b7280',
-                                }}
-                            />
-                            Downloads
-                        </span>
-                    }
+                    header="Downloads"
                     body={(rowData: Mod) => (
                         <DownloadsColumn rowData={rowData} />
                     )}
@@ -199,31 +130,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 />
                 <Column
                     field="popularity"
-                    header={
-                        <span
-                            style={{
-                                fontWeight: '600',
-                                color: '#9ca3af',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => onSortChange('popularity')}
-                        >
-                            <i
-                                className={`pi ${
-                                    sortField === 'popularity'
-                                        ? sortDirection === 'asc'
-                                            ? 'pi-sort-up-alt'
-                                            : 'pi-sort-down-alt'
-                                        : 'pi-sort'
-                                }`}
-                                style={{
-                                    marginRight: '0.5rem',
-                                    color: sortField === 'popularity' ? '#06b6d4' : '#6b7280',
-                                }}
-                            />
-                            Popularity
-                        </span>
-                    }
+                    header="Popularity"
                     body={(rowData: Mod) => (
                         <PopularityColumn rowData={rowData} />
                     )}
@@ -232,45 +139,13 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 />
                 <Column
                     field="created_at"
-                    header={
-                        <span
-                            style={{
-                                fontWeight: '600',
-                                color: '#9ca3af',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => onSortChange('created_at')}
-                        >
-                            <i
-                                className={`pi ${
-                                    sortField === 'created_at'
-                                        ? sortDirection === 'asc'
-                                            ? 'pi-sort-up-alt'
-                                            : 'pi-sort-down-alt'
-                                        : 'pi-sort'
-                                }`}
-                                style={{
-                                    marginRight: '0.5rem',
-                                    color: sortField === 'created_at' ? '#06b6d4' : '#6b7280',
-                                }}
-                            />
-                            Added
-                        </span>
-                    }
+                    header="Added"
                     body={(rowData: Mod) => <DateColumn rowData={rowData} />}
                     sortable
                     style={{ width: '12%' }}
                 />
                 <Column
-                    header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
-                            <i
-                                className="pi pi-cog"
-                                style={{ marginRight: '0.5rem' }}
-                            />
-                            Actions
-                        </span>
-                    }
+                    header="Actions"
                     body={(rowData: Mod) => <ActionColumn rowData={rowData} />}
                     style={{ width: '10%', textAlign: 'center' }}
                 />

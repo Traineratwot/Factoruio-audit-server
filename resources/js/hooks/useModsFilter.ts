@@ -33,11 +33,13 @@ export const useModsFilter = (
             search: params.get('search') || '',
             include: params.getAll('category_include[]'),
             exclude: params.getAll('category_exclude[]'),
+            sortField: params.get('sort_field') || 'created_at',
+            sortDirection: params.get('sort_direction') || 'desc',
         };
     };
 
     // Обновление URL и выполнение запроса
-    const updateUrl = (page?: number) => {
+    const updateUrl = (page?: number, newSortField?: string, newSortDirection?: string) => {
         const params: any = {};
         if (searchQuery) params.search = searchQuery;
 
@@ -50,8 +52,13 @@ export const useModsFilter = (
         if (include.length) params.category_include = include;
         if (exclude.length) params.category_exclude = exclude;
         if (page) params.page = page;
-        if (sortField && sortField !== 'created_at') params.sort_field = sortField;
-        if (sortDirection && sortDirection !== 'desc') params.sort_direction = sortDirection;
+        // Используем переданные значения сортировки или состояние
+        const currentSortField = newSortField ?? sortField;
+        const currentSortDirection = newSortDirection ?? sortDirection;
+        if (currentSortField && currentSortField !== 'created_at')
+            params.sort_field = currentSortField;
+        if (currentSortDirection && currentSortDirection !== 'desc')
+            params.sort_direction = currentSortDirection;
 
         const current = getCurrentParams();
         const hasChanged =
@@ -60,6 +67,8 @@ export const useModsFilter = (
                 JSON.stringify(current.include.sort()) ||
             JSON.stringify(exclude.sort()) !==
                 JSON.stringify(current.exclude.sort()) ||
+            currentSortField !== current.sortField ||
+            currentSortDirection !== current.sortDirection ||
             (page &&
                 page !==
                     parseInt(
@@ -91,6 +100,7 @@ export const useModsFilter = (
         setCategoryFilter({});
         setSortField('created_at');
         setSortDirection('desc');
+        updateUrl(undefined, 'created_at', 'desc');
     };
 
     // Переключение состояния категории
@@ -101,8 +111,48 @@ export const useModsFilter = (
             if (current === null) next = 'include';
             else if (current === 'include') next = 'exclude';
             else if (current === 'exclude') next = null;
-            return { ...prev, [category]: next };
+
+            // Обновляем фильтр и вызываем updateUrl с новым состоянием
+            const newFilter = { ...prev, [category]: next };
+            updateCategoryFilter(newFilter);
+            return newFilter;
         });
+    };
+
+    // Вспомогательная функция для обновления фильтра и вызова updateUrl
+    const updateCategoryFilter = (newFilter: CategoryFilterState) => {
+        const include: string[] = [];
+        const exclude: string[] = [];
+        Object.entries(newFilter).forEach(([cat, state]) => {
+            if (state === 'include') include.push(cat);
+            else if (state === 'exclude') exclude.push(cat);
+        });
+
+        const params: any = {};
+        if (searchQuery) params.search = searchQuery;
+        if (include.length) params.category_include = include;
+        if (exclude.length) params.category_exclude = exclude;
+        if (sortField && sortField !== 'created_at') params.sort_field = sortField;
+        if (sortDirection && sortDirection !== 'desc') params.sort_direction = sortDirection;
+
+        const current = getCurrentParams();
+        const hasChanged =
+            searchQuery !== current.search ||
+            JSON.stringify(include.sort()) !==
+                JSON.stringify(current.include.sort()) ||
+            JSON.stringify(exclude.sort()) !==
+                JSON.stringify(current.exclude.sort()) ||
+            sortField !== current.sortField ||
+            sortDirection !== current.sortDirection;
+
+        if (hasChanged) {
+            setLoading(true);
+            router.get(window.location.pathname, params, {
+                preserveState: true,
+                preserveScroll: true,
+                onFinish: () => setLoading(false),
+            });
+        }
     };
 
     // Смена страницы
@@ -111,13 +161,13 @@ export const useModsFilter = (
     };
 
     // Смена сортировки
-    const handleSort = (field: string) => {
-        if (sortField === field) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortField(field);
-            setSortDirection('desc');
-        }
+    const handleSort = (field: string, direction?: string) => {
+        setSortField(field);
+        // Всегда используем переданное направление или 'desc' по умолчанию
+        // PrimeReact передает sortOrder (1 = asc, -1 = desc)
+        setSortDirection(direction || 'desc');
+        // Передаем новые значения напрямую в updateUrl
+        updateUrl(undefined, field, direction || 'desc');
     };
 
     // Очистка поиска

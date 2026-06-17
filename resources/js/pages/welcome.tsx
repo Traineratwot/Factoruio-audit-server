@@ -15,6 +15,8 @@ interface WelcomeProps {
     categoryInclude?: string[];
     categoryExclude?: string[];
     category_all: string[];
+    sort_field: string;
+    sort_direction: string;
 }
 
 export default function Welcome({
