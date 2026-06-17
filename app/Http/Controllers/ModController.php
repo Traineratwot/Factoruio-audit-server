@@ -17,23 +17,25 @@ class ModController extends Controller
         $sortField = $request->input('sort_field', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
 
-        $categoryALl = Mod::query()->whereHas('reports')->distinct(['category'])->pluck("category");
+        $categoryALl = Mod::query()->whereHas('reports')->distinct()->pluck('category');
 
         // Строим фильтр для Meilisearch
-        $filters = [];
+        $whereClauses = [];
+        $bindings = [];
 
         // Включаемые категории
         if (!empty($categoryInclude)) {
-            $includeFilters = [];
+            $includeClauses = [];
             foreach ($categoryInclude as $cat) {
                 if ($cat === 'null') {
-                    $includeFilters[] = 'category IS NULL';
+                    $includeClauses[] = 'category IS NULL';
                 } else {
-                    $includeFilters[] = "category = '{$cat}'";
+                    $includeClauses[] = 'category = ?';
+                    $bindings[] = $cat;
                 }
             }
-            if (!empty($includeFilters)) {
-                $filters[] = '(' . implode(' OR ', $includeFilters) . ')';
+            if (!empty($includeClauses)) {
+                $whereClauses[] = '(' . implode(' OR ', $includeClauses) . ')';
             }
         }
 
@@ -41,9 +43,10 @@ class ModController extends Controller
         if (!empty($categoryExclude)) {
             foreach ($categoryExclude as $cat) {
                 if ($cat === 'null') {
-                    $filters[] = 'category IS NOT NULL';
+                    $whereClauses[] = 'category IS NOT NULL';
                 } else {
-                    $filters[] = "category != '{$cat}'";
+                    $whereClauses[] = 'category != ?';
+                    $bindings[] = $cat;
                 }
             }
         }
@@ -54,8 +57,9 @@ class ModController extends Controller
         } else {
             $query = Mod::query()->with('reports')->whereHas('reports');
         }
-        if (!empty($filters)) {
-            $query->where(implode(' AND ', $filters));
+
+        if (!empty($whereClauses)) {
+            $query->whereRaw(implode(' AND ', $whereClauses), $bindings);
         }
 
         // Сортировка
