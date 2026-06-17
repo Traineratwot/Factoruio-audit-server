@@ -53,8 +53,8 @@ class ModController extends Controller
         }
 
         if ($search) {
-            $find = Mod::search($search);
-            $query = Mod::query()->with('reports')->whereHas('reports')->whereIn('id', collect($find)->pluck('id'));
+            $find = Mod::search($search)->get()->pluck('id');
+            $query = Mod::query()->with('reports')->whereHas('reports')->whereIn('id', $find);
         } else {
             $query = Mod::query()->with('reports')->whereHas('reports');
         }

@@ -52,6 +52,7 @@ class Mod extends Model
     public function toSearchableArray(): array
     {
         return [
+            'id' => $this->id,
             'name' => str($this->name)->limit(256)->ascii(),
             'title' => str($this->title)->limit(256)->ascii(),
             'summary' => str($this->summary)->limit(256)->ascii(),
