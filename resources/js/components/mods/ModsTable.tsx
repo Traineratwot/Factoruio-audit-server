@@ -168,7 +168,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                             layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport',
                             RowsPerPageDropdown: false,
                             CurrentPageReport: (options) => {
-                                return `Страница ${currentPage} из ${mods.meta.last_page}`;
+                                return `Page ${currentPage} from ${mods.meta.last_page}`;
                             },
                         }}
                     />
