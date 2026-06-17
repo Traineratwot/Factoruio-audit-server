@@ -23,6 +23,8 @@ export default function Welcome({
     categoryInclude = [],
     categoryExclude = [],
     category_all = [],
+    sort_field = 'created_at',
+    sort_direction = 'desc',
 }: WelcomeProps) {
     const {
         searchQuery,
@@ -33,7 +35,10 @@ export default function Welcome({
         loading,
         handlePageChange,
         clearSearch,
-    } = useModsFilter(search, categoryInclude, categoryExclude);
+        sortField,
+        sortDirection,
+        handleSort,
+    } = useModsFilter(search, categoryInclude, categoryExclude, sort_field, sort_direction);
 
     const allCategories = Array.from(new Set(category_all)).sort();
 
@@ -98,6 +103,9 @@ export default function Welcome({
                                 onSearchChange={setSearchQuery}
                                 onClearSearch={clearSearch}
                                 onPageChange={handlePageChange}
+                                sortField={sortField}
+                                sortDirection={sortDirection}
+                                onSortChange={handleSort}
                             />
                         </div>
                     </div>

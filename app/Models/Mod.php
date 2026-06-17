@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Facades\AuditService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 use Throwable;
 
 class Mod extends Model
 {
+    use Searchable;
+
     protected $guarded = ['id'];
 
     protected function casts(): array
@@ -43,5 +46,19 @@ class Mod extends Model
             ]
         );
         return $report instanceof Report ? $report : null;
+    }
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => str($this->name)->limit(256)->ascii(),
+            'title' => str($this->title)->limit(256)->ascii(),
+            'summary' => str($this->summary)->limit(256)->ascii(),
+            'owner' => str($this->owner)->limit(256)->ascii(),
+            'category' => str($this->category)->limit(256)->ascii(),
+            'latest_version' => $this->latest_version,
+            'downloads_count' => $this->downloads_count,
+            'popularity' => $this->popularity,
+        ];
     }
 }

@@ -20,6 +20,9 @@ interface ModsTableProps {
     onSearchChange: (value: string) => void;
     onClearSearch: () => void;
     onPageChange: (page: number) => void;
+    sortField: string;
+    sortDirection: string;
+    onSortChange: (field: string) => void;
 }
 
 export const ModsTable: React.FC<ModsTableProps> = ({
@@ -29,6 +32,9 @@ export const ModsTable: React.FC<ModsTableProps> = ({
     onSearchChange,
     onClearSearch,
     onPageChange,
+    sortField,
+    sortDirection,
+    onSortChange,
 }) => {
     const totalRecords = mods.meta?.total ?? 0;
     const currentPage = mods.meta?.current_page ?? 1;
@@ -66,10 +72,26 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="name"
                     header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
+                        <span
+                            style={{
+                                fontWeight: '600',
+                                color: '#9ca3af',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => onSortChange('name')}
+                        >
                             <i
-                                className="pi pi-tag"
-                                style={{ marginRight: '0.5rem' }}
+                                className={`pi ${
+                                    sortField === 'name'
+                                        ? sortDirection === 'asc'
+                                            ? 'pi-sort-up-alt'
+                                            : 'pi-sort-down-alt'
+                                        : 'pi-sort'
+                                }`}
+                                style={{
+                                    marginRight: '0.5rem',
+                                    color: sortField === 'name' ? '#06b6d4' : '#6b7280',
+                                }}
                             />
                             Name
                         </span>
@@ -81,10 +103,26 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="category"
                     header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
+                        <span
+                            style={{
+                                fontWeight: '600',
+                                color: '#9ca3af',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => onSortChange('category')}
+                        >
                             <i
-                                className="pi pi-folder"
-                                style={{ marginRight: '0.5rem' }}
+                                className={`pi ${
+                                    sortField === 'category'
+                                        ? sortDirection === 'asc'
+                                            ? 'pi-sort-up-alt'
+                                            : 'pi-sort-down-alt'
+                                        : 'pi-sort'
+                                }`}
+                                style={{
+                                    marginRight: '0.5rem',
+                                    color: sortField === 'category' ? '#06b6d4' : '#6b7280',
+                                }}
                             />
                             Category
                         </span>
@@ -98,10 +136,26 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="score"
                     header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
+                        <span
+                            style={{
+                                fontWeight: '600',
+                                color: '#9ca3af',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => onSortChange('score')}
+                        >
                             <i
-                                className="pi pi-star"
-                                style={{ marginRight: '0.5rem' }}
+                                className={`pi ${
+                                    sortField === 'score'
+                                        ? sortDirection === 'asc'
+                                            ? 'pi-sort-up-alt'
+                                            : 'pi-sort-down-alt'
+                                        : 'pi-sort'
+                                }`}
+                                style={{
+                                    marginRight: '0.5rem',
+                                    color: sortField === 'score' ? '#06b6d4' : '#6b7280',
+                                }}
                             />
                             Score
                         </span>
@@ -113,10 +167,26 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="downloads_count"
                     header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
+                        <span
+                            style={{
+                                fontWeight: '600',
+                                color: '#9ca3af',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => onSortChange('downloads_count')}
+                        >
                             <i
-                                className="pi pi-download"
-                                style={{ marginRight: '0.5rem' }}
+                                className={`pi ${
+                                    sortField === 'downloads_count'
+                                        ? sortDirection === 'asc'
+                                            ? 'pi-sort-up-alt'
+                                            : 'pi-sort-down-alt'
+                                        : 'pi-sort'
+                                }`}
+                                style={{
+                                    marginRight: '0.5rem',
+                                    color: sortField === 'downloads_count' ? '#06b6d4' : '#6b7280',
+                                }}
                             />
                             Downloads
                         </span>
@@ -130,10 +200,26 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="popularity"
                     header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
+                        <span
+                            style={{
+                                fontWeight: '600',
+                                color: '#9ca3af',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => onSortChange('popularity')}
+                        >
                             <i
-                                className="pi pi-heart"
-                                style={{ marginRight: '0.5rem' }}
+                                className={`pi ${
+                                    sortField === 'popularity'
+                                        ? sortDirection === 'asc'
+                                            ? 'pi-sort-up-alt'
+                                            : 'pi-sort-down-alt'
+                                        : 'pi-sort'
+                                }`}
+                                style={{
+                                    marginRight: '0.5rem',
+                                    color: sortField === 'popularity' ? '#06b6d4' : '#6b7280',
+                                }}
                             />
                             Popularity
                         </span>
@@ -147,10 +233,26 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="created_at"
                     header={
-                        <span style={{ fontWeight: '600', color: '#9ca3af' }}>
+                        <span
+                            style={{
+                                fontWeight: '600',
+                                color: '#9ca3af',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => onSortChange('created_at')}
+                        >
                             <i
-                                className="pi pi-calendar"
-                                style={{ marginRight: '0.5rem' }}
+                                className={`pi ${
+                                    sortField === 'created_at'
+                                        ? sortDirection === 'asc'
+                                            ? 'pi-sort-up-alt'
+                                            : 'pi-sort-down-alt'
+                                        : 'pi-sort'
+                                }`}
+                                style={{
+                                    marginRight: '0.5rem',
+                                    color: sortField === 'created_at' ? '#06b6d4' : '#6b7280',
+                                }}
                             />
                             Added
                         </span>

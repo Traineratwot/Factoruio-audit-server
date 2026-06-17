@@ -71,14 +71,12 @@ services:
   # Полнотекстовый поиск Meilisearch
   # ==============================
   search:
-    image: getmeili/meilisearch:latest
+    image: getmeili/meilisearch:v1.46.1
     restart: always
     ports:
       - "${PUB_SEARCH_PORT:-7700}:7700"   # порт по умолчанию исправлен на 7700
     environment:
       - MEILI_MASTER_KEY=${MEILISEARCH_KEY}
-    volumes:
-      - search_data:/meili_data
     networks:
       - audit
     healthcheck:

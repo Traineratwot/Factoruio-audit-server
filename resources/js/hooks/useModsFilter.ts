@@ -6,6 +6,8 @@ export const useModsFilter = (
     initialSearch: string,
     initialCategoryInclude: string[],
     initialCategoryExclude: string[],
+    initialSortField: string = 'created_at',
+    initialSortDirection: string = 'desc',
 ) => {
     const [searchQuery, setSearchQuery] = useState(initialSearch || '');
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilterState>(
@@ -20,6 +22,8 @@ export const useModsFilter = (
             return filter;
         },
     );
+    const [sortField, setSortField] = useState(initialSortField);
+    const [sortDirection, setSortDirection] = useState(initialSortDirection);
     const [loading, setLoading] = useState(false);
 
     // Функция для получения текущих параметров из URL
@@ -46,6 +50,8 @@ export const useModsFilter = (
         if (include.length) params.category_include = include;
         if (exclude.length) params.category_exclude = exclude;
         if (page) params.page = page;
+        if (sortField && sortField !== 'created_at') params.sort_field = sortField;
+        if (sortDirection && sortDirection !== 'desc') params.sort_direction = sortDirection;
 
         const current = getCurrentParams();
         const hasChanged =
@@ -83,6 +89,8 @@ export const useModsFilter = (
     // Сброс фильтров
     const resetFilters = () => {
         setCategoryFilter({});
+        setSortField('created_at');
+        setSortDirection('desc');
     };
 
     // Переключение состояния категории
@@ -102,6 +110,16 @@ export const useModsFilter = (
         updateUrl(page + 1);
     };
 
+    // Смена сортировки
+    const handleSort = (field: string) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('desc');
+        }
+    };
+
     // Очистка поиска
     const clearSearch = () => {
         setSearchQuery('');
@@ -116,5 +134,8 @@ export const useModsFilter = (
         loading,
         handlePageChange,
         clearSearch,
+        sortField,
+        sortDirection,
+        handleSort,
     };
 };

@@ -7,6 +7,7 @@ use App\Http\Resources\ReportResource;
 use App\Models\Mod;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Laravel\Scout\Builder;
 
 class ModController extends Controller
 {
@@ -15,42 +16,56 @@ class ModController extends Controller
         $search = $request->input('search', '');
         $categoryInclude = $request->input('category_include', []);
         $categoryExclude = $request->input('category_exclude', []);
+        $sortField = $request->input('sort_field', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+
         $categoryALl = Mod::query()->whereHas('reports')->distinct(['category'])->pluck("category");
-        $mods = Mod::query()
-            ->with('reports')
-            ->whereHas('reports')
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('owner', 'like', "%{$search}%")
-                        ->orWhere('title', 'like', "%{$search}%");
-                });
-            })
-            ->when(!empty($categoryInclude), function ($query) use ($categoryInclude) {
-                $query->where(function ($q) use ($categoryInclude) {
-                    foreach ($categoryInclude as $cat) {
-                        if ($cat === 'null') {
-                            $q->orWhereNull('category');
-                        } else {
-                            $q->orWhere('category', $cat);
-                        }
-                    }
-                });
-            })
-            ->when(!empty($categoryExclude), function ($query) use ($categoryExclude) {
-                $query->where(function ($q) use ($categoryExclude) {
-                    foreach ($categoryExclude as $cat) {
-                        if ($cat === 'null') {
-                            $q->whereNotNull('category');
-                        } else {
-                            $q->where('category', '!=', $cat);
-                        }
-                    }
-                });
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+
+        // Строим фильтр для Meilisearch
+        $filters = [];
+
+        // Включаемые категории
+        if (!empty($categoryInclude)) {
+            $includeFilters = [];
+            foreach ($categoryInclude as $cat) {
+                if ($cat === 'null') {
+                    $includeFilters[] = 'category IS NULL';
+                } else {
+                    $includeFilters[] = "category = '{$cat}'";
+                }
+            }
+            if (!empty($includeFilters)) {
+                $filters[] = '(' . implode(' OR ', $includeFilters) . ')';
+            }
+        }
+
+        // Исключающие категории
+        if (!empty($categoryExclude)) {
+            foreach ($categoryExclude as $cat) {
+                if ($cat === 'null') {
+                    $filters[] = 'category IS NOT NULL';
+                } else {
+                    $filters[] = "category != '{$cat}'";
+                }
+            }
+        }
+
+        $query = Mod::search($search);
+
+        if (!empty($filters)) {
+            $query->where(implode(' AND ', $filters));
+        }
+
+        // Сортировка
+        $acceptableSortFields = ['name', 'title', 'owner', 'category', 'downloads_count', 'popularity', 'score', 'latest_version'];
+        if (!in_array($sortField, $acceptableSortFields)) {
+            $sortField = 'created_at';
+        }
+
+        $direction = strtolower($sortDirection) === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortField, $direction);
+
+        $mods = $query->paginate(10)->withQueryString();
 
         return Inertia::render('welcome', [
             'mods' => ModResource::collection($mods),
@@ -58,6 +73,8 @@ class ModController extends Controller
             'category_include' => $categoryInclude,
             'category_exclude' => $categoryExclude,
             'category_all' => $categoryALl,
+            'sort_field' => $sortField,
+            'sort_direction' => $sortDirection,
         ]);
     }
 
@@ -74,5 +91,16 @@ class ModController extends Controller
         return Inertia::render('report', [
             'report' => $report,
         ]);
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query', '');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 15);
+
+        $mods = Mod::search($query)->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json($mods);
     }
 }
