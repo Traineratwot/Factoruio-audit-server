@@ -2,28 +2,40 @@
 
 namespace App\Console\Commands\Sync;
 
+use App\Jobs\FetchFullInfoJob;
 use App\Models\Mod;
 use Illuminate\Console\Command;
-use Illuminate\Http\Client\ConnectionException;
-use Throwable;
 
 class FetchFullInfoCommand extends Command
 {
     protected $signature = 'sync:full-info
         {--force : Игнорировать cooldown и ошибки, обновить все моды}
         {--limit= : Максимальное количество модов для обработки}
-        {--errors : Показать моды с ошибками}';
+        {--errors : Показать моды с ошибками}
+        {--job : Диспатчить в очередь вместо выполнения}';
 
     protected $description = 'Обновление полной информации по модам (fetchFullInfo)';
 
-    public function handle(): void
+    public function handle(): int
     {
         if ($this->option('errors')) {
             $this->showErroredMods();
 
-            return;
+            return self::SUCCESS;
         }
 
+        if ($this->option('job')) {
+            FetchFullInfoJob::dispatch(
+                force: $this->option('force'),
+                limit: $this->option('limit') ? (int) $this->option('limit') : null,
+            );
+
+            $this->info('FetchFullInfoJob отправлен в очередь.');
+
+            return self::SUCCESS;
+        }
+
+        // Синхронное выполнение (для обратной совместимости)
         $cooldownDays = config('factorio.full_info_cooldown_days', 7);
         $batchSize = config('factorio.full_info_batch_size', 50);
         $delayMs = config('factorio.full_info_delay_ms', 200);
@@ -37,7 +49,6 @@ class FetchFullInfoCommand extends Command
                 $q->whereNull('fetch_full_info_at')
                     ->orWhere('fetch_full_info_at', '<', $cooldown);
             });
-
             $query->whereNull('fetch_full_info_error');
         }
 
@@ -46,7 +57,7 @@ class FetchFullInfoCommand extends Command
         if ($allMatching === 0) {
             $this->info('Нет модов для обновления.');
 
-            return;
+            return self::SUCCESS;
         }
 
         $total = min($allMatching, $maxRequests);
@@ -85,17 +96,12 @@ class FetchFullInfoCommand extends Command
 
                 try {
                     $ok = $mod->fetchFullInfo();
-                } catch (Throwable $e) {
+                } catch (\Throwable $e) {
                     $mod->update(['fetch_full_info_error' => $e->getMessage()]);
                     $ok = false;
                 }
 
-                if ($ok) {
-                    $success++;
-                } else {
-                    $failed++;
-                }
-
+                $ok ? $success++ : $failed++;
                 $processed++;
                 $progressBar->advance();
 
@@ -117,6 +123,8 @@ class FetchFullInfoCommand extends Command
         if ($erroredCount > 0) {
             $this->warn("Модов с ошибками в базе: {$erroredCount}. Используйте sync:full-info --errors для просмотра.");
         }
+
+        return self::SUCCESS;
     }
 
     private function showErroredMods(): void
