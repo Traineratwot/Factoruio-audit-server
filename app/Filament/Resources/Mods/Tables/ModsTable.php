@@ -6,6 +6,7 @@ use App\Jobs\AuditJob;
 use App\Models\Mod;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -170,6 +171,9 @@ class ModsTable
                     ),
             ])
             ->recordActions([
+                ViewAction::make()
+                    ->iconButton()
+                ,
                 Action::make('fetchFullInfo')
                     ->iconButton()
                     ->icon('heroicon-o-arrow-down-tray')
