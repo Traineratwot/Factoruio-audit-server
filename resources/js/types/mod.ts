@@ -116,3 +116,18 @@ export interface PaginatedMods {
 }
 
 export type CategoryFilterState = Record<string, 'include' | 'exclude' | null>;
+
+export type ReportFilterValue = 'all' | 'with' | 'without';
+
+export interface ModVersion {
+    id: number;
+    version: string;
+    factorio_version: string;
+    released_at: string;
+}
+
+export interface ModSearchResult {
+    id: number;
+    name: string;
+    title: string;
+}

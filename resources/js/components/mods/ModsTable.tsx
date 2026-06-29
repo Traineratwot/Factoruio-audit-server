@@ -23,6 +23,7 @@ interface ModsTableProps {
     sortField: string;
     sortDirection: string;
     onSortChange: (field: string, direction: string) => void;
+    onAuditClick: () => void;
 }
 
 export const ModsTable: React.FC<ModsTableProps> = ({
@@ -35,6 +36,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
     sortField,
     sortDirection,
     onSortChange,
+    onAuditClick,
 }) => {
     const totalRecords = mods.meta?.total ?? 0;
     const currentPage = mods.meta?.current_page ?? 1;
@@ -78,6 +80,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 onSearchChange={onSearchChange}
                 onClearSearch={onClearSearch}
                 totalRecords={totalRecords}
+                onAuditClick={onAuditClick}
             />
 
             <DataTable

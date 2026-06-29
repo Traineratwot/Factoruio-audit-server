@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
 import { Tooltip } from 'primereact/tooltip';
-import { ModsTable } from '@/components/mods/ModsTable';
+import { AuditDialog } from '@/components/mods/AuditDialog';
 import { CategoryFilter } from '@/components/mods/CategoryFilter';
-import { useModsFilter } from '@/hooks/useModsFilter';
-import { PaginatedMods } from '@/types/mod';
+import { ModsTable } from '@/components/mods/ModsTable';
+import { ReportFilter } from '@/components/mods/ReportFilter';
 import Container from '@/components/ui/Container';
+import { useModsFilter } from '@/hooks/useModsFilter';
+import type { PaginatedMods, ReportFilterValue } from '@/types/mod';
 
 interface WelcomeProps {
     mods: PaginatedMods;
@@ -17,6 +19,7 @@ interface WelcomeProps {
     category_all: string[];
     sort_field: string;
     sort_direction: string;
+    report_filter: ReportFilterValue;
 }
 
 export default function Welcome({
@@ -27,7 +30,10 @@ export default function Welcome({
     category_all = [],
     sort_field = 'created_at',
     sort_direction = 'desc',
+    report_filter = 'all',
 }: WelcomeProps) {
+    const [auditDialogVisible, setAuditDialogVisible] = useState(false);
+
     const {
         searchQuery,
         setSearchQuery,
@@ -40,7 +46,16 @@ export default function Welcome({
         sortField,
         sortDirection,
         handleSort,
-    } = useModsFilter(search, categoryInclude, categoryExclude, sort_field, sort_direction);
+        reportFilter,
+        handleReportFilterChange,
+    } = useModsFilter(
+        search,
+        categoryInclude,
+        categoryExclude,
+        sort_field,
+        sort_direction,
+        report_filter,
+    );
 
     const allCategories = Array.from(new Set(category_all)).sort();
 
@@ -89,7 +104,19 @@ export default function Welcome({
                             alignItems: 'flex-start',
                         }}
                     >
-                        <div style={{ width: '250px', flexShrink: 0 }}>
+                        <div
+                            style={{
+                                width: '250px',
+                                flexShrink: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1rem',
+                            }}
+                        >
+                            <ReportFilter
+                                reportFilter={reportFilter}
+                                onFilterChange={handleReportFilterChange}
+                            />
                             <CategoryFilter
                                 categories={allCategories}
                                 categoryFilter={categoryFilter}
@@ -108,6 +135,9 @@ export default function Welcome({
                                 sortField={sortField}
                                 sortDirection={sortDirection}
                                 onSortChange={handleSort}
+                                onAuditClick={() =>
+                                    setAuditDialogVisible(true)
+                                }
                             />
                         </div>
                     </div>
@@ -130,6 +160,11 @@ export default function Welcome({
                         Data updates automatically
                     </div>
                 </Container>
+
+                <AuditDialog
+                    visible={auditDialogVisible}
+                    onHide={() => setAuditDialogVisible(false)}
+                />
             </PrimeReactProvider>
         </>
     );

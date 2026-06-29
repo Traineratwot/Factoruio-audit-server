@@ -14,17 +14,15 @@ class AuditJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public int $modId
-    )
-    {
-        $this->onQueue("work1");
+        public int $modId,
+        public ?string $version = null
+    ) {
+        $this->onQueue('work1');
     }
 
     public function handle(): void
     {
         $mod = Mod::findOrFail($this->modId);
-        $mod->runAudit();
+        $mod->runAudit($this->version);
     }
-
-
 }

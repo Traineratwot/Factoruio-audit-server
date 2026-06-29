@@ -9,6 +9,7 @@ interface TableHeaderProps {
     onSearchChange: (value: string) => void;
     onClearSearch: () => void;
     totalRecords: number;
+    onAuditClick: () => void;
 }
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
@@ -16,6 +17,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
     onSearchChange,
     onClearSearch,
     totalRecords,
+    onAuditClick,
 }) => {
     return (
         <div
@@ -59,21 +61,30 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     />
                 )}
             </div>
-            <div
-                style={{
-                    color: '#9ca3af',
-                    fontSize: '0.9rem',
-                    background: '#1f2937',
-                    padding: '0.3rem 1rem',
-                    borderRadius: '30px',
-                    border: '1px solid #374151',
-                }}
-            >
-                <i
-                    className="pi pi-database"
-                    style={{ marginRight: '0.5rem' }}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div
+                    style={{
+                        color: '#9ca3af',
+                        fontSize: '0.9rem',
+                        background: '#1f2937',
+                        padding: '0.3rem 1rem',
+                        borderRadius: '30px',
+                        border: '1px solid #374151',
+                    }}
+                >
+                    <i
+                        className="pi pi-database"
+                        style={{ marginRight: '0.5rem' }}
+                    />
+                    {totalRecords} mods
+                </div>
+                <Button
+                    label="Audit Mod"
+                    icon="pi pi-play"
+                    size="small"
+                    onClick={onAuditClick}
+                    style={{ borderRadius: '30px' }}
                 />
-                {totalRecords} mods
             </div>
         </div>
     );

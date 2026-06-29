@@ -17,6 +17,7 @@ class ModController extends Controller
         $categoryExclude = $request->input('category_exclude', []);
         $sortField = $request->input('sort_field', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
+        $reportFilter = $request->input('report_filter', 'all');
 
         $categoryALl = Mod::query()->distinct()->pluck('category');
 
@@ -59,6 +60,12 @@ class ModController extends Controller
             $query = Mod::query()->with(['reports', 'author']);
         }
 
+        if ($reportFilter === 'with') {
+            $query->whereHas('reports');
+        } elseif ($reportFilter === 'without') {
+            $query->whereDoesntHave('reports');
+        }
+
         if (! empty($whereClauses)) {
             $query->whereRaw(implode(' AND ', $whereClauses), $bindings);
         }
@@ -96,6 +103,7 @@ class ModController extends Controller
             'category_all' => $categoryALl,
             'sort_field' => $sortField,
             'sort_direction' => $sortDirection,
+            'report_filter' => $reportFilter,
         ]);
     }
 

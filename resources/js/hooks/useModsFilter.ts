@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { CategoryFilterState } from '@/types/mod';
+import { CategoryFilterState, ReportFilterValue } from '@/types/mod';
 
 export const useModsFilter = (
     initialSearch: string,
@@ -8,6 +8,7 @@ export const useModsFilter = (
     initialCategoryExclude: string[],
     initialSortField: string = 'created_at',
     initialSortDirection: string = 'desc',
+    initialReportFilter: ReportFilterValue = 'all',
 ) => {
     const [searchQuery, setSearchQuery] = useState(initialSearch || '');
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilterState>(
@@ -24,9 +25,10 @@ export const useModsFilter = (
     );
     const [sortField, setSortField] = useState(initialSortField);
     const [sortDirection, setSortDirection] = useState(initialSortDirection);
+    const [reportFilter, setReportFilter] =
+        useState<ReportFilterValue>(initialReportFilter);
     const [loading, setLoading] = useState(false);
 
-    // Функция для получения текущих параметров из URL
     const getCurrentParams = () => {
         const params = new URLSearchParams(window.location.search);
         return {
@@ -35,12 +37,18 @@ export const useModsFilter = (
             exclude: params.getAll('category_exclude[]'),
             sortField: params.get('sort_field') || 'created_at',
             sortDirection: params.get('sort_direction') || 'desc',
+            reportFilter:
+                (params.get('report_filter') as ReportFilterValue) || 'all',
         };
     };
 
-    // Обновление URL и выполнение запроса
-    const updateUrl = (page?: number, newSortField?: string, newSortDirection?: string) => {
-        const params: any = {};
+    const updateUrl = (
+        page?: number,
+        newSortField?: string,
+        newSortDirection?: string,
+        newReportFilter?: ReportFilterValue,
+    ) => {
+        const params: Record<string, string | string[]> = {};
         if (searchQuery) params.search = searchQuery;
 
         const include: string[] = [];
@@ -51,14 +59,18 @@ export const useModsFilter = (
         });
         if (include.length) params.category_include = include;
         if (exclude.length) params.category_exclude = exclude;
-        if (page) params.page = page;
-        // Используем переданные значения сортировки или состояние
+        if (page) params.page = String(page);
+
         const currentSortField = newSortField ?? sortField;
         const currentSortDirection = newSortDirection ?? sortDirection;
         if (currentSortField && currentSortField !== 'created_at')
             params.sort_field = currentSortField;
         if (currentSortDirection && currentSortDirection !== 'desc')
             params.sort_direction = currentSortDirection;
+
+        const currentReportFilter = newReportFilter ?? reportFilter;
+        if (currentReportFilter && currentReportFilter !== 'all')
+            params.report_filter = currentReportFilter;
 
         const current = getCurrentParams();
         const hasChanged =
@@ -69,6 +81,7 @@ export const useModsFilter = (
                 JSON.stringify(current.exclude.sort()) ||
             currentSortField !== current.sortField ||
             currentSortDirection !== current.sortDirection ||
+            currentReportFilter !== current.reportFilter ||
             (page &&
                 page !==
                     parseInt(
@@ -87,23 +100,21 @@ export const useModsFilter = (
         }
     };
 
-    // Дебаунс для поиска и фильтров
     useEffect(() => {
         const timeout = setTimeout(() => {
             updateUrl();
         }, 500);
         return () => clearTimeout(timeout);
-    }, [searchQuery, categoryFilter]);
+    }, [searchQuery, categoryFilter, reportFilter]);
 
-    // Сброс фильтров
     const resetFilters = () => {
         setCategoryFilter({});
         setSortField('created_at');
         setSortDirection('desc');
-        updateUrl(undefined, 'created_at', 'desc');
+        setReportFilter('all');
+        updateUrl(undefined, 'created_at', 'desc', 'all');
     };
 
-    // Переключение состояния категории
     const toggleCategory = (category: string) => {
         setCategoryFilter((prev) => {
             const current = prev[category] || null;
@@ -112,14 +123,12 @@ export const useModsFilter = (
             else if (current === 'include') next = 'exclude';
             else if (current === 'exclude') next = null;
 
-            // Обновляем фильтр и вызываем updateUrl с новым состоянием
             const newFilter = { ...prev, [category]: next };
             updateCategoryFilter(newFilter);
             return newFilter;
         });
     };
 
-    // Вспомогательная функция для обновления фильтра и вызова updateUrl
     const updateCategoryFilter = (newFilter: CategoryFilterState) => {
         const include: string[] = [];
         const exclude: string[] = [];
@@ -128,12 +137,15 @@ export const useModsFilter = (
             else if (state === 'exclude') exclude.push(cat);
         });
 
-        const params: any = {};
+        const params: Record<string, string | string[]> = {};
         if (searchQuery) params.search = searchQuery;
         if (include.length) params.category_include = include;
         if (exclude.length) params.category_exclude = exclude;
         if (sortField && sortField !== 'created_at') params.sort_field = sortField;
-        if (sortDirection && sortDirection !== 'desc') params.sort_direction = sortDirection;
+        if (sortDirection && sortDirection !== 'desc')
+            params.sort_direction = sortDirection;
+        if (reportFilter && reportFilter !== 'all')
+            params.report_filter = reportFilter;
 
         const current = getCurrentParams();
         const hasChanged =
@@ -143,7 +155,8 @@ export const useModsFilter = (
             JSON.stringify(exclude.sort()) !==
                 JSON.stringify(current.exclude.sort()) ||
             sortField !== current.sortField ||
-            sortDirection !== current.sortDirection;
+            sortDirection !== current.sortDirection ||
+            reportFilter !== current.reportFilter;
 
         if (hasChanged) {
             setLoading(true);
@@ -155,22 +168,21 @@ export const useModsFilter = (
         }
     };
 
-    // Смена страницы
     const handlePageChange = (page: number) => {
         updateUrl(page + 1);
     };
 
-    // Смена сортировки
     const handleSort = (field: string, direction?: string) => {
         setSortField(field);
-        // Всегда используем переданное направление или 'desc' по умолчанию
-        // PrimeReact передает sortOrder (1 = asc, -1 = desc)
         setSortDirection(direction || 'desc');
-        // Передаем новые значения напрямую в updateUrl
         updateUrl(undefined, field, direction || 'desc');
     };
 
-    // Очистка поиска
+    const handleReportFilterChange = (value: ReportFilterValue) => {
+        setReportFilter(value);
+        updateUrl(undefined, undefined, undefined, value);
+    };
+
     const clearSearch = () => {
         setSearchQuery('');
     };
@@ -187,5 +199,7 @@ export const useModsFilter = (
         sortField,
         sortDirection,
         handleSort,
+        reportFilter,
+        handleReportFilterChange,
     };
 };
