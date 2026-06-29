@@ -263,23 +263,27 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
                 {/* Stat Cards */}
                 <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-                    <Card className="Image">
+                    <Card
+                        className="Image"
+                        style={{ padding: 0, overflow: 'hidden' }}
+                    >
                         {mod.image ? (
                             <img
                                 src={mod.image}
                                 alt={mod.name}
                                 style={{
-                                    width: 'auto',
-                                    height: '100%',
+                                    width: '100%',
+                                    aspectRatio: '1',
                                     borderRadius: '8px',
                                     objectFit: 'cover',
+                                    display: 'block',
                                 }}
                             />
                         ) : (
                             <div
                                 style={{
-                                    width: 'auto',
-                                    height: '100%',
+                                    width: '100%',
+                                    aspectRatio: '1',
                                     borderRadius: '8px',
                                     background:
                                         'linear-gradient(135deg, #06b6d4, #3b82f6)',
