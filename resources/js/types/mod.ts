@@ -103,6 +103,7 @@ export interface Mod {
     updated_at: string;
     report_url: string;
     score?: number | null;
+    reports_count: number;
 }
 
 export interface PaginatedMods {

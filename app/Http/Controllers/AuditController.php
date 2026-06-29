@@ -33,6 +33,14 @@ class AuditController extends Controller
             ->orderByDesc('released_at')
             ->get();
 
+        if ($versions->isEmpty()) {
+            $mod->fetchFullInfo();
+            $versions = $mod->versions()
+                ->select('id', 'version', 'factorio_version', 'released_at')
+                ->orderByDesc('released_at')
+                ->get();
+        }
+
         return response()->json([
             'versions' => $versions,
             'latest_version' => $mod->latest_version,

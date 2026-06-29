@@ -24,6 +24,7 @@ interface ModsTableProps {
     sortDirection: string;
     onSortChange: (field: string, direction: string) => void;
     onAuditClick: () => void;
+    onAuditMod: (mod: Mod) => void;
 }
 
 export const ModsTable: React.FC<ModsTableProps> = ({
@@ -37,6 +38,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
     sortDirection,
     onSortChange,
     onAuditClick,
+    onAuditMod,
 }) => {
     const totalRecords = mods.meta?.total ?? 0;
     const currentPage = mods.meta?.current_page ?? 1;
@@ -149,7 +151,12 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 />
                 <Column
                     header="Actions"
-                    body={(rowData: Mod) => <ActionColumn rowData={rowData} />}
+                    body={(rowData: Mod) => (
+                        <ActionColumn
+                            rowData={rowData}
+                            onAuditClick={onAuditMod}
+                        />
+                    )}
                     style={{ width: '10%', textAlign: 'center' }}
                 />
             </DataTable>

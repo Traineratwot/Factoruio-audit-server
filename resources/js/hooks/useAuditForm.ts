@@ -8,6 +8,7 @@ interface AuditFormState {
     versions: ModVersion[];
     selectedVersion: string | null;
     loading: boolean;
+    loadingVersions: boolean;
     submitting: boolean;
     result: { success: boolean; message: string } | null;
     error: string | null;
@@ -21,6 +22,7 @@ export const useAuditForm = () => {
         versions: [],
         selectedVersion: null,
         loading: false,
+        loadingVersions: false,
         submitting: false,
         result: null,
         error: null,
@@ -70,6 +72,7 @@ export const useAuditForm = () => {
             searchResults: [],
             versions: [],
             selectedVersion: null,
+            loadingVersions: true,
             result: null,
             error: null,
         }));
@@ -81,9 +84,14 @@ export const useAuditForm = () => {
                 ...s,
                 versions: data.versions ?? [],
                 selectedVersion: data.latest_version ?? null,
+                loadingVersions: false,
             }));
         } catch {
-            setState((s) => ({ ...s, versions: [] }));
+            setState((s) => ({
+                ...s,
+                versions: [],
+                loadingVersions: false,
+            }));
         }
     }, []);
 
@@ -159,6 +167,7 @@ export const useAuditForm = () => {
             versions: [],
             selectedVersion: null,
             loading: false,
+            loadingVersions: false,
             submitting: false,
             result: null,
             error: null,

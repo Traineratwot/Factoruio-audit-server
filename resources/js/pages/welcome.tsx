@@ -9,7 +9,7 @@ import { ModsTable } from '@/components/mods/ModsTable';
 import { ReportFilter } from '@/components/mods/ReportFilter';
 import Container from '@/components/ui/Container';
 import { useModsFilter } from '@/hooks/useModsFilter';
-import type { PaginatedMods, ReportFilterValue } from '@/types/mod';
+import type { Mod, ModSearchResult, PaginatedMods, ReportFilterValue } from '@/types/mod';
 
 interface WelcomeProps {
     mods: PaginatedMods;
@@ -33,6 +33,7 @@ export default function Welcome({
     report_filter = 'all',
 }: WelcomeProps) {
     const [auditDialogVisible, setAuditDialogVisible] = useState(false);
+    const [auditMod, setAuditMod] = useState<ModSearchResult | null>(null);
 
     const {
         searchQuery,
@@ -58,6 +59,16 @@ export default function Welcome({
     );
 
     const allCategories = Array.from(new Set(category_all)).sort();
+
+    const handleAuditMod = (mod: Mod) => {
+        setAuditMod({ id: mod.id, name: mod.name, title: mod.name });
+        setAuditDialogVisible(true);
+    };
+
+    const handleAuditNew = () => {
+        setAuditMod(null);
+        setAuditDialogVisible(true);
+    };
 
     return (
         <>
@@ -135,9 +146,8 @@ export default function Welcome({
                                 sortField={sortField}
                                 sortDirection={sortDirection}
                                 onSortChange={handleSort}
-                                onAuditClick={() =>
-                                    setAuditDialogVisible(true)
-                                }
+                                onAuditClick={handleAuditNew}
+                                onAuditMod={handleAuditMod}
                             />
                         </div>
                     </div>
@@ -163,7 +173,11 @@ export default function Welcome({
 
                 <AuditDialog
                     visible={auditDialogVisible}
-                    onHide={() => setAuditDialogVisible(false)}
+                    onHide={() => {
+                        setAuditDialogVisible(false);
+                        setAuditMod(null);
+                    }}
+                    preselectedMod={auditMod}
                 />
             </PrimeReactProvider>
         </>
