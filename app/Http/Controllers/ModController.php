@@ -18,7 +18,7 @@ class ModController extends Controller
         $sortField = $request->input('sort_field', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
 
-        $categoryALl = Mod::query()->whereHas('reports')->distinct()->pluck('category');
+        $categoryALl = Mod::query()->distinct()->pluck('category');
 
         // Строим фильтр для Meilisearch
         $whereClauses = [];
@@ -54,9 +54,9 @@ class ModController extends Controller
 
         if ($search) {
             $find = Mod::search($search)->get()->pluck('id');
-            $query = Mod::query()->with(['reports', 'author'])->whereHas('reports')->whereIn('id', $find);
+            $query = Mod::query()->with(['reports', 'author'])->whereIn('id', $find);
         } else {
-            $query = Mod::query()->with(['reports', 'author'])->whereHas('reports');
+            $query = Mod::query()->with(['reports', 'author']);
         }
 
         if (! empty($whereClauses)) {
