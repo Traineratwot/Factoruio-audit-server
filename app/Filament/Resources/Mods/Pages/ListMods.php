@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Mods\Pages;
 use App\Filament\Resources\Mods\ModResource;
 use App\Filament\Traits\InteractsWithScout;
 use App\Jobs\FetchFullInfoJob;
+use App\Jobs\SyncModsJob;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -43,6 +44,20 @@ class ListMods extends ListRecords
 
                     Notification::make()
                         ->title('FetchFullInfoJob dispatched')
+                        ->success()
+                        ->send();
+                }),
+            Action::make('syncMods')
+                ->label('Sync Mods')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->requiresConfirmation()
+                ->modalHeading('Sync Mods')
+                ->modalDescription('Dispatch a job to sync mods list from Factorio Mod Portal.')
+                ->action(function (): void {
+                    SyncModsJob::dispatch();
+
+                    Notification::make()
+                        ->title('SyncModsJob dispatched')
                         ->success()
                         ->send();
                 }),
