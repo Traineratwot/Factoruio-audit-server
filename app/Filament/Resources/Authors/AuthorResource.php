@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Authors;
 
 use App\Filament\Resources\Authors\RelationManagers\ModsRelationManager;
-use App\Filament\Resources\Authors\Schemas\AuthorForm;
 use App\Filament\Resources\Authors\Schemas\AuthorInfolist;
 use App\Filament\Resources\Authors\Tables\AuthorsTable;
 use App\Models\Author;
@@ -20,11 +19,6 @@ class AuthorResource extends Resource
     protected static ?string $slug = 'authors';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    public static function form(Schema $schema): Schema
-    {
-        return AuthorForm::configure($schema);
-    }
 
     public static function infolist(Schema $schema): Schema
     {
@@ -47,8 +41,6 @@ class AuthorResource extends Resource
     {
         return [
             'index' => Pages\ListAuthors::route('/'),
-            'create' => Pages\CreateAuthor::route('/create'),
-            'edit' => Pages\EditAuthor::route('/{record}/edit'),
         ];
     }
 

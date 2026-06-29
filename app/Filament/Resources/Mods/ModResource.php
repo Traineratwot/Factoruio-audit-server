@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Mods;
 
 use App\Filament\Resources\Mods\RelationManagers\ModReportRelationManager;
 use App\Filament\Resources\Mods\RelationManagers\ModVersionRelationManager;
-use App\Filament\Resources\Mods\Schemas\ModForm;
 use App\Filament\Resources\Mods\Schemas\ModInfolist;
 use App\Filament\Resources\Mods\Tables\ModsTable;
 use App\Models\Mod;
@@ -21,11 +20,6 @@ class ModResource extends Resource
     protected static ?string $slug = 'mods';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    public static function form(Schema $schema): Schema
-    {
-        return ModForm::configure($schema);
-    }
 
     public static function infolist(Schema $schema): Schema
     {

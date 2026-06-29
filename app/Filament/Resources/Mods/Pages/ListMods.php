@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Mods\Pages;
 use App\Filament\Resources\Mods\ModResource;
 use App\Filament\Traits\InteractsWithScout;
 use App\Jobs\FetchFullInfoJob;
-use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 
@@ -18,8 +17,6 @@ class ListMods extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
-
             \Filament\Actions\Action::make('fetchFullInfo')
                 ->label('Fetch Full Info')
                 ->icon('heroicon-o-arrow-path')

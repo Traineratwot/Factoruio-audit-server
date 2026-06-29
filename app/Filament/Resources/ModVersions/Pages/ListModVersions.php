@@ -4,7 +4,6 @@ namespace App\Filament\Resources\ModVersions\Pages;
 
 use App\Filament\Resources\ModVersions\ModVersionResource;
 use App\Filament\Traits\InteractsWithScout;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListModVersions extends ListRecords
@@ -19,8 +18,6 @@ class ListModVersions extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }

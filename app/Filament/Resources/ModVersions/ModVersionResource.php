@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\ModVersions;
 
-use App\Filament\Resources\ModVersions\Schemas\ModVersionForm;
 use App\Filament\Resources\ModVersions\Schemas\ModVersionInfolist;
 use App\Filament\Resources\ModVersions\Tables\ModVersionsTable;
 use App\Models\ModVersion;
@@ -22,11 +21,6 @@ class ModVersionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    public static function form(Schema $schema): Schema
-    {
-        return ModVersionForm::configure($schema);
-    }
-
     public static function infolist(Schema $schema): Schema
     {
         return ModVersionInfolist::configure($schema);
@@ -41,8 +35,6 @@ class ModVersionResource extends Resource
     {
         return [
             'index' => Pages\ListModVersions::route('/'),
-            'create' => Pages\CreateModVersion::route('/create'),
-            'edit' => Pages\EditModVersion::route('/{record}/edit'),
         ];
     }
 

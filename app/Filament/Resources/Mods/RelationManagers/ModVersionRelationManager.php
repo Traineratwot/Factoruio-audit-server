@@ -3,12 +3,7 @@
 namespace App\Filament\Resources\Mods\RelationManagers;
 
 use App\Models\ModVersion;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -94,43 +89,6 @@ class ModVersionRelationManager extends RelationManager
             ->defaultSort('released_at', 'desc')
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
-            ]);
-    }
-
-    public function form(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                TextInput::make('version')
-                    ->label('Version')
-                    ->required(),
-
-                TextInput::make('factorio_version')
-                    ->label('Factorio Version')
-                    ->required(),
-
-                TextInput::make('file_name')
-                    ->label('File Name')
-                    ->required(),
-
-                TextInput::make('download_url')
-                    ->label('Download URL')
-                    ->url()
-                    ->required(),
-
-                TextInput::make('sha1')
-                    ->label('SHA1')
-                    ->length(40)
-                    ->required(),
-
-                TagsInput::make('dependencies')
-                    ->label('Dependencies'),
-
-                DatePicker::make('released_at')
-                    ->label('Released At')
-                    ->required(),
             ]);
     }
 }
