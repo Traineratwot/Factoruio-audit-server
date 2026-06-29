@@ -12,6 +12,7 @@ class ReportsTable
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('mod.title')
                     ->url(function (Report $record) {
@@ -24,6 +25,9 @@ class ReportsTable
 
                 TextColumn::make('mod_version')
                     ->label('Version'),
+
+                TextColumn::make('raw.report.scannerVersion')
+                    ->label('Scanner Version'),
 
                 TextColumn::make('score')
                     ->label('Score')
@@ -43,8 +47,7 @@ class ReportsTable
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([]);
     }

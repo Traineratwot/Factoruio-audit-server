@@ -44,6 +44,6 @@ class ReportResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return [];
+        return ['mod_version', 'sha1'];
     }
 }
