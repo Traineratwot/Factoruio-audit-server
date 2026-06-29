@@ -143,8 +143,30 @@ class ModsTable
                     ->trueLabel('Загружена')
                     ->falseLabel('Не загружена')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereNotNull('releases'),
-                        false: fn (Builder $query) => $query->whereNull('releases'),
+                        true: fn (Builder $query) => $query->whereNotNull('fetch_full_info_at'),
+                        false: fn (Builder $query) => $query->whereNull('fetch_full_info_at'),
+                        blank: fn (Builder $query) => $query,
+                    ),
+
+                TernaryFilter::make('has_fetch_error')
+                    ->label('Ошибки загрузки')
+                    ->placeholder('Все моды')
+                    ->trueLabel('Есть ошибки')
+                    ->falseLabel('Без ошибок')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNotNull('fetch_full_info_error'),
+                        false: fn (Builder $query) => $query->whereNull('fetch_full_info_error'),
+                        blank: fn (Builder $query) => $query,
+                    ),
+
+                TernaryFilter::make('has_thumbnail')
+                    ->label('Превью')
+                    ->placeholder('Все моды')
+                    ->trueLabel('Есть превью')
+                    ->falseLabel('Без превью')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNotNull('thumbnail')->where('thumbnail', '!=', ''),
+                        false: fn (Builder $query) => $query->whereNull('thumbnail')->orWhere('thumbnail', '=', ''),
                         blank: fn (Builder $query) => $query,
                     ),
             ])

@@ -29,7 +29,7 @@ class FetchFullInfoCommand extends Command
         $delayMs = config('factorio.full_info_delay_ms', 200);
         $maxRequests = config('factorio.full_info_max_requests', 1000);
 
-        $query = Mod::query()->inRandomOrder();
+        $query = Mod::query()->orderBy('popularity', 'desc');
 
         if (! $this->option('force')) {
             $cooldown = now()->subDays($cooldownDays);

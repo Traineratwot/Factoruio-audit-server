@@ -73,7 +73,8 @@ class ModController extends Controller
         // Сортировка
         $acceptableSortFields = ['name', 'title', 'owner', 'category', 'downloads_count', 'popularity', 'score', 'latest_version'];
         if (! in_array($sortField, $acceptableSortFields)) {
-            $sortField = 'created_at';
+            $sortField = 'popularity';
+            $direction = 'desc';
         }
 
         $direction = strtolower($sortDirection) === 'asc' ? 'asc' : 'desc';
