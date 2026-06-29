@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Facades\AuditService;
+use App\Facades\FactorioService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
@@ -60,6 +61,54 @@ class Mod extends Model
     {
         return $this->attributes['latest_release_date']
             ?? $this->releases[0]['released_at'] ?? null;
+    }
+
+    public function fetchFullInfo(): bool
+    {
+        $data = FactorioService::modFull($this->name);
+        if ($data === null) {
+            return false;
+        }
+
+        $latestRelease = $data['releases'][0] ?? null;
+
+        $this->update([
+            'thumbnail' => $data['thumbnail'] ?? null,
+            'description' => $data['description'] ?? null,
+            'homepage' => $data['homepage'] ?? null,
+            'license' => $data['license'] ?? null,
+            'tags' => $data['tags'] ?? null,
+            'images' => $data['images'] ?? null,
+            'releases' => $data['releases'] ?? null,
+            'changelog' => $data['changelog'] ?? null,
+            'score' => $data['score'] ?? null,
+            'factorio_version' => $latestRelease['info_json']['factorio_version'] ?? null,
+            'latest_release_date' => $latestRelease['released_at'] ?? null,
+        ]);
+
+        $this->syncVersions($data['releases'] ?? []);
+
+        return true;
+    }
+
+    public function syncVersions(array $releases): void
+    {
+        foreach ($releases as $release) {
+            ModVersion::updateOrCreate(
+                [
+                    'mod_id' => $this->id,
+                    'version' => $release['version'],
+                ],
+                [
+                    'file_name' => $release['file_name'],
+                    'download_url' => $release['download_url'],
+                    'sha1' => $release['sha1'],
+                    'factorio_version' => $release['info_json']['factorio_version'],
+                    'dependencies' => $release['info_json']['dependencies'],
+                    'released_at' => $release['released_at'],
+                ]
+            );
+        }
     }
 
     /**
