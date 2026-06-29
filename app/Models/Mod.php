@@ -79,7 +79,6 @@ class Mod extends Model
             'license' => $data['license'] ?? null,
             'tags' => $data['tags'] ?? null,
             'images' => $data['images'] ?? null,
-            'releases' => $data['releases'] ?? null,
             'changelog' => $data['changelog'] ?? null,
             'score' => $data['score'] ?? null,
             'factorio_version' => $latestRelease['info_json']['factorio_version'] ?? null,
@@ -89,6 +88,14 @@ class Mod extends Model
         $this->syncVersions($data['releases'] ?? []);
 
         return true;
+    }
+
+    public function getImage(): ?string
+    {
+        if (!blank($this->thumbnail)) {
+            return "https://assets-mod.factorio.com" . $this->thumbnail;
+        }
+        return null;
     }
 
     public function syncVersions(array $releases): void

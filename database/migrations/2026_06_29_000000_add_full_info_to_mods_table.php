@@ -14,7 +14,6 @@ return new class extends Migration {
             $table->json('license')->nullable()->after('homepage');
             $table->json('tags')->nullable()->after('license');
             $table->json('images')->nullable()->after('tags');
-            $table->json('releases')->nullable()->after('images');
             $table->longText('changelog')->nullable()->after('releases');
             $table->float('score')->nullable()->after('changelog');
             $table->string('factorio_version')->nullable()->after('score');

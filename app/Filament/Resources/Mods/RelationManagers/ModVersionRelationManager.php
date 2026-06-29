@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Mods\RelationManagers;
 
+use App\Models\ModVersion;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -37,7 +38,7 @@ class ModVersionRelationManager extends RelationManager
 
                 TextEntry::make('download_url')
                     ->label('Download')
-                    ->url(),
+                    ->url(fn(ModVersion $record) => $record->getUrl()),
 
                 TextEntry::make('sha1')
                     ->label('SHA1')
@@ -72,7 +73,7 @@ class ModVersionRelationManager extends RelationManager
                 TextColumn::make('file_name')
                     ->label('File')
                     ->limit(40)
-                    ->tooltip(fn (TextColumn $column): ?string => strlen($column->getState()) > 40 ? $column->getState() : null),
+                    ->tooltip(fn(TextColumn $column): ?string => strlen($column->getState()) > 40 ? $column->getState() : null),
 
                 TextColumn::make('sha1')
                     ->label('SHA1')

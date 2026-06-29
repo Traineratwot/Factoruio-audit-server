@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Mods\Schemas;
 
+use App\Models\Mod;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -12,7 +13,14 @@ class ModInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
+                Section::make('Изображение')
+                    ->components([
+                        ImageEntry::make('thumbnail')
+                            ->state(fn(Mod $record) => $record->getImage())
+                            ->label('Thumbnail'),
+                    ]),
                 Section::make('Основная информация')
                     ->columns(2)
                     ->components([
@@ -28,10 +36,12 @@ class ModInfolist
 
                         TextEntry::make('summary')
                             ->label('Summary')
+                            ->markdown()
                             ->columnSpanFull(),
 
                         TextEntry::make('description')
                             ->label('Description')
+                            ->markdown()
                             ->columnSpanFull()
                             ->hiddenLabel(),
 
@@ -77,12 +87,6 @@ class ModInfolist
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Изображение')
-                    ->components([
-                        ImageEntry::make('thumbnail')
-                            ->label('Thumbnail'),
-                    ]),
-
                 Section::make('Теги')
                     ->components([
                         TextEntry::make('tags')
@@ -99,16 +103,7 @@ class ModInfolist
                             ->label('Title'),
                         TextEntry::make('license.url')
                             ->label('URL')
-                            ->url(fn(string|null|false $value) => !empty($value) ?: '#', true)
-                        ,
-                    ]),
-
-                Section::make('Изображения')
-                    ->collapsible()
-                    ->components([
-                        TextEntry::make('images')
-                            ->label('Images')
-                            ->hiddenLabel(),
+                            ->url(fn(string|null|false $value) => !empty($value) ?: '#', true),
                     ]),
 
                 Section::make('Хронология')
@@ -116,7 +111,8 @@ class ModInfolist
                     ->components([
                         TextEntry::make('changelog')
                             ->label('Changelog')
-                            ->hiddenLabel(),
+                            ->hiddenLabel()
+                            ->markdown(),
                     ]),
 
                 TextEntry::make('created_at')
