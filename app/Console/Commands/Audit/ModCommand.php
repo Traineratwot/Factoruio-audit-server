@@ -3,9 +3,7 @@
 namespace App\Console\Commands\Audit;
 
 use App\Models\Mod;
-use App\Models\Report;
 use Illuminate\Console\Command;
-use Tivoka\Client;
 
 class ModCommand extends Command
 {
@@ -15,7 +13,7 @@ class ModCommand extends Command
 
     public function handle()
     {
-        $name= $this->argument('mod');
+        $name = $this->argument('mod');
         Mod::whereName($name)->firstOrFail()->runAudit();
     }
 }

@@ -6,6 +6,7 @@ use App\Jobs\AuditJob;
 use App\Models\Mod;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
@@ -13,7 +14,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 class ModsTable
 {
@@ -24,27 +24,26 @@ class ModsTable
             ->columns([
                 ImageColumn::make('thumbnail')
                     ->label('Thumb')
-                    ->state(fn(Mod $record)=> $record->getImage())
+                    ->state(fn (Mod $record) => $record->getImage())
                     ->visibility('public')
                     ->circular()
-                    ->imageSize(40)
-                ,
+                    ->imageSize(40),
+
+                TextColumn::make('title')
+                    ->label('Title')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('—'),
 
                 TextColumn::make('name')
-                    ->label('Имя (slug)')
+                    ->label('Slug')
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('—'),
 
-                TextColumn::make('title')
-                    ->label('Заголовок')
-                    ->searchable()
-                    ->sortable()
-                    ->placeholder('—'),
-
                 TextColumn::make('popularity')
-                    ->label('Популярность')
+                    ->label('Popularity')
                     ->sortable()
                     ->numeric(
                         decimalPlaces: 0,
@@ -55,26 +54,26 @@ class ModsTable
                     ->extraAttributes(['class' => 'font-mono']),
 
                 TextColumn::make('latest_version')
-                    ->label('Последняя версия')
+                    ->label('Latest Version')
                     ->badge()
                     ->color('success')
                     ->placeholder('—'),
 
                 TextColumn::make('category')
-                    ->label('Категория')
+                    ->label('Category')
                     ->badge()
                     ->color('gray')
                     ->placeholder('—'),
 
                 TextColumn::make('tags')
-                    ->label('Теги')
+                    ->label('Tags')
                     ->badge()
                     ->separator(',')
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('summary')
-                    ->label('Краткое описание')
+                    ->label('Summary')
                     ->limit(80)
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
@@ -87,7 +86,7 @@ class ModsTable
                     ->placeholder('—'),
 
                 TextColumn::make('downloads_count')
-                    ->label('Количество загрузок')
+                    ->label('Downloads')
                     ->numeric(
                         decimalPlaces: 0,
                         decimalSeparator: '.',
@@ -111,15 +110,15 @@ class ModsTable
             ])
             ->filters([
                 SelectFilter::make('category')
-                    ->label('Категория')
+                    ->label('Category')
                     ->options(fn () => Mod::distinct()->pluck('category', 'category')->toArray())
-                    ->placeholder('Все категории'),
+                    ->placeholder('All categories'),
 
                 TernaryFilter::make('has_version')
-                    ->label('Последняя версия')
-                    ->placeholder('Все моды')
-                    ->trueLabel('Имеют версию')
-                    ->falseLabel('Без версии')
+                    ->label('Latest Version')
+                    ->placeholder('All mods')
+                    ->trueLabel('Has version')
+                    ->falseLabel('No version')
                     ->queries(
                         true: fn (Builder $query) => $query->whereNotNull('latest_version')->where('latest_version', '!=', ''),
                         false: fn (Builder $query) => $query->whereNull('latest_version')->orWhere('latest_version', '=', ''),
@@ -127,10 +126,10 @@ class ModsTable
                     ),
 
                 TernaryFilter::make('has_reports')
-                    ->label('Есть отчет')
-                    ->placeholder('Все моды')
-                    ->trueLabel('Имеют отчет')
-                    ->falseLabel('Без отчета')
+                    ->label('Has Report')
+                    ->placeholder('All mods')
+                    ->trueLabel('Has report')
+                    ->falseLabel('No report')
                     ->queries(
                         true: fn (Builder|Mod $query) => $query->whereHas('reports'),
                         false: fn (Builder|Mod $query) => $query->whereDoesntHave('reports'),
@@ -138,10 +137,10 @@ class ModsTable
                     ),
 
                 TernaryFilter::make('has_full_info')
-                    ->label('Полная информация')
-                    ->placeholder('Все моды')
-                    ->trueLabel('Загружена')
-                    ->falseLabel('Не загружена')
+                    ->label('Full Info')
+                    ->placeholder('All mods')
+                    ->trueLabel('Loaded')
+                    ->falseLabel('Not loaded')
                     ->queries(
                         true: fn (Builder $query) => $query->whereNotNull('fetch_full_info_at'),
                         false: fn (Builder $query) => $query->whereNull('fetch_full_info_at'),
@@ -149,10 +148,10 @@ class ModsTable
                     ),
 
                 TernaryFilter::make('has_fetch_error')
-                    ->label('Ошибки загрузки')
-                    ->placeholder('Все моды')
-                    ->trueLabel('Есть ошибки')
-                    ->falseLabel('Без ошибок')
+                    ->label('Fetch Errors')
+                    ->placeholder('All mods')
+                    ->trueLabel('Has errors')
+                    ->falseLabel('No errors')
                     ->queries(
                         true: fn (Builder $query) => $query->whereNotNull('fetch_full_info_error'),
                         false: fn (Builder $query) => $query->whereNull('fetch_full_info_error'),
@@ -160,10 +159,10 @@ class ModsTable
                     ),
 
                 TernaryFilter::make('has_thumbnail')
-                    ->label('Превью')
-                    ->placeholder('Все моды')
-                    ->trueLabel('Есть превью')
-                    ->falseLabel('Без превью')
+                    ->label('Thumbnail')
+                    ->placeholder('All mods')
+                    ->trueLabel('Has thumbnail')
+                    ->falseLabel('No thumbnail')
                     ->queries(
                         true: fn (Builder $query) => $query->whereNotNull('thumbnail')->where('thumbnail', '!=', ''),
                         false: fn (Builder $query) => $query->whereNull('thumbnail')->orWhere('thumbnail', '=', ''),
@@ -171,22 +170,61 @@ class ModsTable
                     ),
             ])
             ->recordActions([
+                Action::make('fetchFullInfo')
+                    ->label('Fetch Info')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('info')
+                    ->action(function (Mod $record): void {
+                        $ok = $record->fetchFullInfo();
+
+                        Notification::make()
+                            ->title($ok ? 'Full info fetched' : 'Failed to fetch full info')
+                            ->body($record->name)
+                            ->{$ok ? 'success' : 'danger'}()
+                            ->send();
+                    }),
+
                 Action::make('audit')
-                    ->action(function (Mod $record) {
-                        try {
-                            $record->runAudit();
-                        } catch (\Throwable $e) {
-                            Log::error("Ошибка при запуске аудита для {$record->name}", ['exception' => $e]);
-                            throw $e;
-                        }
+                    ->label('Audit')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->color('warning')
+                    ->action(function (Mod $record): void {
+                        AuditJob::dispatch($record->id);
+
+                        Notification::make()
+                            ->title('Audit dispatched')
+                            ->body($record->name)
+                            ->success()
+                            ->send();
                     }),
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
-                BulkAction::make('audits')
-                    ->action(function ($records) {
+                BulkAction::make('fetchFullInfo')
+                    ->label('Fetch Full Info')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(function ($records): void {
+                        foreach ($records as $record) {
+                            $record->fetchFullInfo();
+                        }
+
+                        Notification::make()
+                            ->title('Full info fetched for '.$records->count().' mods')
+                            ->success()
+                            ->send();
+                    }),
+
+                BulkAction::make('audit')
+                    ->label('Run Audit')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->action(function ($records): void {
                         foreach ($records as $record) {
                             AuditJob::dispatch($record->id);
                         }
+
+                        Notification::make()
+                            ->title('Audit dispatched for '.$records->count().' mods')
+                            ->success()
+                            ->send();
                     }),
             ]);
     }

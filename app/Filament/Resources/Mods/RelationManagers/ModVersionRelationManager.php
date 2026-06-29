@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Mods\RelationManagers;
 
+use App\Jobs\AuditJob;
 use App\Models\ModVersion;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -13,6 +15,8 @@ use Filament\Tables\Table;
 class ModVersionRelationManager extends RelationManager
 {
     protected static string $relationship = 'versions';
+
+    protected static ?string $recordTitleAttribute = 'version';
 
     public function infolist(Schema $schema): Schema
     {
@@ -33,7 +37,7 @@ class ModVersionRelationManager extends RelationManager
 
                 TextEntry::make('download_url')
                     ->label('Download')
-                    ->url(fn(ModVersion $record) => $record->getUrl()),
+                    ->url(fn (ModVersion $record) => $record->getUrl()),
 
                 TextEntry::make('sha1')
                     ->label('SHA1')
@@ -68,7 +72,7 @@ class ModVersionRelationManager extends RelationManager
                 TextColumn::make('file_name')
                     ->label('File')
                     ->limit(40)
-                    ->tooltip(fn(TextColumn $column): ?string => strlen($column->getState()) > 40 ? $column->getState() : null),
+                    ->tooltip(fn (TextColumn $column): ?string => strlen($column->getState()) > 40 ? $column->getState() : null),
 
                 TextColumn::make('sha1')
                     ->label('SHA1')
@@ -88,6 +92,20 @@ class ModVersionRelationManager extends RelationManager
             ])
             ->defaultSort('released_at', 'desc')
             ->recordActions([
+                Action::make('audit')
+                    ->label('Audit Version')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->color('warning')
+                    ->action(function (ModVersion $record): void {
+                        AuditJob::dispatch($record->mod_id, $record->version);
+
+                        Notification::make()
+                            ->title('Audit dispatched')
+                            ->body("Version {$record->version}")
+                            ->success()
+                            ->send();
+                    }),
+
                 ViewAction::make(),
             ]);
     }

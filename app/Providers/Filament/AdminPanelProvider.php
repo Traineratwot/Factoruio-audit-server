@@ -57,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                FilamentJobsMonitorPlugin::make()
+                FilamentJobsMonitorPlugin::make(),
             ]);
     }
 }

@@ -19,7 +19,13 @@ class ModVersionResource extends Resource
 
     protected static ?string $slug = 'mod-versions';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
+
+    protected static ?string $navigationLabel = 'Mod Versions';
+
+    protected static ?string $modelLabel = 'Mod Version';
+
+    protected static ?string $pluralModelLabel = 'Mod Versions';
 
     public static function infolist(Schema $schema): Schema
     {
@@ -52,7 +58,7 @@ class ModVersionResource extends Resource
     }
 
     /**
-     * @param ModVersion $record
+     * @param  ModVersion  $record
      */
     public static function getGlobalSearchResultDetails(Model $record): array
     {

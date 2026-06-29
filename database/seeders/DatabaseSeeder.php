@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
     {
         $email = getenv('FILAMENT_ROOT_USER');
         $password = getenv('FILAMENT_ROOT_PASSWORD');
-        if (!User::where('email', $email)->exists()) {
+        if (! User::where('email', $email)->exists()) {
             User::factory()->create([
-                'name'     => 'admin',
-                'email'    => $email,
+                'name' => 'admin',
+                'email' => $email,
                 'password' => $password,
             ]);
             $user = User::where('email', $email)->first();

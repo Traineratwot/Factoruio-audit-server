@@ -20,13 +20,13 @@ class ConnectDb extends Command
         $i = 0;
         while (time() < $end) {
             $i++;
-            $this->warn('Попытка №' . $i . " \n");
+            $this->warn('Попытка №'.$i." \n");
             try {
                 DB::connection()->getPdo();
                 $this->info('Соединение с базой данных установлено.');
                 exit(0);
             } catch (Exception $e) {
-                $this->warn('Не удалось установить соединение с базой данных: ' . $e->getMessage() . ' timeout 5s');
+                $this->warn('Не удалось установить соединение с базой данных: '.$e->getMessage().' timeout 5s');
             }
 
             sleep(5); // Пауза в 5 секунд перед следующей проверкой

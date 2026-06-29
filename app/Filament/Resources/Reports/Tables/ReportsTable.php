@@ -17,32 +17,35 @@ class ReportsTable
                     ->url(function (Report $record) {
                         return route('report.mod.version', [
                             'mod' => $record->mod->name,
-                            'version' => $record->mod_version
+                            'version' => $record->mod_version,
                         ]);
                     }, true)
-                    ->label('Mod Name'),
+                    ->label('Mod'),
 
                 TextColumn::make('mod_version')
-                    ->label('Mod Version'),
+                    ->label('Version'),
 
                 TextColumn::make('score')
                     ->label('Score')
-                    ->color(fn(?int $state): string => match (true) {
+                    ->color(fn (?int $state): string => match (true) {
                         $state >= 80 => 'success',
                         $state >= 50 => 'warning',
-                        default => 'danger', // добавлен цвет для низких оценок
+                        default => 'danger',
                     })
                     ->sortable()
-                    ->badge() // визуальное выделение в виде бейджа
-                    ->weight('bold') // улучшенная читаемость
-                    ->formatStateUsing(fn(float $state): string => Number::forHumans($state, 2))
-                ,
+                    ->badge()
+                    ->weight('bold')
+                    ->formatStateUsing(fn (float $state): string => Number::forHumans($state, 2)),
 
                 TextColumn::make('sha1')
-                    ->label('Sha1'),
+                    ->label('SHA1'),
+
+                TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ]);
+            ->filters([]);
     }
 }

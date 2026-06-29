@@ -17,7 +17,13 @@ class ReportResource extends Resource
 
     protected static ?string $slug = 'reports';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
+
+    protected static ?string $navigationLabel = 'Reports';
+
+    protected static ?string $modelLabel = 'Report';
+
+    protected static ?string $pluralModelLabel = 'Reports';
 
     public static function infolist(Schema $schema): Schema
     {

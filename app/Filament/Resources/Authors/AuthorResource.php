@@ -18,7 +18,13 @@ class AuthorResource extends Resource
 
     protected static ?string $slug = 'authors';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
+
+    protected static ?string $navigationLabel = 'Authors';
+
+    protected static ?string $modelLabel = 'Author';
+
+    protected static ?string $pluralModelLabel = 'Authors';
 
     public static function infolist(Schema $schema): Schema
     {

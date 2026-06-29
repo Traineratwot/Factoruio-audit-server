@@ -34,8 +34,8 @@ class SyncIndexes extends Command
      */
     public function handle(): void
     {
-        $clear = (bool)$this->option('clear');
-        $sync = (bool)$this->option('sync');
+        $clear = (bool) $this->option('clear');
+        $sync = (bool) $this->option('sync');
         $modelOption = $this->option('model');
 
         if ($sync) {
@@ -51,9 +51,10 @@ class SyncIndexes extends Command
 
         // Фильтруем модели, если указана опция --model
         if ($modelOption) {
-            $keys = array_filter($keys, fn($key) => $key === $modelOption);
+            $keys = array_filter($keys, fn ($key) => $key === $modelOption);
             if (empty($keys)) {
                 $this->error("Модель '{$modelOption}' не найдена в конфигурации");
+
                 return;
             }
         }
@@ -61,7 +62,7 @@ class SyncIndexes extends Command
         if ($clear) {
             $this->call(DeleteAllIndexesCommand::class);
             $this->call(SyncIndexSettingsCommand::class);
-            if (!$this->confirm('Продолжить?')) {
+            if (! $this->confirm('Продолжить?')) {
                 return;
             }
         }

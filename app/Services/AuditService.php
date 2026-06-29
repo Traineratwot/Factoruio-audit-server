@@ -3,18 +3,15 @@
 namespace App\Services;
 
 use Exception;
-use WebSocket\Client;
-use Throwable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
+use WebSocket\Client;
 
 class AuditService
 {
     /**
      * Выполнить аудит модуля по имени и опциональной версии.
      *
-     * @param string $name
-     * @param string|null $version
-     * @return mixed
      * @throws Throwable
      */
     public function audit(string $name, ?string $version = null): mixed

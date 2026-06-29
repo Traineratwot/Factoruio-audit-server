@@ -16,9 +16,22 @@ class ViewMod extends ViewRecord
     {
         return [
             Action::make('fetchFullInfo')
-                ->label('Загрузить полную информацию')
+                ->label('Fetch Full Info')
                 ->icon('heroicon-o-arrow-down-tray')
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading('Fetch Full Info')
+                ->modalDescription('Fetch full information for this mod from the Factorio mod portal.')
                 ->action(fn (Mod $record) => $this->fetchFullInfo($record)),
+
+            Action::make('audit')
+                ->label('Run Audit')
+                ->icon('heroicon-o-magnifying-glass')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->modalHeading('Run Audit')
+                ->modalDescription('Scan this mod for code quality and security issues.')
+                ->action(fn (Mod $record) => $this->runAudit($record)),
         ];
     }
 
@@ -26,8 +39,8 @@ class ViewMod extends ViewRecord
     {
         if (! $record->fetchFullInfo()) {
             Notification::make()
-                ->title('Ошибка')
-                ->body('Не удалось загрузить информацию о моде')
+                ->title('Error')
+                ->body('Failed to fetch mod information')
                 ->danger()
                 ->send();
 
@@ -35,8 +48,8 @@ class ViewMod extends ViewRecord
         }
 
         Notification::make()
-            ->title('Готово')
-            ->body('Полная информация загружена')
+            ->title('Done')
+            ->body('Full information fetched successfully')
             ->success()
             ->send();
 
@@ -53,5 +66,25 @@ class ViewMod extends ViewRecord
             'factorio_version',
             'latest_release_date',
         ]);
+    }
+
+    protected function runAudit(Mod $record): void
+    {
+        try {
+            $record->runAudit();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Error')
+                ->body('Failed to run audit: '.$e->getMessage())
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->title('Audit completed')
+            ->success()
+            ->send();
     }
 }

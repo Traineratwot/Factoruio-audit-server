@@ -15,17 +15,18 @@ class ModInfolist
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Изображение')
+                Section::make('Image')
                     ->components([
                         ImageEntry::make('thumbnail')
                             ->state(fn (Mod $record) => $record->getImage())
                             ->label('Thumbnail'),
                     ]),
-                Section::make('Основная информация')
+
+                Section::make('General Information')
                     ->columns(2)
                     ->components([
                         TextEntry::make('id')
-                            ->label('Id'),
+                            ->label('ID'),
 
                         TextEntry::make('name')
                             ->label('Name'),
@@ -53,17 +54,17 @@ class ModInfolist
                             ->badge(),
 
                         TextEntry::make('latest_version')
-                            ->label('Последняя версия')
+                            ->label('Latest Version')
                             ->badge()
                             ->color('success'),
 
                         TextEntry::make('factorio_version')
-                            ->label('Версия Factorio')
+                            ->label('Factorio Version')
                             ->badge()
                             ->color('info'),
 
                         TextEntry::make('downloads_count')
-                            ->label('Загрузки')
+                            ->label('Downloads')
                             ->numeric(
                                 decimalPlaces: 0,
                                 decimalSeparator: '.',
@@ -71,7 +72,7 @@ class ModInfolist
                             ),
 
                         TextEntry::make('popularity')
-                            ->label('Популярность')
+                            ->label('Popularity')
                             ->numeric(
                                 decimalPlaces: 0,
                                 decimalSeparator: '.',
@@ -83,11 +84,11 @@ class ModInfolist
 
                         TextEntry::make('homepage')
                             ->label('Homepage')
-                            ->url(fn (string|null|false $value) => ! empty($value) ?: '#', true)
+                            ->url(fn (string|null|false $value) => ! empty($value) ? $value : '#', true)
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Теги')
+                Section::make('Tags')
                     ->components([
                         TextEntry::make('tags')
                             ->label('Tags')
@@ -95,7 +96,7 @@ class ModInfolist
                             ->separator(','),
                     ]),
 
-                Section::make('Лицензия')
+                Section::make('License')
                     ->components([
                         TextEntry::make('license.name')
                             ->label('License'),
@@ -103,10 +104,10 @@ class ModInfolist
                             ->label('Title'),
                         TextEntry::make('license.url')
                             ->label('URL')
-                            ->url(fn (string|null|false $value) => ! empty($value) ?: '#', true),
+                            ->url(fn (string|null|false $value) => ! empty($value) ? $value : '#', true),
                     ]),
 
-                Section::make('Хронология')
+                Section::make('Changelog')
                     ->collapsible()
                     ->components([
                         TextEntry::make('changelog')
@@ -116,11 +117,11 @@ class ModInfolist
                     ]),
 
                 TextEntry::make('created_at')
-                    ->label('Created Date')
+                    ->label('Created')
                     ->dateTime(),
 
                 TextEntry::make('updated_at')
-                    ->label('Last Modified Date')
+                    ->label('Last Modified')
                     ->dateTime(),
             ]);
     }

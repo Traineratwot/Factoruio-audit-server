@@ -20,13 +20,13 @@ class ModVersionsTable
                     ->weight('bold'),
 
                 TextColumn::make('version')
-                    ->label('Версия')
+                    ->label('Version')
                     ->badge()
                     ->color('success')
                     ->sortable(),
 
                 TextColumn::make('file_name')
-                    ->label('Файл')
+                    ->label('File')
                     ->limit(40)
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
@@ -40,10 +40,10 @@ class ModVersionsTable
                     ->placeholder('—'),
 
                 TextColumn::make('download_url')
-                    ->label('Ссылка')
+                    ->label('Download URL')
                     ->url(function (ModVersion $record): ?string {
-                        if (!blank($record->download_url)) {
-                            return 'https://mods.factorio.com' . $record->download_url;
+                        if (! blank($record->download_url)) {
+                            return 'https://mods.factorio.com'.$record->download_url;
                         }
 
                         return null;
@@ -76,7 +76,7 @@ class ModVersionsTable
                     ->placeholder('—'),
 
                 TextColumn::make('dependencies')
-                    ->label('Зависимости')
+                    ->label('Dependencies')
                     ->badge()
                     ->separator(',')
                     ->color('gray')
@@ -85,25 +85,23 @@ class ModVersionsTable
                     ->placeholder('—'),
 
                 TextColumn::make('released_at')
-                    ->label('Дата релиза')
+                    ->label('Released')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->placeholder('—'),
 
                 TextColumn::make('created_at')
-                    ->label('Создан')
+                    ->label('Created')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('updated_at')
-                    ->label('Обновлён')
+                    ->label('Updated')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ]);
+            ->filters([]);
     }
 }

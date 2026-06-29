@@ -19,7 +19,13 @@ class ModResource extends Resource
 
     protected static ?string $slug = 'mods';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPuzzlePiece;
+
+    protected static ?string $navigationLabel = 'Mods';
+
+    protected static ?string $modelLabel = 'Mod';
+
+    protected static ?string $pluralModelLabel = 'Mods';
 
     public static function infolist(Schema $schema): Schema
     {

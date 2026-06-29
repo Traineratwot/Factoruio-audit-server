@@ -21,7 +21,7 @@ class ReportResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'mod_id' => $this->mod_id,
-            'link'=> $this->getUrl()
+            'link' => $this->getUrl(),
         ];
     }
 }

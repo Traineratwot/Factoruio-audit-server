@@ -13,7 +13,7 @@ class ModVersionInfolist
     {
         return $schema
             ->components([
-                Section::make('Основная информация')
+                Section::make('General Information')
                     ->icon('heroicon-o-cube')
                     ->columns(2)
                     ->components([
@@ -21,11 +21,11 @@ class ModVersionInfolist
                             ->label('ID'),
 
                         TextEntry::make('mod.name')
-                            ->label('Мод')
+                            ->label('Mod')
                             ->weight('bold'),
 
                         TextEntry::make('version')
-                            ->label('Версия')
+                            ->label('Version')
                             ->badge()
                             ->color('success'),
 
@@ -35,19 +35,19 @@ class ModVersionInfolist
                             ->color('info'),
                     ]),
 
-                Section::make('Файл')
+                Section::make('File')
                     ->icon('heroicon-o-document')
                     ->columns(2)
                     ->components([
                         TextEntry::make('file_name')
-                            ->label('Имя файла')
+                            ->label('File Name')
                             ->columnSpanFull(),
 
                         TextEntry::make('download_url')
-                            ->label('Ссылка на скачивание')
+                            ->label('Download URL')
                             ->url(function (ModVersion $record): ?string {
-                                if (!blank($record->download_url)) {
-                                    return 'https://mods.factorio.com' . $record->download_url;
+                                if (! blank($record->download_url)) {
+                                    return 'https://mods.factorio.com'.$record->download_url;
                                 }
 
                                 return null;
@@ -62,33 +62,33 @@ class ModVersionInfolist
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Зависимости')
+                Section::make('Dependencies')
                     ->icon('heroicon-o-link')
                     ->collapsible()
                     ->components([
                         TextEntry::make('dependencies')
-                            ->label('Зависимости')
+                            ->label('Dependencies')
                             ->badge()
                             ->separator(',')
                             ->color('gray')
-                            ->placeholder('Нет зависимостей'),
+                            ->placeholder('No dependencies'),
                     ]),
 
-                Section::make('Даты')
+                Section::make('Dates')
                     ->icon('heroicon-o-calendar')
                     ->collapsible()
                     ->components([
                         TextEntry::make('released_at')
-                            ->label('Дата релиза')
+                            ->label('Released')
                             ->dateTime('d.m.Y H:i')
                             ->placeholder('—'),
 
                         TextEntry::make('created_at')
-                            ->label('Создан')
+                            ->label('Created')
                             ->dateTime('d.m.Y H:i'),
 
                         TextEntry::make('updated_at')
-                            ->label('Обновлён')
+                            ->label('Updated')
                             ->dateTime('d.m.Y H:i'),
                     ]),
             ]);

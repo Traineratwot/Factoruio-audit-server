@@ -11,7 +11,7 @@ class FileUploadController extends \Livewire\Features\SupportFileUploads\FileUpl
     {
         $user = auth()->user();
 
-        if (!$user || !$user->canAccessPanel()) {
+        if (! $user || ! $user->canAccessPanel()) {
             throw new HttpResponseException(
                 response()->json(['message' => 'Only super admin can upload files.'], 422),
             );

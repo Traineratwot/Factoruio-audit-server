@@ -12,29 +12,29 @@ class ReportInfolist
         return $schema
             ->components([
                 TextEntry::make('id')
-                    ->label('Id'),
+                    ->label('ID'),
 
                 TextEntry::make('mod_name')
-                    ->label('Mod Name'),
+                    ->label('Mod'),
 
                 TextEntry::make('mod_version')
-                    ->label('Mod Version'),
+                    ->label('Version'),
 
                 TextEntry::make('score')
                     ->label('Score'),
 
                 TextEntry::make('raw')
-                    ->label('Raw'),
+                    ->label('Raw Data'),
 
                 TextEntry::make('sha1')
-                    ->label('Sha1'),
+                    ->label('SHA1'),
 
                 TextEntry::make('created_at')
-                    ->label('Created Date')
+                    ->label('Created')
                     ->dateTime(),
 
                 TextEntry::make('updated_at')
-                    ->label('Last Modified Date')
+                    ->label('Last Modified')
                     ->dateTime(),
             ]);
     }
