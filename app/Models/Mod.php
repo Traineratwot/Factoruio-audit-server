@@ -130,15 +130,15 @@ class Mod extends Model
      */
     public function runAudit(?string $version = null): ?Report
     {
-        $mod->fetchFullInfo();
-        $data = AuditService::audit($this->name, $this->latest_report);
+        $this->fetchFullInfo();
+        $data = AuditService::audit($this->name, $version);
         $report = Report::updateOrCreate(
             [
-                'mod_id' => Mod::where('name', $data['report']['modName'])->firstOrFail()?->id,
-                'mod_version' => $version ?? $data['report']['version'] ?? null,
                 'sha1' => $data['report']['sha1'],
             ],
             [
+                'mod_id' => $this->id,
+                'mod_version' => $version ?? $data['report']['version'] ?? null,
                 'raw' => $data,
                 'score' => $data['report']['score'],
                 'scannerVersion' => $data['report']['scannerVersion'],
