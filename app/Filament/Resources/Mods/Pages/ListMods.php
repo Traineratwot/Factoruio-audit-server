@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 class ListMods extends ListRecords
 {
     use InteractsWithScout;
+
     protected static string $resource = ModResource::class;
 
     protected function getHeaderActions(): array

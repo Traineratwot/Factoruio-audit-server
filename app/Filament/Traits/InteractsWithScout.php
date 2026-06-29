@@ -3,8 +3,8 @@
 namespace App\Filament\Traits;
 
 use App\Helpers\ScoutSearchHelper;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @mixin ListRecords
@@ -19,6 +19,7 @@ trait InteractsWithScout
             fallback: function (Builder $q) {
                 $this->applyColumnSearchesToTableQuery($q);
                 $this->applyGlobalSearchToTableQuery($q);
+
                 return $q;
             },
             logging: true,

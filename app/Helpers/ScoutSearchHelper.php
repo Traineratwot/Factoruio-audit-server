@@ -2,26 +2,26 @@
 
 namespace App\Helpers;
 
-use Throwable;
-use RuntimeException;
-use InvalidArgumentException;
-use Laravel\Scout\Searchable;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use Laravel\Scout\Searchable;
+use RuntimeException;
+use Throwable;
 
 class ScoutSearchHelper
 {
     /**
-     * Применяет поиск Scout к Eloquent Builder.
+     * Apply Scout search to an Eloquent Builder, preserving ordering from search results.
      *
-     * @param Builder $query Исходный Eloquent builder
-     * @param string|null $search Поисковая строка
-     * @param callable|null $fallback Fallback-колбэк стандартного поиска: function(Builder $query): Builder
-     * @param bool $logging Включить логирование
+     * @param  Builder  $query  Original Eloquent builder
+     * @param  string|null  $search  Search term
+     * @param  callable|null  $fallback  Fallback callback for non-searchable models or empty results: function(Builder $query): Builder
+     * @param  bool  $logging  Enable logging
      *
-     * @throws InvalidArgumentException Если $fallback = null и модель не Searchable
+     * @throws InvalidArgumentException If $fallback is null and model is not Searchable
      */
     public static function apply(
         Builder $query,
@@ -33,17 +33,14 @@ class ScoutSearchHelper
 
         try {
             $model = $query->getModel();
-            /**
-             * @var Model&Searchable&string $modelClass
-             */
+            /** @var class-string<Model&Searchable> $modelClass */
             $modelClass = get_class($model);
 
             self::log($logging, 'info', 'Scout search started', [
-                'model'     => $modelClass,
-                'timestamp' => now(),
+                'model' => $modelClass,
             ]);
 
-            if (!self::usesTrait($modelClass, Searchable::class)) {
+            if (! self::usesTrait($modelClass, Searchable::class)) {
                 self::log($logging, 'info', 'Model is not Searchable', [
                     'model' => $modelClass,
                 ]);
@@ -57,10 +54,6 @@ class ScoutSearchHelper
                 return $fallback($queryOriginal) ?? $queryOriginal;
             }
 
-            self::log($logging, 'info', 'Model has Searchable trait', [
-                'model' => $modelClass,
-            ]);
-
             if (blank($search)) {
                 self::log($logging, 'info', 'Search is blank, returning original query');
 
@@ -71,14 +64,14 @@ class ScoutSearchHelper
                 return $query;
             }
 
-            $searchLimit = (int) config('scout.limit.max.filament', 10);
+            $searchLimit = (int) config('scout.limit.max.filament', 20);
             $primaryKeyName = $model->getKeyName();
 
             self::log($logging, 'info', 'Search parameters', [
-                'search_term'  => $search,
+                'search_term' => $search,
                 'search_limit' => $searchLimit,
-                'primary_key'  => $primaryKeyName,
-                'model_class'  => $modelClass,
+                'primary_key' => $primaryKeyName,
+                'model_class' => $modelClass,
             ]);
 
             /** @var Collection<int, Model> $results */
@@ -96,26 +89,22 @@ class ScoutSearchHelper
                 ->all();
 
             self::log($logging, 'info', 'Search results', [
-                'found_keys' => $keysArray,
-                'count'      => count($keysArray),
+                'count' => count($keysArray),
             ]);
 
             if (empty($keysArray)) {
                 if ($fallback !== null) {
                     return $fallback($query) ?? $query;
                 }
-                throw new RuntimeException('Scout returned empty keys');
+
+                throw new RuntimeException('Scout returned empty results');
             }
 
-            $caseStatement = 'CASE ' . $primaryKeyName;
+            $caseStatement = 'CASE '.$primaryKeyName;
             foreach ($keysArray as $index => $key) {
-                $caseStatement .= ' WHEN ' . (int) $key . ' THEN ' . $index;
+                $caseStatement .= ' WHEN '.(int) $key.' THEN '.$index;
             }
             $caseStatement .= ' END';
-
-            self::log($logging, 'info', 'Order statement built', [
-                'case_statement' => $caseStatement,
-            ]);
 
             return $query
                 ->whereIn($primaryKeyName, $keysArray)
@@ -123,19 +112,12 @@ class ScoutSearchHelper
         } catch (InvalidArgumentException $e) {
             self::log($logging, 'error', 'Scout search failed', [
                 'error' => $e->getMessage(),
-                'code'  => $e->getCode(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;
         } catch (Throwable $e) {
-            self::log($logging, 'error', 'Scout search failed 2', [
+            self::log($logging, 'error', 'Scout search failed', [
                 'error' => $e->getMessage(),
-                'code'  => $e->getCode(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
@@ -149,7 +131,7 @@ class ScoutSearchHelper
 
     private static function log(bool $enabled, string $level, string $message, array $context = []): void
     {
-        if (!$enabled) {
+        if (! $enabled) {
             return;
         }
 

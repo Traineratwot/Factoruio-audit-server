@@ -153,13 +153,16 @@ class Mod extends Model
             'id' => $this->id,
             'name' => str($this->name)->limit(256)->ascii(),
             'title' => str($this->title)->limit(256)->ascii(),
-            'summary' => str($this->summary)->limit(256)->ascii(),
+            'summary' => str($this->summary)->limit(512)->ascii(),
+            'description' => str($this->description)->limit(512)->ascii(),
             'owner' => str($this->author?->name)->limit(256)->ascii(),
             'category' => str($this->category)->limit(256)->ascii(),
             'tags' => $this->tags ?? [],
             'latest_version' => $this->latest_version,
+            'factorio_version' => $this->factorio_version,
             'downloads_count' => $this->downloads_count,
             'popularity' => $this->popularity,
+            'score' => $this->score,
         ];
     }
 }

@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\Author;
 use App\Models\Mod;
+use App\Models\ModVersion;
+use App\Models\Report;
 
 return [
 
@@ -19,6 +22,11 @@ return [
     */
 
     'driver' => env('SCOUT_DRIVER', 'meilisearch'),
+    'limit' => [
+        'max' => [
+            'filament' => (int) env('SCOUT_FILAMENT_LIMIT', 20),
+        ],
+    ],
     'meilisearch' => [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
@@ -31,12 +39,13 @@ return [
                     'minWordSizeForTypos' => [
                         'oneTypo' => 3,
                         'twoTypos' => 5,
-                    ]
+                    ],
                 ],
                 'searchableAttributes' => [
                     'name',
                     'title',
                     'summary',
+                    'description',
                     'owner',
                 ],
                 'filterableAttributes' => [
@@ -45,6 +54,8 @@ return [
                     'popularity',
                     'score',
                     'latest_version',
+                    'factorio_version',
+                    'tags',
                 ],
                 'sortableAttributes' => [
                     'name',
@@ -54,8 +65,78 @@ return [
                     'downloads_count',
                     'popularity',
                     'score',
-                    'created_at',
                     'latest_version',
+                    'factorio_version',
+                ],
+            ],
+
+            Author::class => [
+                'typoTolerance' => [
+                    'enabled' => true,
+                    'minWordSizeForTypos' => [
+                        'oneTypo' => 3,
+                        'twoTypos' => 5,
+                    ],
+                ],
+                'searchableAttributes' => [
+                    'name',
+                ],
+                'filterableAttributes' => [
+                ],
+                'sortableAttributes' => [
+                    'name',
+                ],
+            ],
+
+            ModVersion::class => [
+                'typoTolerance' => [
+                    'enabled' => true,
+                    'minWordSizeForTypos' => [
+                        'oneTypo' => 3,
+                        'twoTypos' => 5,
+                    ],
+                ],
+                'searchableAttributes' => [
+                    'mod_name',
+                    'version',
+                    'file_name',
+                    'factorio_version',
+                ],
+                'filterableAttributes' => [
+                    'mod_id',
+                    'mod_name',
+                    'factorio_version',
+                ],
+                'sortableAttributes' => [
+                    'version',
+                    'factorio_version',
+                    'released_at',
+                    'mod_name',
+                ],
+            ],
+
+            Report::class => [
+                'typoTolerance' => [
+                    'enabled' => true,
+                    'minWordSizeForTypos' => [
+                        'oneTypo' => 3,
+                        'twoTypos' => 5,
+                    ],
+                ],
+                'searchableAttributes' => [
+                    'mod_name',
+                    'mod_version',
+                    'sha1',
+                ],
+                'filterableAttributes' => [
+                    'mod_name',
+                    'mod_version',
+                    'score',
+                ],
+                'sortableAttributes' => [
+                    'mod_name',
+                    'mod_version',
+                    'score',
                 ],
             ],
         ],
@@ -142,5 +223,5 @@ return [
         */
 
         'identify' => env('SCOUT_IDENTIFY', false),
-    ]
+    ],
 ];
