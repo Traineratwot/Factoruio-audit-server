@@ -35,6 +35,7 @@ class ModResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'reports_count' => $this->whenLoaded('reports', fn () => $this->reports->count(), 0),
+            'image' => $this->getImage(),
             'report_url' => route('report.mod', [
                 'mod' => $this->name,
             ]),

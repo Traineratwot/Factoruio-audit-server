@@ -113,13 +113,38 @@ class ModController extends Controller
         $mod_name = $request->route()->parameter('mod');
         $version = $request->route()->parameter('version');
         $mod = Mod::where('name', $mod_name)->firstOrFail();
+
+        $versions = $mod->versions()
+            ->select('id', 'version', 'factorio_version', 'released_at')
+            ->orderByDesc('released_at')
+            ->get();
+
+        if ($versions->isEmpty()) {
+            $mod->fetchFullInfo();
+            $versions = $mod->versions()
+                ->select('id', 'version', 'factorio_version', 'released_at')
+                ->orderByDesc('released_at')
+                ->get();
+        }
+
         if (! $version) {
             $version = $mod->latest_version;
         }
-        $report = $mod->reports()->where('mod_version', $version)->firstOrFail();
+
+        $report = $mod->reports()->where('mod_version', $version)->first();
+        $reportedVersions = $mod->reports()->pluck('mod_version')->toArray();
 
         return Inertia::render('report', [
             'report' => $report,
+            'mod' => [
+                'id' => $mod->id,
+                'name' => $mod->name,
+                'title' => $mod->title,
+                'image' => $mod->getImage(),
+            ],
+            'versions' => $versions,
+            'current_version' => $version,
+            'reported_versions' => $reportedVersions,
         ]);
     }
 

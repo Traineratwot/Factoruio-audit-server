@@ -13,12 +13,14 @@ interface AuditDialogProps {
     visible: boolean;
     onHide: () => void;
     preselectedMod?: ModSearchResult | null;
+    preselectedVersion?: string | null;
 }
 
 export const AuditDialog: React.FC<AuditDialogProps> = ({
     visible,
     onHide,
     preselectedMod = null,
+    preselectedVersion = null,
 }) => {
     const {
         searchQuery,
@@ -46,6 +48,12 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
             selectMod(preselectedMod);
         }
     }, [visible, preselectedMod, selectMod]);
+
+    useEffect(() => {
+        if (visible && preselectedVersion && selectedMod && !loadingVersions) {
+            setVersion(preselectedVersion);
+        }
+    }, [visible, preselectedVersion, selectedMod, loadingVersions, setVersion]);
 
     useEffect(() => {
         if (!visible) {

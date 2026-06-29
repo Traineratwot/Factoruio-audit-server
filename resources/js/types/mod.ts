@@ -104,6 +104,7 @@ export interface Mod {
     report_url: string;
     score?: number | null;
     reports_count: number;
+    image: string | null;
 }
 
 export interface PaginatedMods {

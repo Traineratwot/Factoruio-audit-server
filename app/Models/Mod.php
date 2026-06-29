@@ -130,6 +130,7 @@ class Mod extends Model
      */
     public function runAudit(?string $version = null): ?Report
     {
+        $mod->fetchFullInfo();
         $data = AuditService::audit($this->name, $this->latest_report);
         $report = Report::updateOrCreate(
             [
