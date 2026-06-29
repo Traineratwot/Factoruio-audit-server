@@ -1,0 +1,122 @@
+<?php
+
+namespace App\Filament\Resources\ModVersions\Tables;
+
+use App\Models\ModVersion;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+class ModVersionsTable
+{
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->defaultSort('released_at', 'desc')
+            ->columns([
+                TextColumn::make('mod.name')
+                    ->label('Mod')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+
+                TextColumn::make('version')
+                    ->label('Версия')
+                    ->badge()
+                    ->color('success')
+                    ->sortable(),
+
+                TextColumn::make('file_name')
+                    ->label('Файл')
+                    ->limit(40)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) > 40) {
+                            return $state;
+                        }
+
+                        return null;
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
+
+                TextColumn::make('download_url')
+                    ->label('Ссылка')
+                    ->url(function (ModVersion $record): ?string {
+                        if (!blank($record->download_url)) {
+                            return 'https://mods.factorio.com' . $record->download_url;
+                        }
+
+                        return null;
+                    })
+                    ->openUrlInNewTab()
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
+
+                TextColumn::make('sha1')
+                    ->label('SHA1')
+                    ->fontFamily('mono')
+                    ->limit(12)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) > 12) {
+                            return $state;
+                        }
+
+                        return null;
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('—'),
+
+                TextColumn::make('factorio_version')
+                    ->label('Factorio')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->placeholder('—'),
+
+                TextColumn::make('dependencies')
+                    ->label('Зависимости')
+                    ->badge()
+                    ->separator(',')
+                    ->color('gray')
+                    ->limitList(3)
+                    ->expandableLimitedList()
+                    ->placeholder('—'),
+
+                TextColumn::make('released_at')
+                    ->label('Дата релиза')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable()
+                    ->placeholder('—'),
+
+                TextColumn::make('created_at')
+                    ->label('Создан')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('updated_at')
+                    ->label('Обновлён')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}
