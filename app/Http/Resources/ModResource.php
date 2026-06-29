@@ -13,18 +13,19 @@ class ModResource extends JsonResource
     public function toArray(Request $request): array
     {
         $reports = $this->whenLoaded('reports');
-        if ($reports && !($reports instanceof MissingValue)) {
+        if ($reports && ! ($reports instanceof MissingValue)) {
             $reports = ReportResource::collection($reports);
-            $reports = collect($reports)->mapWithKeys(fn(ReportResource $item) => [
-                $item->mod_version => $item
+            $reports = collect($reports)->mapWithKeys(fn (ReportResource $item) => [
+                $item->mod_version => $item,
             ])->toArray();
         } else {
             $reports = [];
         }
+
         return [
             'id' => str($this->id)->limit(256)->ascii(),
             'name' => str($this->name)->limit(256)->ascii(),
-            'owner' => str($this->owner)->limit(256)->ascii(),
+            'owner' => str($this->author?->name)->limit(256)->ascii(),
             'latest_version' => $this->latest_version,
             'category' => str($this->category)->limit(256)->ascii(),
             'title' => str($this->title)->limit(256)->ascii(),
@@ -35,9 +36,9 @@ class ModResource extends JsonResource
             'updated_at' => $this->updated_at,
             'reports_count' => $this->reports_count,
             'report_url' => route('report.mod', [
-                'mod' => $this->name
+                'mod' => $this->name,
             ]),
-            'score' => (float)(isset($reports[$this->latest_version]) ? $reports[$this->latest_version]->score ?? 0 : 0),
+            'score' => (float) (isset($reports[$this->latest_version]) ? $reports[$this->latest_version]->score ?? 0 : 0),
             'reports' => $reports,
         ];
     }

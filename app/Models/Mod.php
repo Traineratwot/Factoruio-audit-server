@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Facades\AuditService;
 use App\Facades\FactorioService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
 use Throwable;
@@ -37,6 +38,11 @@ class Mod extends Model
     public function versions(): HasMany
     {
         return $this->hasMany(ModVersion::class)->orderByDesc('released_at');
+    }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(Author::class);
     }
 
     /**
@@ -92,9 +98,10 @@ class Mod extends Model
 
     public function getImage(): ?string
     {
-        if (!blank($this->thumbnail)) {
-            return "https://assets-mod.factorio.com" . $this->thumbnail;
+        if (! blank($this->thumbnail)) {
+            return 'https://assets-mod.factorio.com'.$this->thumbnail;
         }
+
         return null;
     }
 
@@ -147,7 +154,7 @@ class Mod extends Model
             'name' => str($this->name)->limit(256)->ascii(),
             'title' => str($this->title)->limit(256)->ascii(),
             'summary' => str($this->summary)->limit(256)->ascii(),
-            'owner' => str($this->owner)->limit(256)->ascii(),
+            'owner' => str($this->author?->name)->limit(256)->ascii(),
             'category' => str($this->category)->limit(256)->ascii(),
             'tags' => $this->tags ?? [],
             'latest_version' => $this->latest_version,

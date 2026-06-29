@@ -18,7 +18,7 @@ class ModInfolist
                 Section::make('Изображение')
                     ->components([
                         ImageEntry::make('thumbnail')
-                            ->state(fn(Mod $record) => $record->getImage())
+                            ->state(fn (Mod $record) => $record->getImage())
                             ->label('Thumbnail'),
                     ]),
                 Section::make('Основная информация')
@@ -45,8 +45,8 @@ class ModInfolist
                             ->columnSpanFull()
                             ->hiddenLabel(),
 
-                        TextEntry::make('owner')
-                            ->label('Owner'),
+                        TextEntry::make('author.name')
+                            ->label('Author'),
 
                         TextEntry::make('category')
                             ->label('Category')
@@ -83,7 +83,7 @@ class ModInfolist
 
                         TextEntry::make('homepage')
                             ->label('Homepage')
-                            ->url(fn(string|null|false $value) => !empty($value) ?: '#', true)
+                            ->url(fn (string|null|false $value) => ! empty($value) ?: '#', true)
                             ->columnSpanFull(),
                     ]),
 
@@ -103,7 +103,7 @@ class ModInfolist
                             ->label('Title'),
                         TextEntry::make('license.url')
                             ->label('URL')
-                            ->url(fn(string|null|false $value) => !empty($value) ?: '#', true),
+                            ->url(fn (string|null|false $value) => ! empty($value) ?: '#', true),
                     ]),
 
                 Section::make('Хронология')

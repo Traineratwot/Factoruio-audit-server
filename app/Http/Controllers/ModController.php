@@ -25,7 +25,7 @@ class ModController extends Controller
         $bindings = [];
 
         // Включаемые категории
-        if (!empty($categoryInclude)) {
+        if (! empty($categoryInclude)) {
             $includeClauses = [];
             foreach ($categoryInclude as $cat) {
                 if ($cat === 'null') {
@@ -35,13 +35,13 @@ class ModController extends Controller
                     $bindings[] = $cat;
                 }
             }
-            if (!empty($includeClauses)) {
-                $whereClauses[] = '(' . implode(' OR ', $includeClauses) . ')';
+            if (! empty($includeClauses)) {
+                $whereClauses[] = '('.implode(' OR ', $includeClauses).')';
             }
         }
 
         // Исключающие категории
-        if (!empty($categoryExclude)) {
+        if (! empty($categoryExclude)) {
             foreach ($categoryExclude as $cat) {
                 if ($cat === 'null') {
                     $whereClauses[] = 'category IS NOT NULL';
@@ -54,24 +54,27 @@ class ModController extends Controller
 
         if ($search) {
             $find = Mod::search($search)->get()->pluck('id');
-            $query = Mod::query()->with('reports')->whereHas('reports')->whereIn('id', $find);
+            $query = Mod::query()->with(['reports', 'author'])->whereHas('reports')->whereIn('id', $find);
         } else {
-            $query = Mod::query()->with('reports')->whereHas('reports');
+            $query = Mod::query()->with(['reports', 'author'])->whereHas('reports');
         }
 
-        if (!empty($whereClauses)) {
+        if (! empty($whereClauses)) {
             $query->whereRaw(implode(' AND ', $whereClauses), $bindings);
         }
 
         // Сортировка
         $acceptableSortFields = ['name', 'title', 'owner', 'category', 'downloads_count', 'popularity', 'score', 'latest_version'];
-        if (!in_array($sortField, $acceptableSortFields)) {
+        if (! in_array($sortField, $acceptableSortFields)) {
             $sortField = 'created_at';
         }
 
         $direction = strtolower($sortDirection) === 'asc' ? 'asc' : 'desc';
 
-        if ($sortField === 'score') {
+        if ($sortField === 'owner') {
+            $query->join('authors', 'authors.id', '=', 'mods.author_id')
+                ->orderBy('authors.name', $direction);
+        } elseif ($sortField === 'score') {
             $query->orderBy(
                 Report::select('score')
                     ->whereColumn('reports.mod_id', 'mods.id')
@@ -102,10 +105,11 @@ class ModController extends Controller
         $mod_name = $request->route()->parameter('mod');
         $version = $request->route()->parameter('version');
         $mod = Mod::where('name', $mod_name)->firstOrFail();
-        if (!$version) {
+        if (! $version) {
             $version = $mod->latest_version;
         }
         $report = $mod->reports()->where('mod_version', $version)->firstOrFail();
+
         return Inertia::render('report', [
             'report' => $report,
         ]);

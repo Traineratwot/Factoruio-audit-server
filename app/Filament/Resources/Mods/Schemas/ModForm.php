@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Mods\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -20,8 +21,11 @@ class ModForm
                 TextInput::make('title')
                     ->label('Title'),
 
-                TextInput::make('owner')
-                    ->label('Owner'),
+                Select::make('author_id')
+                    ->label('Author')
+                    ->relationship('author', 'name')
+                    ->searchable()
+                    ->preload(),
 
                 TextInput::make('latest_version')
                     ->label('Latest Version'),
