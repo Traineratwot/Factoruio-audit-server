@@ -262,7 +262,41 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
                 </div>
 
                 {/* Stat Cards */}
-                <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <Card className="Image">
+                        {mod.image ? (
+                            <img
+                                src={mod.image}
+                                alt={mod.name}
+                                style={{
+                                    width: 'auto',
+                                    height: '100%',
+                                    borderRadius: '8px',
+                                    objectFit: 'cover',
+                                }}
+                            />
+                        ) : (
+                            <div
+                                style={{
+                                    width: 'auto',
+                                    height: '100%',
+                                    borderRadius: '8px',
+                                    background:
+                                        'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    fontSize: '1.5rem',
+                                }}
+                            >
+                                {(mod.title || mod.name)
+                                    .charAt(0)
+                                    .toUpperCase()}
+                            </div>
+                        )}
+                    </Card>
                     <Card className="shadow-none">
                         <div className="text-xs text-gray-400 uppercase">
                             Overall Score
@@ -308,10 +342,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
                 {/* Errors section if any */}
                 {auditReport.errors && auditReport.errors.length > 0 && (
-                    <Card
-                        title="Errors"
-                        className="mb-4 border border-red-500"
-                    >
+                    <Card title="Errors" className="mb-4 border border-red-500">
                         <ul className="list-disc pl-4 text-red-500">
                             {auditReport.errors.map((err, idx) => (
                                 <li key={idx}>{err}</li>
