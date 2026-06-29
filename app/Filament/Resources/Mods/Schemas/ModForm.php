@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Mods\Schemas;
 
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
@@ -16,24 +17,47 @@ class ModForm
                     ->label('Name')
                     ->required(),
 
+                TextInput::make('title')
+                    ->label('Title'),
+
+                TextInput::make('owner')
+                    ->label('Owner'),
+
                 TextInput::make('latest_version')
                     ->label('Latest Version'),
 
                 TextInput::make('category')
                     ->label('Category'),
 
-                TextInput::make('title')
-                    ->label('Title'),
+                Textarea::make('summary')
+                    ->label('Summary')
+                    ->rows(3),
 
-                TextInput::make('summary')
-                    ->label('Summary'),
+                Textarea::make('description')
+                    ->label('Description')
+                    ->rows(5),
+
+                TextInput::make('thumbnail')
+                    ->label('Thumbnail URL'),
+
+                TextInput::make('homepage')
+                    ->label('Homepage')
+                    ->url(),
 
                 TextInput::make('downloads_count')
-                    ->label('Downloads Count'),
+                    ->label('Downloads Count')
+                    ->numeric(),
 
                 TextInput::make('popularity')
                     ->label('Popularity')
                     ->numeric(),
+
+                TextInput::make('score')
+                    ->label('Score')
+                    ->numeric(),
+
+                TextInput::make('factorio_version')
+                    ->label('Factorio Version'),
 
                 TextEntry::make('created_at')
                     ->label('Created Date')

@@ -3,12 +3,12 @@
 namespace App\Filament\Resources\Mods;
 
 use App\Filament\Resources\Mods\RelationManagers\ModReportRelationManager;
+use App\Filament\Resources\Mods\RelationManagers\ModVersionRelationManager;
 use App\Filament\Resources\Mods\Schemas\ModForm;
 use App\Filament\Resources\Mods\Schemas\ModInfolist;
 use App\Filament\Resources\Mods\Tables\ModsTable;
 use App\Models\Mod;
 use BackedEnum;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -53,6 +53,7 @@ class ModResource extends Resource
     public static function getRelations(): array
     {
         return [
+            ModVersionRelationManager::class,
             ModReportRelationManager::class,
         ];
     }

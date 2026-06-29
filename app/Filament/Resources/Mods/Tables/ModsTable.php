@@ -6,6 +6,7 @@ use App\Jobs\AuditJob;
 use App\Models\Mod;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
@@ -21,6 +22,14 @@ class ModsTable
         return $table
             ->defaultSort('popularity', 'desc')
             ->columns([
+                ImageColumn::make('thumbnail')
+                    ->label('Thumb')
+                    ->disk('public')
+                    ->visibility('public')
+                    ->circular()
+                    ->size(40)
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('name')
                     ->label('Имя (slug)')
                     ->searchable()
@@ -43,7 +52,7 @@ class ModsTable
                         thousandsSeparator: ' ',
                     )
                     ->placeholder('0')
-                    ->extraAttributes(['class' => 'font-mono']), // опционально
+                    ->extraAttributes(['class' => 'font-mono']),
 
                 TextColumn::make('latest_version')
                     ->label('Последняя версия')
@@ -57,6 +66,13 @@ class ModsTable
                     ->color('gray')
                     ->placeholder('—'),
 
+                TextColumn::make('tags')
+                    ->label('Теги')
+                    ->badge()
+                    ->separator(',')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('summary')
                     ->label('Краткое описание')
                     ->limit(80)
@@ -65,6 +81,7 @@ class ModsTable
                         if (strlen($state) > 80) {
                             return $state;
                         }
+
                         return null;
                     })
                     ->placeholder('—'),
@@ -78,37 +95,58 @@ class ModsTable
                     )
                     ->sortable()
                     ->placeholder('0'),
+
+                TextColumn::make('factorio_version')
+                    ->label('Factorio')
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('score')
+                    ->label('Score')
+                    ->sortable()
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Фильтр по категории (выбор из существующих)
                 SelectFilter::make('category')
                     ->label('Категория')
-                    ->options(fn() => Mod::distinct()->pluck('category', 'category')->toArray())
+                    ->options(fn () => Mod::distinct()->pluck('category', 'category')->toArray())
                     ->placeholder('Все категории'),
 
-                // Фильтр по наличию последней версии (поле не пустое)
                 TernaryFilter::make('has_version')
                     ->label('Последняя версия')
                     ->placeholder('Все моды')
                     ->trueLabel('Имеют версию')
                     ->falseLabel('Без версии')
                     ->queries(
-                        true: fn(Builder $query) => $query->whereNotNull('latest_version')->where('latest_version', '!=', ''),
-                        false: fn(Builder $query) => $query->whereNull('latest_version')->orWhere('latest_version', '=', ''),
-                        blank: fn(Builder $query) => $query,
+                        true: fn (Builder $query) => $query->whereNotNull('latest_version')->where('latest_version', '!=', ''),
+                        false: fn (Builder $query) => $query->whereNull('latest_version')->orWhere('latest_version', '=', ''),
+                        blank: fn (Builder $query) => $query,
                     ),
 
-                TernaryFilter::make('has_version')
+                TernaryFilter::make('has_reports')
                     ->label('Есть отчет')
                     ->placeholder('Все моды')
                     ->trueLabel('Имеют отчет')
                     ->falseLabel('Без отчета')
                     ->queries(
-                        true: fn(Builder|Mod $query) => $query->whereHas('reports'),
-                        false: fn(Builder|Mod $query) => $query->whereDoesntHave('reports'),
-                        blank: fn(Builder|Mod $query) => $query,
+                        true: fn (Builder|Mod $query) => $query->whereHas('reports'),
+                        false: fn (Builder|Mod $query) => $query->whereDoesntHave('reports'),
+                        blank: fn (Builder|Mod $query) => $query,
                     ),
 
+                TernaryFilter::make('has_full_info')
+                    ->label('Полная информация')
+                    ->placeholder('Все моды')
+                    ->trueLabel('Загружена')
+                    ->falseLabel('Не загружена')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNotNull('releases'),
+                        false: fn (Builder $query) => $query->whereNull('releases'),
+                        blank: fn (Builder $query) => $query,
+                    ),
             ])
             ->recordActions([
                 Action::make('audit')
@@ -119,7 +157,7 @@ class ModsTable
                             Log::error("Ошибка при запуске аудита для {$record->name}", ['exception' => $e]);
                             throw $e;
                         }
-                    })
+                    }),
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkAction::make('audits')
@@ -127,7 +165,7 @@ class ModsTable
                         foreach ($records as $record) {
                             AuditJob::dispatch($record->id);
                         }
-                    })
+                    }),
             ]);
     }
 }
