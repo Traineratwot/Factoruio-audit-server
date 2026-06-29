@@ -24,11 +24,11 @@ class ModsTable
             ->columns([
                 ImageColumn::make('thumbnail')
                     ->label('Thumb')
-                    ->disk('public')
+                    ->state(fn(Mod $record)=> $record->getImage())
                     ->visibility('public')
                     ->circular()
-                    ->size(40)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->imageSize(40)
+                ,
 
                 TextColumn::make('name')
                     ->label('Имя (slug)')

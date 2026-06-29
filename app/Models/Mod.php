@@ -7,6 +7,7 @@ use App\Facades\FactorioService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\Client\ConnectionException;
 use Laravel\Scout\Searchable;
 use Throwable;
 
@@ -27,6 +28,7 @@ class Mod extends Model
             'releases' => 'array',
             'score' => 'float',
             'latest_release_date' => 'datetime',
+            'fetch_full_info_at' => 'datetime',
         ];
     }
 
@@ -71,7 +73,16 @@ class Mod extends Model
 
     public function fetchFullInfo(): bool
     {
-        $data = FactorioService::modFull($this->name);
+        try {
+            $data = FactorioService::modFull($this->name);
+        } catch (ConnectionException $e) {
+            $this->update([
+                'fetch_full_info_error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
         if ($data === null) {
             return false;
         }
@@ -89,6 +100,8 @@ class Mod extends Model
             'score' => $data['score'] ?? null,
             'factorio_version' => $latestRelease['info_json']['factorio_version'] ?? null,
             'latest_release_date' => $latestRelease['released_at'] ?? null,
+            'fetch_full_info_at' => now(),
+            'fetch_full_info_error' => null,
         ]);
 
         $this->syncVersions($data['releases'] ?? []);

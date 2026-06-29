@@ -41,7 +41,7 @@ class FactorioService
 
         return Cache::remember($cacheKey, 3600, function () use ($name) {
             $response = $this->client()
-                ->timeout(30)
+                ->timeout(5)
                 ->get("mods/{$name}/full");
 
             if ($response->failed()) {
