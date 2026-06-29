@@ -171,8 +171,9 @@ class ModsTable
             ])
             ->recordActions([
                 Action::make('fetchFullInfo')
-                    ->label('Fetch Info')
+                    ->iconButton()
                     ->icon('heroicon-o-arrow-down-tray')
+                    ->tooltip('Fetch Full Info')
                     ->color('info')
                     ->action(function (Mod $record): void {
                         $ok = $record->fetchFullInfo();
@@ -185,8 +186,9 @@ class ModsTable
                     }),
 
                 Action::make('audit')
-                    ->label('Audit')
+                    ->iconButton()
                     ->icon('heroicon-o-magnifying-glass')
+                    ->tooltip('Audit')
                     ->color('warning')
                     ->action(function (Mod $record): void {
                         AuditJob::dispatch($record->id);

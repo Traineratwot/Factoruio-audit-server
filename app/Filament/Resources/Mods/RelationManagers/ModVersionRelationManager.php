@@ -93,8 +93,9 @@ class ModVersionRelationManager extends RelationManager
             ->defaultSort('released_at', 'desc')
             ->recordActions([
                 Action::make('audit')
-                    ->label('Audit Version')
+                    ->iconButton()
                     ->icon('heroicon-o-magnifying-glass')
+                    ->tooltip('Audit Version')
                     ->color('warning')
                     ->action(function (ModVersion $record): void {
                         AuditJob::dispatch($record->mod_id, $record->version);
@@ -106,7 +107,8 @@ class ModVersionRelationManager extends RelationManager
                             ->send();
                     }),
 
-                ViewAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
             ]);
     }
 }
