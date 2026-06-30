@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\ModVersions\Tables;
 
 use App\Models\ModVersion;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 class ModVersionsTable
@@ -12,6 +14,10 @@ class ModVersionsTable
     {
         return $table
             ->defaultSort('released_at', 'desc')
+            ->recordActions([
+                ViewAction::make()
+                    ->iconButton()
+            ], RecordActionsPosition::BeforeColumns)
             ->columns([
                 TextColumn::make('mod.name')
                     ->label('Mod')
@@ -42,8 +48,8 @@ class ModVersionsTable
                 TextColumn::make('download_url')
                     ->label('Download URL')
                     ->url(function (ModVersion $record): ?string {
-                        if (! blank($record->download_url)) {
-                            return 'https://mods.factorio.com'.$record->download_url;
+                        if (!blank($record->download_url)) {
+                            return 'https://mods.factorio.com' . $record->download_url;
                         }
 
                         return null;
@@ -78,10 +84,8 @@ class ModVersionsTable
                 TextColumn::make('dependencies')
                     ->label('Dependencies')
                     ->badge()
-                    ->separator(',')
                     ->color('gray')
                     ->limitList(3)
-                    ->expandableLimitedList()
                     ->placeholder('—'),
 
                 TextColumn::make('released_at')
