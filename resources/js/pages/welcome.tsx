@@ -141,11 +141,11 @@ export default function Welcome({
                                 reportFilter={reportFilter}
                                 onFilterChange={handleReportFilterChange}
                             />
-                            <FactorioVersionFilter
-                                versions={factorio_versions}
-                                selectedVersion={factorioVersion}
-                                onVersionChange={handleFactorioVersionChange}
-                            />
+                            {/*<FactorioVersionFilter*/}
+                            {/*    versions={factorio_versions}*/}
+                            {/*    selectedVersion={factorioVersion}*/}
+                            {/*    onVersionChange={handleFactorioVersionChange}*/}
+                            {/*/>*/}
                             <CategoryFilter
                                 categories={allCategories}
                                 categoryFilter={categoryFilter}
