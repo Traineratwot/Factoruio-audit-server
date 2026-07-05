@@ -123,7 +123,12 @@ export const ModsTable: React.FC<ModsTableProps> = ({
                 <Column
                     field="score"
                     header="Score"
-                    body={(rowData: Mod) => <ScoreColumn rowData={rowData} />}
+                    body={(rowData: Mod) => (
+                        <ScoreColumn
+                            rowData={rowData}
+                            onAuditClick={onAuditMod}
+                        />
+                    )}
                     sortable
                     style={{ width: '12%' }}
                 />

@@ -62,36 +62,6 @@ export const ActionColumn: React.FC<ActionColumnProps> = ({
                         title={`Report is for v${rowData.latest_report_version}, latest is v${rowData.latest_version}`}
                     />
                 )}
-            {rowData.latest_report_version &&
-                rowData.latest_version &&
-                rowData.latest_report_version !== rowData.latest_version && (
-                    <button
-                        type="button"
-                        onClick={() => onAuditClick(rowData)}
-                        title={`Audit latest version (${rowData.latest_version})`}
-                        style={{
-                            width: '1.2rem',
-                            height: '1.2rem',
-                            borderRadius: '50%',
-                            background: '#f59e0b',
-                            border: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            padding: 0,
-                            flexShrink: 0,
-                        }}
-                    >
-                        <i
-                            className="pi pi-arrow-down"
-                            style={{
-                                fontSize: '0.55rem',
-                                color: '#000',
-                            }}
-                        />
-                    </button>
-                )}
         </div>
     );
 };

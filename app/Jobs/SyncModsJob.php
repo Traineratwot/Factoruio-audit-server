@@ -21,6 +21,7 @@ class SyncModsJob implements ShouldQueue
 
     public function __construct()
     {
+        $this->onQueue('work2');
     }
 
     /**

@@ -22,7 +22,7 @@ class FetchFullInfoJob implements ShouldQueue
         public bool $force = false,
         public ?int $limit = null,
     ) {
-        $this->onQueue('work1');
+        $this->onQueue('content');
     }
 
     public function handle(): void
