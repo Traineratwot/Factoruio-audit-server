@@ -60,8 +60,11 @@ class ModController extends Controller
         }
 
         if ($search) {
-            $find = Mod::search($search)->get()->pluck('id');
+            $find = Mod::search($search)->get()->pluck('id')->toArray();
             $query = Mod::query()->with(['reports', 'author'])->whereIn('id', $find);
+            if (! empty($find)) {
+                $query->orderByRaw('array_position(array['.implode(',', $find).']::bigint[], id)');
+            }
         } else {
             $query = Mod::query()->with(['reports', 'author']);
         }
@@ -168,8 +171,7 @@ class ModController extends Controller
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 15);
 
-        $mods = Mod::search($query)->paginate($perPage, ['*'], 'page', $page);
-
+        $mods = Mod::search($query)->paginate($perPage, 'page', $page);
         return response()->json($mods);
     }
 }
