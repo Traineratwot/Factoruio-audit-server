@@ -36,10 +36,19 @@ class ModResource extends JsonResource
             'updated_at' => $this->updated_at,
             'reports_count' => $this->whenLoaded('reports', fn () => $this->reports->count(), 0),
             'image' => $this->getImage(),
-            'report_url' => route('report.mod', [
-                'mod' => $this->name,
-            ]),
-            'score' => (float) (isset($reports[$this->latest_version]) ? $reports[$this->latest_version]->score ?? 0 : 0),
+            'latest_report_version' => $this->when(
+                $this->relationLoaded('reports'),
+                fn () => $this->latest_report_version,
+            ),
+            'report_url' => $this->when(
+                $this->relationLoaded('reports') && $this->reports->count() > 0,
+                fn () => route('report.mod.version', [
+                    'mod' => $this->name,
+                    'version' => $this->latest_report_version,
+                ]),
+                fn () => route('report.mod', ['mod' => $this->name]),
+            ),
+            'score' => (float) (isset($reports[$this->latest_report_version]) ? $reports[$this->latest_report_version]->score ?? 0 : 0),
             'reports' => $reports,
         ];
     }

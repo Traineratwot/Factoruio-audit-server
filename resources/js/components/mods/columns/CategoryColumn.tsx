@@ -1,11 +1,12 @@
-import React from 'react';
 import { Tag } from 'primereact/tag';
-import { Mod } from '@/types/mod';
+import React from 'react';
 import { CATEGORY_COLORS } from '@/constants/categories';
+import type { Mod } from '@/types/mod';
 
 export const CategoryColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {
     const category = rowData.category || 'Uncategorized';
     const color = CATEGORY_COLORS[category.toLowerCase()] || '#6b7280';
+
     return (
         <Tag
             value={category}

@@ -117,13 +117,12 @@ export const useAuditForm = () => {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-XSRF-TOKEN':
-                        decodeURIComponent(
-                            document.cookie
-                                .split('; ')
-                                .find((c) => c.startsWith('XSRF-TOKEN='))
-                                ?.split('=')[1] ?? '',
-                        ),
+                    'X-XSRF-TOKEN': decodeURIComponent(
+                        document.cookie
+                            .split('; ')
+                            .find((c) => c.startsWith('XSRF-TOKEN='))
+                            ?.split('=')[1] ?? '',
+                    ),
                 },
                 body: JSON.stringify({
                     mod_id: state.selectedMod.id,

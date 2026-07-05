@@ -109,6 +109,15 @@ class Mod extends Model
         return true;
     }
 
+    public function getLatestReportVersionAttribute(): ?string
+    {
+        if ($this->relationLoaded('reports') && $this->reports->isNotEmpty()) {
+            return $this->reports->sortByDesc('created_at')->first()->mod_version;
+        }
+
+        return $this->reports()->orderByDesc('created_at')->value('mod_version');
+    }
+
     public function getImage(): ?string
     {
         if (! blank($this->thumbnail)) {

@@ -1,8 +1,8 @@
-import React from 'react';
-import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
+import React from 'react';
 
 interface TableHeaderProps {
     searchQuery: string;

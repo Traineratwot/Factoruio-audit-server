@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { CategoryFilterState, ReportFilterValue } from '@/types/mod';
+import { useEffect, useState } from 'react';
+import type { CategoryFilterState, ReportFilterValue } from '@/types/mod';
 
 export const useModsFilter = (
     initialSearch: string,
@@ -20,6 +20,7 @@ export const useModsFilter = (
             initialCategoryExclude.forEach((cat) => {
                 filter[cat] = 'exclude';
             });
+
             return filter;
         },
     );
@@ -31,6 +32,7 @@ export const useModsFilter = (
 
     const getCurrentParams = () => {
         const params = new URLSearchParams(window.location.search);
+
         return {
             search: params.get('search') || '',
             include: params.getAll('category_include[]'),
@@ -49,28 +51,49 @@ export const useModsFilter = (
         newReportFilter?: ReportFilterValue,
     ) => {
         const params: Record<string, string | string[]> = {};
-        if (searchQuery) params.search = searchQuery;
+
+        if (searchQuery) {
+            params.search = searchQuery;
+        }
 
         const include: string[] = [];
         const exclude: string[] = [];
         Object.entries(categoryFilter).forEach(([cat, state]) => {
-            if (state === 'include') include.push(cat);
-            else if (state === 'exclude') exclude.push(cat);
+            if (state === 'include') {
+                include.push(cat);
+            } else if (state === 'exclude') {
+                exclude.push(cat);
+            }
         });
-        if (include.length) params.category_include = include;
-        if (exclude.length) params.category_exclude = exclude;
-        if (page) params.page = String(page);
+
+        if (include.length) {
+            params.category_include = include;
+        }
+
+        if (exclude.length) {
+            params.category_exclude = exclude;
+        }
+
+        if (page) {
+            params.page = String(page);
+        }
 
         const currentSortField = newSortField ?? sortField;
         const currentSortDirection = newSortDirection ?? sortDirection;
-        if (currentSortField && currentSortField !== 'created_at')
+
+        if (currentSortField && currentSortField !== 'created_at') {
             params.sort_field = currentSortField;
-        if (currentSortDirection && currentSortDirection !== 'desc')
+        }
+
+        if (currentSortDirection && currentSortDirection !== 'desc') {
             params.sort_direction = currentSortDirection;
+        }
 
         const currentReportFilter = newReportFilter ?? reportFilter;
-        if (currentReportFilter && currentReportFilter !== 'all')
+
+        if (currentReportFilter && currentReportFilter !== 'all') {
             params.report_filter = currentReportFilter;
+        }
 
         const current = getCurrentParams();
         const hasChanged =
@@ -104,6 +127,7 @@ export const useModsFilter = (
         const timeout = setTimeout(() => {
             updateUrl();
         }, 500);
+
         return () => clearTimeout(timeout);
     }, [searchQuery, categoryFilter, reportFilter]);
 
@@ -119,12 +143,18 @@ export const useModsFilter = (
         setCategoryFilter((prev) => {
             const current = prev[category] || null;
             let next: 'include' | 'exclude' | null = null;
-            if (current === null) next = 'include';
-            else if (current === 'include') next = 'exclude';
-            else if (current === 'exclude') next = null;
+
+            if (current === null) {
+                next = 'include';
+            } else if (current === 'include') {
+                next = 'exclude';
+            } else if (current === 'exclude') {
+                next = null;
+            }
 
             const newFilter = { ...prev, [category]: next };
             updateCategoryFilter(newFilter);
+
             return newFilter;
         });
     };
@@ -133,19 +163,38 @@ export const useModsFilter = (
         const include: string[] = [];
         const exclude: string[] = [];
         Object.entries(newFilter).forEach(([cat, state]) => {
-            if (state === 'include') include.push(cat);
-            else if (state === 'exclude') exclude.push(cat);
+            if (state === 'include') {
+                include.push(cat);
+            } else if (state === 'exclude') {
+                exclude.push(cat);
+            }
         });
 
         const params: Record<string, string | string[]> = {};
-        if (searchQuery) params.search = searchQuery;
-        if (include.length) params.category_include = include;
-        if (exclude.length) params.category_exclude = exclude;
-        if (sortField && sortField !== 'created_at') params.sort_field = sortField;
-        if (sortDirection && sortDirection !== 'desc')
+
+        if (searchQuery) {
+            params.search = searchQuery;
+        }
+
+        if (include.length) {
+            params.category_include = include;
+        }
+
+        if (exclude.length) {
+            params.category_exclude = exclude;
+        }
+
+        if (sortField && sortField !== 'created_at') {
+            params.sort_field = sortField;
+        }
+
+        if (sortDirection && sortDirection !== 'desc') {
             params.sort_direction = sortDirection;
-        if (reportFilter && reportFilter !== 'all')
+        }
+
+        if (reportFilter && reportFilter !== 'all') {
             params.report_filter = reportFilter;
+        }
 
         const current = getCurrentParams();
         const hasChanged =

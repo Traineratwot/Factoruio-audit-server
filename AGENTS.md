@@ -262,5 +262,5 @@ npm run lint:check → npm run format:check → npm run types:check → php arti
 
 ## Known limitations
 
-- **Mod thumbnails**: Only ~8 mods have thumbnails populated (those that had `fetchFullInfo()` called). Most mods show letter avatar fallback.
+- **Mod thumbnails**: not all mods have thumbnails populated (those that had `fetchFullInfo()` called). Most mods show letter avatar fallback.
 - **Report uniqueness**: `(mod_id, mod_version)` is unique — one report per mod version.

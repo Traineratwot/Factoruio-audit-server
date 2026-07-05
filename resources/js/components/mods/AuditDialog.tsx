@@ -43,7 +43,11 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
     const preselectedRef = useRef<string | null>(null);
 
     useEffect(() => {
-        if (visible && preselectedMod && preselectedRef.current !== preselectedMod.name) {
+        if (
+            visible &&
+            preselectedMod &&
+            preselectedRef.current !== preselectedMod.name
+        ) {
             preselectedRef.current = preselectedMod.name;
             selectMod(preselectedMod);
         }
@@ -77,7 +81,13 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
     };
 
     const footer = (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '0.5rem',
+            }}
+        >
             <Button
                 label="Cancel"
                 severity="secondary"
@@ -142,7 +152,10 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
                                 }}
                             >
                                 <ProgressSpinner
-                                    style={{ width: '1.2rem', height: '1.2rem' }}
+                                    style={{
+                                        width: '1.2rem',
+                                        height: '1.2rem',
+                                    }}
                                     strokeWidth="4"
                                 />
                             </div>

@@ -129,7 +129,7 @@ class ModController extends Controller
         }
 
         if (! $version) {
-            $version = $mod->latest_version;
+            $version = $mod->latest_report_version ?? $mod->latest_version;
         }
 
         $report = $mod->reports()->where('mod_version', $version)->first();
@@ -145,6 +145,7 @@ class ModController extends Controller
             ],
             'versions' => $versions,
             'current_version' => $version,
+            'latest_version' => $mod->latest_version,
             'reported_versions' => $reportedVersions,
         ]);
     }

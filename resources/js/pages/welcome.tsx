@@ -9,7 +9,12 @@ import { ModsTable } from '@/components/mods/ModsTable';
 import { ReportFilter } from '@/components/mods/ReportFilter';
 import Container from '@/components/ui/Container';
 import { useModsFilter } from '@/hooks/useModsFilter';
-import type { Mod, ModSearchResult, PaginatedMods, ReportFilterValue } from '@/types/mod';
+import type {
+    Mod,
+    ModSearchResult,
+    PaginatedMods,
+    ReportFilterValue,
+} from '@/types/mod';
 
 interface WelcomeProps {
     mods: PaginatedMods;

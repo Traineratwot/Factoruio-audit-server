@@ -7,6 +7,9 @@ export const formatDate = (date: string): string => {
 };
 
 export const getStars = (popularity: number | null): number => {
-    if (popularity === null || popularity === undefined) return 0;
+    if (popularity === null || popularity === undefined) {
+        return 0;
+    }
+
     return Math.round(popularity / 20);
 };

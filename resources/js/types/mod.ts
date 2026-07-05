@@ -105,6 +105,7 @@ export interface Mod {
     score?: number | null;
     reports_count: number;
     image: string | null;
+    latest_report_version?: string | null;
 }
 
 export interface PaginatedMods {

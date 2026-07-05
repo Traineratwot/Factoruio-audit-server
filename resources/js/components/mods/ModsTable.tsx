@@ -1,17 +1,18 @@
-import React from 'react';
-import { DataTable, DataTableSortEvent } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
+import { Column } from 'primereact/column';
+import type { DataTableSortEvent } from 'primereact/datatable';
+import { DataTable } from 'primereact/datatable';
 import { Paginator } from 'primereact/paginator';
-import { Mod, PaginatedMods } from '@/types/mod';
-import { NameColumn } from './columns/NameColumn';
-import { CategoryColumn } from './columns/CategoryColumn';
-import { ScoreColumn } from './columns/ScoreColumn';
-import { DownloadsColumn } from './columns/DownloadsColumn';
-import { PopularityColumn } from './columns/PopularityColumn';
-import { DateColumn } from './columns/DateColumn';
+import React from 'react';
 import { ActionColumn } from './columns/ActionColumn';
+import { CategoryColumn } from './columns/CategoryColumn';
+import { DateColumn } from './columns/DateColumn';
+import { DownloadsColumn } from './columns/DownloadsColumn';
+import { NameColumn } from './columns/NameColumn';
+import { PopularityColumn } from './columns/PopularityColumn';
+import { ScoreColumn } from './columns/ScoreColumn';
 import { TableHeader } from './TableHeader';
+import type { Mod, PaginatedMods } from '@/types/mod';
 
 interface ModsTableProps {
     mods: PaginatedMods;
@@ -50,13 +51,15 @@ export const ModsTable: React.FC<ModsTableProps> = ({
         // PrimeReact: sortOrder 1 = asc, -1 = desc
         // Наш формат: 'asc' или 'desc'
         // sortOrder может быть undefined при первом клике, используем 'desc' по умолчанию
-        const newSortDirection = event.sortOrder === 1
-            ? 'asc'
-            : event.sortOrder === -1
-                ? 'desc'
-                : 'desc';
+        const newSortDirection =
+            event.sortOrder === 1
+                ? 'asc'
+                : event.sortOrder === -1
+                  ? 'desc'
+                  : 'desc';
 
         onSortChange(newSortField, newSortDirection);
+
         // Сбрасываем страницу при сортировке, если не на первой
         if (currentPage !== 1) {
             onPageChange(0);

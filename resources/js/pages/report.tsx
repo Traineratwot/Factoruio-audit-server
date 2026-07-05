@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { Card } from 'primereact/card';
-import { ProgressBar } from 'primereact/progressbar';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Dropdown } from 'primereact/dropdown';
 import { PrimeReactProvider } from 'primereact/api';
+import { Button } from 'primereact/button';
+import { Card } from 'primereact/card';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { Dropdown } from 'primereact/dropdown';
+import { ProgressBar } from 'primereact/progressbar';
+import React, { useState } from 'react';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
+import { PathsCell, SeverityTag } from '@/components/AuditReport';
+import { AuditDialog } from '@/components/mods/AuditDialog';
+import Container from '@/components/ui/Container';
 import type { Finding, rawReport } from '@/types/mod';
 import { formatBytes, formatDate } from '@/utils/formatters';
-import { PathsCell, SeverityTag } from '@/components/AuditReport';
-import Container from '@/components/ui/Container';
-import { AuditDialog } from '@/components/mods/AuditDialog';
 
 interface ReportVersion {
     id: number;
@@ -32,6 +33,7 @@ interface AuditReportViewerProps {
     };
     versions: ReportVersion[];
     current_version: string;
+    latest_version: string | null;
     reported_versions: string[];
 }
 
@@ -40,6 +42,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
     mod,
     versions,
     current_version,
+    latest_version,
     reported_versions,
 }) => {
     const [auditDialogVisible, setAuditDialogVisible] = useState(false);
@@ -60,11 +63,9 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
         }
     };
 
-    const dropdownItemTemplate = (option: {
-        label: string;
-        value: string;
-    }) => {
+    const dropdownItemTemplate = (option: { label: string; value: string }) => {
         const has = hasReport(option.value);
+
         return (
             <div
                 style={{
@@ -74,7 +75,9 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
                 }}
             >
                 <i
-                    className={has ? 'pi pi-check-circle' : 'pi pi-times-circle'}
+                    className={
+                        has ? 'pi pi-check-circle' : 'pi pi-times-circle'
+                    }
                     style={{
                         fontSize: '0.75rem',
                         color: has ? '#22c55e' : '#6b7280',
@@ -91,14 +94,18 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
         );
     };
 
-    const dropdownValueTemplate = (option: {
-        label: string;
-        value: string;
-    } | null) => {
+    const dropdownValueTemplate = (
+        option: {
+            label: string;
+            value: string;
+        } | null,
+    ) => {
         if (!option) {
             return <span>Select version...</span>;
         }
+
         const has = hasReport(option.value);
+
         return (
             <div
                 style={{
@@ -108,7 +115,9 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
                 }}
             >
                 <i
-                    className={has ? 'pi pi-check-circle' : 'pi pi-times-circle'}
+                    className={
+                        has ? 'pi pi-check-circle' : 'pi pi-times-circle'
+                    }
                     style={{
                         fontSize: '0.75rem',
                         color: has ? '#22c55e' : '#f59e0b',
@@ -126,6 +135,12 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
     const selectedOption =
         versionOptions.find((o) => o.value === current_version) ?? null;
+
+    const isOutdated =
+        report !== null &&
+        latest_version !== null &&
+        current_version !== latest_version &&
+        !reported_versions.includes(latest_version);
 
     const ModHeader = () => (
         <div className="mb-4 flex items-center gap-4">
@@ -146,8 +161,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
                         width: '4rem',
                         height: '4rem',
                         borderRadius: '8px',
-                        background:
-                            'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                        background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -260,6 +274,44 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
                         style={{ width: '100%' }}
                     />
                 </div>
+
+                {/* Outdated report warning */}
+                {isOutdated && (
+                    <div
+                        className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 px-4 py-3"
+                        style={{ background: 'rgba(245, 158, 11, 0.08)' }}
+                    >
+                        <div className="flex items-center gap-2">
+                            <i
+                                className="pi pi-exclamation-triangle"
+                                style={{ color: '#f59e0b' }}
+                            />
+                            <span className="text-sm text-amber-200">
+                                This report is for version{' '}
+                                <strong>{current_version}</strong>, but the
+                                latest version is{' '}
+                                <strong>{latest_version}</strong>.
+                            </span>
+                        </div>
+                        <Button
+                            label={`Audit v${latest_version}`}
+                            icon="pi pi-play"
+                            size="small"
+                            severity="warning"
+                            text
+                            raised
+                            onClick={() => {
+                                setAuditVersion(latest_version);
+                                setAuditDialogVisible(true);
+                            }}
+                            style={{
+                                borderRadius: '20px',
+                                padding: '0.25rem 1rem',
+                                whiteSpace: 'nowrap',
+                            }}
+                        />
+                    </div>
+                )}
 
                 {/* Stat Cards */}
                 <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -409,6 +461,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
                             : scanner.score >= 40
                               ? '#f16338'
                               : '#ef4444';
+
                     return (
                         <Card key={scanner.id} className="mb-4 shadow-sm">
                             <div className="mb-2 flex flex-wrap items-start justify-between gap-2">

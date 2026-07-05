@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mod } from '@/types/mod';
+import type { Mod } from '@/types/mod';
 import { formatDate } from '@/utils/format';
 
 export const DateColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {

@@ -3,7 +3,10 @@ export function formatBytes(
     bytes: number,
     significance: 1 | 2 | 3 | 4 = 3,
 ): string {
-    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024) {
+        return `${bytes} B`;
+    }
+
     const units = ['B', 'kiB', 'MiB', 'GiB', 'TiB'];
     const exponent = Math.floor(Math.log(bytes) / Math.log(1024));
     const value = bytes / Math.pow(1024, exponent);
@@ -11,6 +14,7 @@ export function formatBytes(
         0,
         significance - Math.floor(Math.log10(value)) - 1,
     );
+
     return `${value.toFixed(digits)} ${units[exponent]}`;
 }
 

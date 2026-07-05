@@ -7,10 +7,25 @@ interface ReportFilterProps {
     onFilterChange: (value: ReportFilterValue) => void;
 }
 
-const options: { value: ReportFilterValue; label: string; icon: string; color: string }[] = [
+const options: {
+    value: ReportFilterValue;
+    label: string;
+    icon: string;
+    color: string;
+}[] = [
     { value: 'all', label: 'All', icon: 'pi pi-list', color: '#6b7280' },
-    { value: 'with', label: 'With report', icon: 'pi pi-check-circle', color: '#22c55e' },
-    { value: 'without', label: 'Without report', icon: 'pi pi-times-circle', color: '#ef4444' },
+    {
+        value: 'with',
+        label: 'With report',
+        icon: 'pi pi-check-circle',
+        color: '#22c55e',
+    },
+    {
+        value: 'without',
+        label: 'Without report',
+        icon: 'pi pi-times-circle',
+        color: '#ef4444',
+    },
 ];
 
 export const ReportFilter: React.FC<ReportFilterProps> = ({
@@ -34,10 +49,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                     fontSize: '1.1rem',
                 }}
             >
-                <i
-                    className="pi pi-filter"
-                    style={{ marginRight: '0.5rem' }}
-                />
+                <i className="pi pi-filter" style={{ marginRight: '0.5rem' }} />
                 Report status
             </h3>
             <div

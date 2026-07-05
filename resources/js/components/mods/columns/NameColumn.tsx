@@ -22,8 +22,7 @@ export const NameColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {
                         width: '2.5rem',
                         height: '2.5rem',
                         borderRadius: '50%',
-                        background:
-                            'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                        background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -42,8 +41,7 @@ export const NameColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
                     {rowData.owner && `by ${rowData.owner}`}
-                    {rowData.latest_version &&
-                        ` · v${rowData.latest_version}`}
+                    {rowData.latest_version && ` · v${rowData.latest_version}`}
                 </div>
             </div>
         </div>

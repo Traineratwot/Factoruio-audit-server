@@ -1,7 +1,7 @@
-import React from 'react';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import { CategoryFilterState } from '@/types/mod';
+import { Card } from 'primereact/card';
+import React from 'react';
+import type { CategoryFilterState } from '@/types/mod';
 
 interface CategoryFilterProps {
     categories: string[];
@@ -65,6 +65,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                     let borderColor = '#374151';
                     let icon = 'pi-circle';
                     let iconColor = '#6b7280';
+
                     if (state === 'include') {
                         bgColor = 'rgba(34,197,94,0.15)';
                         borderColor = '#22c55e';
@@ -76,6 +77,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                         icon = 'pi-times-circle';
                         iconColor = '#ef4444';
                     }
+
                     return (
                         <div
                             key={cat}
