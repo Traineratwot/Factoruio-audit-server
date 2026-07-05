@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands\Sync;
 
-use App\Facades\FactorioService;
-use App\Models\Author;
-use App\Models\Mod;
+use App\Services\ModsSyncService;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\ConnectionException;
 
@@ -17,57 +15,23 @@ class ModsCommand extends Command
     /**
      * @throws ConnectionException
      */
-    public function handle(): void
+    public function handle(ModsSyncService $service): void
     {
-        $data = FactorioService::mods();
-        $total = count($data);
+        $this->info('Начинаю синхронизацию...');
 
-        if ($total === 0) {
-            $this->info('Нет данных для синхронизации.');
-
-            return;
-        }
-
-        $this->info("Найдено {$total} модов. Начинаю синхронизацию...");
-
-        // Сначала синхронизируем авторов
-        $ownerNames = $data->pluck('owner')->unique()->filter()->values();
-        foreach ($ownerNames as $name) {
-            Author::firstOrCreate(['name' => $name]);
-        }
-
-        $authorsByName = Author::pluck('id', 'name');
-
-        $progressBar = $this->output->createProgressBar($total);
+        $progressBar = $this->output->createProgressBar(100);
         $progressBar->start();
 
-        $chunks = $data->chunk(500);
-
-        foreach ($chunks as $chunk) {
-            $upsertData = [];
-            foreach ($chunk as $item) {
-                $upsertData[] = [
-                    'name' => $item['name'],
-                    'author_id' => $authorsByName[$item['owner']] ?? null,
-                    'latest_version' => $item['latest_release']['version'] ?? null,
-                    'category' => $item['category'],
-                    'title' => $item['title'],
-                    'summary' => $item['summary'],
-                    'downloads_count' => $item['downloads_count'],
-                    'popularity' => $item['score'],
-                ];
-            }
-
-            Mod::upsert($upsertData, ['name'], [
-                'author_id', 'latest_version', 'category', 'title',
-                'summary', 'downloads_count', 'popularity',
-            ]);
-
-            $progressBar->advance(count($chunk));
-        }
+        $result = $service->run(
+            onProgress: function ($processed, $total) use ($progressBar) {
+                $progressBar->setMaxSteps($total);
+                $progressBar->setProgress($processed);
+            },
+        );
 
         $progressBar->finish();
         $this->newLine(2);
-        $this->info('Синхронизация завершена.');
+
+        $this->info("Синхронизация завершена. Модов: {$result['total']}, помечено на обновление: {$result['pending']}.");
     }
 }

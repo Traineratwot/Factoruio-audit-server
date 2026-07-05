@@ -3,7 +3,7 @@
 namespace App\Console\Commands\Sync;
 
 use App\Jobs\FetchFullInfoJob;
-use App\Models\Mod;
+use App\Services\FetchFullInfoService;
 use Illuminate\Console\Command;
 
 class FetchFullInfoCommand extends Command
@@ -16,10 +16,10 @@ class FetchFullInfoCommand extends Command
 
     protected $description = 'Обновление полной информации по модам (fetchFullInfo)';
 
-    public function handle(): int
+    public function handle(FetchFullInfoService $service): int
     {
         if ($this->option('errors')) {
-            $this->showErroredMods();
+            $this->showErroredMods($service);
 
             return self::SUCCESS;
         }
@@ -35,91 +35,30 @@ class FetchFullInfoCommand extends Command
             return self::SUCCESS;
         }
 
-        // Синхронное выполнение (для обратной совместимости)
+        $limit = $this->option('limit') ? (int) $this->option('limit') : null;
+        $force = $this->option('force');
+
         $cooldownDays = config('factorio.full_info_cooldown_days', 7);
-        $batchSize = config('factorio.full_info_batch_size', 50);
-        $delayMs = config('factorio.full_info_delay_ms', 200);
         $maxRequests = config('factorio.full_info_max_requests', 1000);
-
-        $query = Mod::query()->orderBy('popularity', 'desc');
-
-        if (! $this->option('force')) {
-            $cooldown = now()->subDays($cooldownDays);
-            $query->where(function ($q) use ($cooldown) {
-                $q->whereNull('fetch_full_info_at')
-                    ->orWhere('fetch_full_info_at', '<', $cooldown);
-            });
-            $query->whereNull('fetch_full_info_error');
-        }
-
-        $allMatching = $query->count();
-
-        if ($allMatching === 0) {
-            $this->info('Нет модов для обновления.');
-
-            return self::SUCCESS;
-        }
-
-        $total = min($allMatching, $maxRequests);
-        if ($this->option('limit')) {
-            $total = min($total, (int) $this->option('limit'));
-            $query->limit($total);
-        }
-
-        $this->info("Найдено {$allMatching} модов для обновления (cooldown: {$cooldownDays} дн.).");
-        if ($total < $allMatching) {
-            $this->info("Будет обработано: {$total}");
-        }
-
-        $processed = 0;
-        $success = 0;
-        $failed = 0;
+        $total = min($limit ?? $maxRequests, $maxRequests);
 
         $progressBar = $this->output->createProgressBar($total);
         $progressBar->start();
 
-        $query->chunk($batchSize, function ($mods) use (
-            &$processed,
-            &$success,
-            &$failed,
-            $progressBar,
-            $maxRequests,
-            $delayMs,
-        ) {
-            foreach ($mods as $mod) {
-                if ($processed >= $maxRequests) {
-                    $this->newLine();
-                    $this->warn("Достигнут лимит запросов ({$maxRequests}). Останавливаю.");
-
-                    return false;
-                }
-
-                try {
-                    $ok = $mod->fetchFullInfo();
-                } catch (\Throwable $e) {
-                    $mod->update(['fetch_full_info_error' => $e->getMessage()]);
-                    $ok = false;
-                }
-
-                $ok ? $success++ : $failed++;
-                $processed++;
+        $result = $service->run(
+            force: $force,
+            limit: $limit,
+            onProgress: function () use ($progressBar) {
                 $progressBar->advance();
-
-                if ($processed < $maxRequests) {
-                    usleep($delayMs * 1000);
-                }
-            }
-
-            return true;
-        });
+            },
+        );
 
         $progressBar->finish();
         $this->newLine(2);
 
-        $erroredCount = Mod::whereNotNull('fetch_full_info_error')->count();
+        $this->info("Обновлено: {$result['success']}, ошибок: {$result['failed']}, всего: {$result['processed']}");
 
-        $this->info("Обновлено: {$success}, ошибок: {$failed}, всего: {$processed}");
-
+        $erroredCount = $service->getErroredMods()->count();
         if ($erroredCount > 0) {
             $this->warn("Модов с ошибками в базе: {$erroredCount}. Используйте sync:full-info --errors для просмотра.");
         }
@@ -127,12 +66,9 @@ class FetchFullInfoCommand extends Command
         return self::SUCCESS;
     }
 
-    private function showErroredMods(): void
+    private function showErroredMods(FetchFullInfoService $service): void
     {
-        $mods = Mod::whereNotNull('fetch_full_info_error')
-            ->select('name', 'fetch_full_info_error', 'fetch_full_info_at')
-            ->orderBy('fetch_full_info_error')
-            ->get();
+        $mods = $service->getErroredMods();
 
         if ($mods->isEmpty()) {
             $this->info('Нет модов с ошибками.');
