@@ -18,8 +18,14 @@ class ModController extends Controller
         $sortField = $request->input('sort_field', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
         $reportFilter = $request->input('report_filter', 'all');
+        $factorioVersion = $request->input('factorio_version', '');
 
         $categoryALl = Mod::query()->distinct()->pluck('category');
+        $factorioVersions = Mod::query()
+            ->whereNotNull('factorio_version')
+            ->distinct()
+            ->orderByDesc('factorio_version')
+            ->pluck('factorio_version');
 
         // Строим фильтр для Meilisearch
         $whereClauses = [];
@@ -66,6 +72,10 @@ class ModController extends Controller
             $query->whereDoesntHave('reports');
         }
 
+        if ($factorioVersion) {
+            $query->where('factorio_version', $factorioVersion);
+        }
+
         if (! empty($whereClauses)) {
             $query->whereRaw(implode(' AND ', $whereClauses), $bindings);
         }
@@ -105,6 +115,8 @@ class ModController extends Controller
             'sort_field' => $sortField,
             'sort_direction' => $sortDirection,
             'report_filter' => $reportFilter,
+            'factorio_version' => $factorioVersion,
+            'factorio_versions' => $factorioVersions,
         ]);
     }
 

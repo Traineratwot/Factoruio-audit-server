@@ -4,6 +4,7 @@ import type { DataTableSortEvent } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { Paginator } from 'primereact/paginator';
 import React from 'react';
+import type { Mod, PaginatedMods } from '@/types/mod';
 import { ActionColumn } from './columns/ActionColumn';
 import { CategoryColumn } from './columns/CategoryColumn';
 import { DateColumn } from './columns/DateColumn';
@@ -12,7 +13,6 @@ import { NameColumn } from './columns/NameColumn';
 import { PopularityColumn } from './columns/PopularityColumn';
 import { ScoreColumn } from './columns/ScoreColumn';
 import { TableHeader } from './TableHeader';
-import type { Mod, PaginatedMods } from '@/types/mod';
 
 interface ModsTableProps {
     mods: PaginatedMods;

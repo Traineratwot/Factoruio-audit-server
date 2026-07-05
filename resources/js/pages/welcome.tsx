@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
 import { Tooltip } from 'primereact/tooltip';
+import React, { useState } from 'react';
 import { AuditDialog } from '@/components/mods/AuditDialog';
 import { CategoryFilter } from '@/components/mods/CategoryFilter';
+import { FactorioVersionFilter } from '@/components/mods/FactorioVersionFilter';
 import { ModsTable } from '@/components/mods/ModsTable';
 import { ReportFilter } from '@/components/mods/ReportFilter';
 import Container from '@/components/ui/Container';
@@ -25,6 +26,8 @@ interface WelcomeProps {
     sort_field: string;
     sort_direction: string;
     report_filter: ReportFilterValue;
+    factorio_version?: string;
+    factorio_versions?: string[];
 }
 
 export default function Welcome({
@@ -36,6 +39,8 @@ export default function Welcome({
     sort_field = 'created_at',
     sort_direction = 'desc',
     report_filter = 'all',
+    factorio_version = '',
+    factorio_versions = [],
 }: WelcomeProps) {
     const [auditDialogVisible, setAuditDialogVisible] = useState(false);
     const [auditMod, setAuditMod] = useState<ModSearchResult | null>(null);
@@ -54,6 +59,8 @@ export default function Welcome({
         handleSort,
         reportFilter,
         handleReportFilterChange,
+        factorioVersion,
+        handleFactorioVersionChange,
     } = useModsFilter(
         search,
         categoryInclude,
@@ -61,6 +68,7 @@ export default function Welcome({
         sort_field,
         sort_direction,
         report_filter,
+        factorio_version,
     );
 
     const allCategories = Array.from(new Set(category_all)).sort();
@@ -132,6 +140,11 @@ export default function Welcome({
                             <ReportFilter
                                 reportFilter={reportFilter}
                                 onFilterChange={handleReportFilterChange}
+                            />
+                            <FactorioVersionFilter
+                                versions={factorio_versions}
+                                selectedVersion={factorioVersion}
+                                onVersionChange={handleFactorioVersionChange}
                             />
                             <CategoryFilter
                                 categories={allCategories}

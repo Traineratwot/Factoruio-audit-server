@@ -1,7 +1,7 @@
+import { UploadIcon } from 'primereact/icons/upload';
 import { ProgressBar } from 'primereact/progressbar';
 import React from 'react';
 import type { Mod } from '@/types/mod';
-import { UploadIcon } from 'primereact/icons/upload';
 interface ScoreColumnProps {
     rowData: Mod;
     onAuditClick: (mod: Mod) => void;
@@ -17,7 +17,7 @@ export const ScoreColumn: React.FC<ScoreColumnProps> = ({
         rowData.latest_version !== null &&
         rowData.latest_report_version !== rowData.latest_version;
 
-    if (score === null || score === undefined) {
+    if (score === null || score === undefined || score === 0) {
         return <span style={{ color: '#6b7280' }}>—</span>;
     }
 

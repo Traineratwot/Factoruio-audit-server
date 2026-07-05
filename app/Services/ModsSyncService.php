@@ -33,41 +33,32 @@ class ModsSyncService
         $authorsByName = Author::pluck('id', 'name');
         $chunks = $data->chunk(500);
         $processed = 0;
-        $pendingIds = [];
 
         foreach ($chunks as $chunk) {
-            $names = $chunk->pluck('name');
-            $existingVersions = Mod::whereIn('name', $names)
-                ->pluck('latest_version', 'name');
-
             $upsertData = [];
             foreach ($chunk as $item) {
                 $upsertData[] = [
                     'name' => $item['name'],
                     'author_id' => $authorsByName[$item['owner']] ?? null,
                     'latest_version' => $item['latest_release']['version'] ?? null,
+                    'factorio_version' => $item['latest_release']['info_json']['factorio_version'] ?? null,
+                    'latest_release_date' => $item['latest_release']['released_at'] ?? null,
                     'category' => $item['category'],
                     'title' => $item['title'],
                     'summary' => $item['summary'],
                     'downloads_count' => $item['downloads_count'],
                     'popularity' => $item['score'],
+                    'pending_full_info' => true,
                 ];
             }
 
+            // pending_full_info is NOT in the update columns list:
+            // - INSERT: new rows get pending_full_info = true
+            // - UPDATE: the PostgreSQL trigger sets pending_full_info = true when latest_version changes
             Mod::upsert($upsertData, ['name'], [
                 'author_id', 'latest_version', 'category', 'title',
                 'summary', 'downloads_count', 'popularity',
             ]);
-
-            $upsertedMods = Mod::whereIn('name', $names)->get();
-            foreach ($upsertedMods as $mod) {
-                $oldVersion = $existingVersions->get($mod->name);
-                $newVersion = $chunk->firstWhere('name', $mod->name)['latest_release']['version'] ?? null;
-
-                if ($newVersion && ($oldVersion === null || $newVersion !== $oldVersion)) {
-                    $pendingIds[] = $mod->id;
-                }
-            }
 
             $processed += count($chunk);
             if ($onProgress) {
@@ -75,15 +66,11 @@ class ModsSyncService
             }
         }
 
-        if ($pendingIds !== []) {
-            Mod::whereIn('id', $pendingIds)
-                ->where('pending_full_info', false)
-                ->update(['pending_full_info' => true]);
-        }
+        $pending = Mod::where('pending_full_info', true)->count();
 
         return [
             'total' => $total,
-            'pending' => count($pendingIds),
+            'pending' => $pending,
         ];
     }
 }

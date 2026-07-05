@@ -9,6 +9,7 @@ export const useModsFilter = (
     initialSortField: string = 'created_at',
     initialSortDirection: string = 'desc',
     initialReportFilter: ReportFilterValue = 'all',
+    initialFactorioVersion: string = '',
 ) => {
     const [searchQuery, setSearchQuery] = useState(initialSearch || '');
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilterState>(
@@ -28,6 +29,7 @@ export const useModsFilter = (
     const [sortDirection, setSortDirection] = useState(initialSortDirection);
     const [reportFilter, setReportFilter] =
         useState<ReportFilterValue>(initialReportFilter);
+    const [factorioVersion, setFactorioVersion] = useState(initialFactorioVersion || '');
     const [loading, setLoading] = useState(false);
 
     const getCurrentParams = () => {
@@ -41,6 +43,7 @@ export const useModsFilter = (
             sortDirection: params.get('sort_direction') || 'desc',
             reportFilter:
                 (params.get('report_filter') as ReportFilterValue) || 'all',
+            factorioVersion: params.get('factorio_version') || '',
         };
     };
 
@@ -49,6 +52,7 @@ export const useModsFilter = (
         newSortField?: string,
         newSortDirection?: string,
         newReportFilter?: ReportFilterValue,
+        newFactorioVersion?: string,
     ) => {
         const params: Record<string, string | string[]> = {};
 
@@ -95,6 +99,12 @@ export const useModsFilter = (
             params.report_filter = currentReportFilter;
         }
 
+        const currentFactorioVersion = newFactorioVersion ?? factorioVersion;
+
+        if (currentFactorioVersion) {
+            params.factorio_version = currentFactorioVersion;
+        }
+
         const current = getCurrentParams();
         const hasChanged =
             searchQuery !== current.search ||
@@ -105,6 +115,7 @@ export const useModsFilter = (
             currentSortField !== current.sortField ||
             currentSortDirection !== current.sortDirection ||
             currentReportFilter !== current.reportFilter ||
+            currentFactorioVersion !== current.factorioVersion ||
             (page &&
                 page !==
                     parseInt(
@@ -129,14 +140,15 @@ export const useModsFilter = (
         }, 500);
 
         return () => clearTimeout(timeout);
-    }, [searchQuery, categoryFilter, reportFilter]);
+    }, [searchQuery, categoryFilter, reportFilter, factorioVersion]);
 
     const resetFilters = () => {
         setCategoryFilter({});
         setSortField('created_at');
         setSortDirection('desc');
         setReportFilter('all');
-        updateUrl(undefined, 'created_at', 'desc', 'all');
+        setFactorioVersion('');
+        updateUrl(undefined, 'created_at', 'desc', 'all', '');
     };
 
     const toggleCategory = (category: string) => {
@@ -196,6 +208,10 @@ export const useModsFilter = (
             params.report_filter = reportFilter;
         }
 
+        if (factorioVersion) {
+            params.factorio_version = factorioVersion;
+        }
+
         const current = getCurrentParams();
         const hasChanged =
             searchQuery !== current.search ||
@@ -205,7 +221,8 @@ export const useModsFilter = (
                 JSON.stringify(current.exclude.sort()) ||
             sortField !== current.sortField ||
             sortDirection !== current.sortDirection ||
-            reportFilter !== current.reportFilter;
+            reportFilter !== current.reportFilter ||
+            factorioVersion !== current.factorioVersion;
 
         if (hasChanged) {
             setLoading(true);
@@ -232,6 +249,11 @@ export const useModsFilter = (
         updateUrl(undefined, undefined, undefined, value);
     };
 
+    const handleFactorioVersionChange = (value: string) => {
+        setFactorioVersion(value);
+        updateUrl(undefined, undefined, undefined, undefined, value);
+    };
+
     const clearSearch = () => {
         setSearchQuery('');
     };
@@ -250,5 +272,7 @@ export const useModsFilter = (
         handleSort,
         reportFilter,
         handleReportFilterChange,
+        factorioVersion,
+        handleFactorioVersionChange,
     };
 };

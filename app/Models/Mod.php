@@ -102,6 +102,7 @@ class Mod extends Model
             'latest_release_date' => $latestRelease['released_at'] ?? null,
             'fetch_full_info_at' => now(),
             'fetch_full_info_error' => null,
+            'pending_full_info' => false,
         ]);
 
         $this->syncVersions($data['releases'] ?? []);
