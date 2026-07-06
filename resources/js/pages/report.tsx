@@ -221,10 +221,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 							<meta property="og:image:width" content="144" />
 						</>
 					)}
-					<meta
-						name="twitter:card"
-						content={mod.image ? "summary_large_image" : "summary"}
-					/>
+					<meta name="twitter:card" content="summary" />
 					<meta
 						name="twitter:title"
 						content={`${mod.title || mod.name} | Factorio-Audit`}
@@ -312,11 +309,14 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				/>
 				<meta property="og:type" content="article" />
 
-				{mod.image && <meta property="og:image" content={mod.image} />}
-				<meta
-					name="twitter:card"
-					content={mod.image ? "summary_large_image" : "summary"}
-				/>
+				{mod.image && (
+					<>
+						<meta property="og:image" content={mod.image} />
+						<meta property="og:image:height" content="144" />
+						<meta property="og:image:width" content="144" />
+					</>
+				)}
+				<meta name="twitter:card" content="summary" />
 				<meta
 					name="twitter:title"
 					content={`${auditReport.modNameReadable} v${auditReport.version} | Factorio-Audit`}

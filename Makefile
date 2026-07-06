@@ -1,4 +1,4 @@
-.PHONY: help bash build up down restart logs shell migrate seed test composer cache optimize dump restore wipe redb swagger fix link serve destroy ps stop redis-cli psql mailhog minio queue queue-restart tinker
+.PHONY: help bash dev build up down restart logs shell migrate seed test composer cache optimize dump restore wipe redb swagger fix link serve destroy ps stop redis-cli psql mailhog minio queue queue-restart tinker
 
 # Defines
 INFO = \033[33m
@@ -21,7 +21,7 @@ DOCKER_COMPOSE = docker compose -f docker-compose.dev.yml
 
 bash: # Открывает консоль внутри контейнера `app`.
 	$(DOCKER_COMPOSE) exec app bash
-dev: # Открывает консоль внутри контейнера `app`.
+dev: # Запускает Vite dev-сервер с HMR внутри контейнера.
 	$(DOCKER_COMPOSE) exec app bash -c 'bun run dev'
 
 help: # Показать справку по Makefile.
