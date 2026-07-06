@@ -157,6 +157,8 @@ class ModController extends Controller
                 'name' => $mod->name,
                 'title' => $mod->title,
                 'image' => $mod->getImage(),
+                'summary' => $mod->summary,
+                'category' => $mod->category,
             ],
             'versions' => $versions,
             'current_version' => $version,
@@ -172,6 +174,7 @@ class ModController extends Controller
         $perPage = $request->input('per_page', 15);
 
         $mods = Mod::search($query)->paginate($perPage, 'page', $page);
+
         return response()->json($mods);
     }
 }

@@ -30,6 +30,8 @@ interface AuditReportViewerProps {
         name: string;
         title: string | null;
         image: string | null;
+        summary: string | null;
+        category: string | null;
     };
     versions: ReportVersion[];
     current_version: string;
@@ -196,7 +198,18 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
     if (!report) {
         return (
             <PrimeReactProvider>
-                <Head title={`${mod.title || mod.name} | Report`} />
+                <Head title={`${mod.title || mod.name} | Report`}>
+                    <meta name="description" content={mod.summary || `Audit report for Factorio mod ${mod.title || mod.name}`} />
+                    <meta property="og:title" content={`${mod.title || mod.name} | Factorio-Audit`} />
+                    <meta property="og:description" content={mod.summary || `Audit report for Factorio mod ${mod.title || mod.name}`} />
+                    <meta property="og:type" content="article" />
+                    
+                    {mod.image && <meta property="og:image" content={mod.image} />}
+                    <meta name="twitter:card" content={mod.image ? 'summary_large_image' : 'summary'} />
+                    <meta name="twitter:title" content={`${mod.title || mod.name} | Factorio-Audit`} />
+                    <meta name="twitter:description" content={mod.summary || `Audit report for Factorio mod ${mod.title || mod.name}`} />
+                    {mod.image && <meta name="twitter:image" content={mod.image} />}
+                </Head>
                 <Container maxWidth={960} padding="1rem">
                     <ModHeader />
 
@@ -254,9 +267,39 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
     return (
         <PrimeReactProvider>
-            <Head
-                title={`${auditReport.modNameReadable} v${auditReport.version} | Report`}
-            />
+            <Head title={`${auditReport.modNameReadable} v${auditReport.version} | Report`}>
+                <meta name="description" content={`Audit score: ${auditReport.score.toFixed(1)}/100. ${mod.summary || ''}`.trim()} />
+                <meta property="og:title" content={`${auditReport.modNameReadable} v${auditReport.version} | Factorio-Audit`} />
+                <meta property="og:description" content={`Audit score: ${auditReport.score.toFixed(1)}/100. ${mod.summary || ''}`.trim()} />
+                <meta property="og:type" content="article" />
+                
+                {mod.image && <meta property="og:image" content={mod.image} />}
+                <meta name="twitter:card" content={mod.image ? 'summary_large_image' : 'summary'} />
+                <meta name="twitter:title" content={`${auditReport.modNameReadable} v${auditReport.version} | Factorio-Audit`} />
+                <meta name="twitter:description" content={`Audit score: ${auditReport.score.toFixed(1)}/100. ${mod.summary || ''}`.trim()} />
+                {mod.image && <meta name="twitter:image" content={mod.image} />}
+                <script type="application/ld+json">{JSON.stringify({
+                    '@context': 'https://schema.org',
+                    '@type': 'SoftwareApplication',
+                    name: auditReport.modNameReadable,
+                    applicationCategory: 'GameApplication',
+                    operatingSystem: 'Factorio',
+                    description: mod.summary || undefined,
+                    image: mod.image || undefined,
+                    url: `https://mods.factorio.com/mod/${mod.name}`,
+                    version: auditReport.version,
+                    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+                    review: {
+                        '@type': 'Review',
+                        reviewRating: {
+                            '@type': 'Rating',
+                            ratingValue: auditReport.score.toFixed(1),
+                            bestRating: '100',
+                        },
+                        author: { '@type': 'Organization', name: 'Factorio-Audit' },
+                    },
+                })}</script>
+            </Head>
             <Container maxWidth={960} padding="1rem">
                 <ModHeader />
 

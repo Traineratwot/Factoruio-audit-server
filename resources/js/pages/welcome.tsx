@@ -85,7 +85,16 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Mods | Overview" />
+            <Head title="Mods | Overview">
+                <meta name="description" content="Explore Factorio mods with automated audit reports. Find performance issues, security concerns, and optimization opportunities." />
+                <meta property="og:title" content="Mods Catalog | Factorio-Audit" />
+                <meta property="og:description" content="Explore Factorio mods with automated audit reports. Find performance issues, security concerns, and optimization opportunities." />
+                <meta property="og:type" content="website" />
+                
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Mods Catalog | Factorio-Audit" />
+                <meta name="twitter:description" content="Explore Factorio mods with automated audit reports. Find performance issues, security concerns, and optimization opportunities." />
+            </Head>
             <PrimeReactProvider>
                 <Tooltip target=".custom-tooltip" />
                 <Container
