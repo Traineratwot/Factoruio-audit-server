@@ -13,18 +13,16 @@ RUN composer install \
     --ignore-platform-reqs
 
 
-# Stage 2: Frontend build (новый этап)
-FROM node:24-alpine AS frontend-builder
+# Stage 2: Frontend build (bun)
+FROM oven/bun:alpine AS frontend-builder
 
 WORKDIR /app
 
-# Копируем манифесты и устанавливаем зависимости
-COPY package*.json ./
-RUN npm install
+COPY package.json bun.lock* ./
+RUN bun install
 
-# Копируем все исходники и собираем фронтенд
 COPY . .
-RUN npm run build          # или npm run production, в зависимости от проекта
+RUN bun run build
 
 
 # Stage 3: Main application (base)
@@ -34,6 +32,8 @@ WORKDIR /app
 
 RUN apk add --no-cache \
     supervisor
+
+COPY --from=oven/bun:alpine /usr/local/bin/bun /usr/local/bin/bun
 
 COPY ./docker/app/local.ini /usr/local/etc/php/conf.d/local.ini
 COPY ./docker/app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -63,6 +63,7 @@ COPY --chown=www-data:www-data . .
 
 # Копируем собранный фронтенд (перезаписываем public)
 COPY --from=frontend-builder --chown=www-data:www-data /app/public ./public
+COPY --from=frontend-builder --chown=www-data:www-data /app/bootstrap/ssr ./bootstrap/ssr
 
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \
@@ -84,10 +85,9 @@ FROM traineratwot/php:dev AS dev
 
 WORKDIR /app
 RUN apk add --no-cache \
-    supervisor \
-    nodejs \
-    npm \
-    && npm install -g chokidar-cli
+    supervisor
+
+COPY --from=oven/bun:alpine /usr/local/bin/bun /usr/local/bin/bun
 
 COPY ./docker/app/local.ini /usr/local/etc/php/conf.d/local.ini
 COPY ./docker/app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -119,6 +119,7 @@ COPY ./.env ./.env
 
 # Копируем собранный фронтенд (перезаписываем public)
 COPY --from=frontend-builder --chown=www-data:www-data /app/public ./public
+COPY --from=frontend-builder --chown=www-data:www-data /app/bootstrap/ssr ./bootstrap/ssr
 
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \

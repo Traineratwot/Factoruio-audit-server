@@ -30,7 +30,11 @@ export default defineConfig({
                 }),
             ],
         }),
-        inertia(),
+        inertia({
+            ssr: {
+                entry: 'resources/js/ssr.tsx',
+            },
+        }),
         react({
             babel: {
                 plugins: ['babel-plugin-react-compiler'],

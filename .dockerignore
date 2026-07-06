@@ -1,0 +1,4 @@
+.git
+.env.local
+docker/postgres/dumps
+storage/logs/*.log

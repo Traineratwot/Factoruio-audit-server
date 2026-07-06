@@ -22,7 +22,7 @@ DOCKER_COMPOSE = docker compose -f docker-compose.dev.yml
 bash: # Открывает консоль внутри контейнера `app`.
 	$(DOCKER_COMPOSE) exec app bash
 dev: # Открывает консоль внутри контейнера `app`.
-	$(DOCKER_COMPOSE) exec app bash -c ' npm run dev'
+	$(DOCKER_COMPOSE) exec app bash -c 'bun run dev'
 
 help: # Показать справку по Makefile.
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
@@ -286,5 +286,5 @@ pint-path: # Запускает Pint для указанного пути (make 
 	$(DOCKER_COMPOSE) exec app vendor/bin/pint $(p)
 
 serve: # hot reload page
-	@echo "$(INFO)npm serve$(RESET)"
-	$(DOCKER_COMPOSE) exec app npm run dev
+	@echo "$(INFO)bun serve$(RESET)"
+	$(DOCKER_COMPOSE) exec app bun run dev
