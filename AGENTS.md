@@ -9,7 +9,7 @@ Laravel 13 + React 19 (Inertia) app that audits Factorio mods via the Factorio M
 - **Search**: Meilisearch via Laravel Scout
 - **Admin**: Filament v5
 - **Testing**: Pest v4, PHPUnit
-- **Linting**: ESLint + Prettier (JS), Laravel Pint + PHPStan level 7 (PHP)
+- **Linting**: Biome (JS), Laravel Pint + PHPStan level 7 (PHP)
 - **Docker**: Multi-stage Dockerfile (dev/prod), docker-compose.dev.yml
 
 ## Factorio Mod Portal API
@@ -184,18 +184,18 @@ php artisan config:clear --ansi
 
 ```bash
 # Lint
-npm run lint            # fix
-npm run lint:check      # check only
+bun run lint            # fix
+bun run lint:check      # check only
 
 # Format
-npm run format          # fix
-npm run format:check    # check only
+bun run format          # fix
+bun run format:check    # check only
 
 # Type check
-npm run types:check
+bun run types:check
 
 # Dev server
-npm run dev
+bun run dev
 ```
 
 ### Docker
@@ -221,21 +221,14 @@ make tinker             # Laravel Tinker
 ## Linting order (CI)
 
 ```
-npm run lint:check → npm run format:check → npm run types:check → php artisan test
+bun run lint:check → bun run format:check → bun run types:check → php artisan test
 ```
 
-## ESLint conventions
+## Biome
 
-- **Curly braces required** on all control statements (1tbs style)
-- **Padding lines** around `if`, `return`, `for`, `while`, `do`, `switch`, `try`, `throw`
-- **Type imports**: `import type { X }` enforced
-- **Import order**: builtin → external → internal → parent → sibling → index, alphabetized
+- Default Biome settings (double quotes, semicolons, 2-space indent)
+- Import organization enabled
 - Ignore: `vendor/`, `node_modules/`, `public/`, `resources/js/actions/`, `resources/js/components/ui/`, `resources/js/routes/`, `resources/js/wayfinder/`
-
-## Prettier config
-
-- Single quotes, semicolons, tab width 4 (YAML: 2)
-- Tailwind CSS class sorting enabled via `prettier-plugin-tailwindcss`
 
 ## Testing
 

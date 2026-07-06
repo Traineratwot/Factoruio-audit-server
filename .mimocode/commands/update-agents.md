@@ -32,7 +32,7 @@ Read these files to gather information:
 - `database/migrations/*.php` — all migrations
 - `docker-compose.dev.yml` — Docker services
 - `Makefile` — make targets
-- `.eslintrc.*`, `prettier.config.*`, `phpstan.neon`, `pint.json` — linter config
+- `biome.json`, `phpstan.neon`, `pint.json` — linter config
 - `phpunit.xml` — test config
 - `AGENTS.md` (existing) — for reference and continuity
 
