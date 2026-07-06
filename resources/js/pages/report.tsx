@@ -221,19 +221,6 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 							<meta property="og:image:width" content="144" />
 						</>
 					)}
-					<meta name="twitter:card" content="summary" />
-					<meta
-						name="twitter:title"
-						content={`${mod.title || mod.name} | Factorio-Audit`}
-					/>
-					<meta
-						name="twitter:description"
-						content={
-							mod.summary ||
-							`Audit report for Factorio mod ${mod.title || mod.name}`
-						}
-					/>
-					{mod.image && <meta name="twitter:image" content={mod.image} />}
 				</Head>
 				<Container maxWidth={960} padding="1rem">
 					<ModHeader />
@@ -316,16 +303,6 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 						<meta property="og:image:width" content="144" />
 					</>
 				)}
-				<meta name="twitter:card" content="summary" />
-				<meta
-					name="twitter:title"
-					content={`${auditReport.modNameReadable} v${auditReport.version} | Factorio-Audit`}
-				/>
-				<meta
-					name="twitter:description"
-					content={`Audit score: ${auditReport.score.toFixed(1)}/100. ${mod.summary || ""}`.trim()}
-				/>
-				{mod.image && <meta name="twitter:image" content={mod.image} />}
 				<script type="application/ld+json">
 					{JSON.stringify({
 						"@context": "https://schema.org",
