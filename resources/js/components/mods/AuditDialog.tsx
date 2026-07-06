@@ -125,6 +125,7 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 				{/* Search input */}
 				<div>
 					<label
+						htmlFor="audit-search-input"
 						style={{
 							display: "block",
 							marginBottom: "0.5rem",
@@ -136,6 +137,7 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 					</label>
 					<div style={{ position: "relative" }}>
 						<InputText
+							id="audit-search-input"
 							value={searchQuery}
 							onChange={handleSearch}
 							onKeyDown={handleKeyDown}
@@ -175,14 +177,23 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 						}}
 					>
 						{searchResults.map((mod) => (
-							<div
+							<button
 								key={mod.id}
+								type="button"
 								onClick={() => selectMod(mod)}
 								style={{
 									padding: "0.5rem 0.75rem",
 									cursor: "pointer",
 									borderBottom: "1px solid #374151",
 									color: "#e5e7eb",
+									display: "block",
+									width: "100%",
+									textAlign: "left",
+									background: "none",
+									border: "none",
+									borderBottomStyle: "solid",
+									borderBottomWidth: "1px",
+									borderBottomColor: "#374151",
 								}}
 								className="hover:bg-gray-700/50"
 							>
@@ -195,7 +206,7 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 								>
 									{mod.title}
 								</div>
-							</div>
+							</button>
 						))}
 					</div>
 				)}
@@ -228,6 +239,7 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 				{selectedMod && (
 					<div>
 						<label
+							htmlFor="audit-version-dropdown"
 							style={{
 								display: "block",
 								marginBottom: "0.5rem",
@@ -260,6 +272,7 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 							</div>
 						) : (
 							<Dropdown
+								inputId="audit-version-dropdown"
 								value={selectedVersion}
 								options={versions.map((v) => ({
 									label: `${v.version} (Factorio ${v.factorio_version})`,

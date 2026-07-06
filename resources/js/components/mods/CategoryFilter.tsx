@@ -76,8 +76,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 					}
 
 					return (
-						<div
+						<button
 							key={cat}
+							type="button"
 							onClick={() => onToggleCategory(cat)}
 							style={{
 								display: "flex",
@@ -89,6 +90,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 								backgroundColor: bgColor,
 								border: `1px solid ${borderColor}`,
 								transition: "all 0.2s",
+								width: "100%",
+								textAlign: "left",
+								color: "inherit",
+								font: "inherit",
 							}}
 							className="hover:bg-gray-700/30"
 						>
@@ -108,7 +113,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 							>
 								{state === "include" ? "ON" : state === "exclude" ? "OFF" : ""}
 							</span>
-						</div>
+						</button>
 					);
 				})}
 			</div>

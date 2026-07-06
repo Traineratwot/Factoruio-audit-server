@@ -63,8 +63,9 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 					const active = reportFilter === opt.value;
 
 					return (
-						<div
+						<button
 							key={opt.value}
+							type="button"
 							onClick={() => onFilterChange(opt.value)}
 							style={{
 								display: "flex",
@@ -76,6 +77,10 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 								backgroundColor: active ? `${opt.color}22` : "transparent",
 								border: `1px solid ${active ? opt.color : "#374151"}`,
 								transition: "all 0.2s",
+								width: "100%",
+								textAlign: "left",
+								color: "inherit",
+								font: "inherit",
 							}}
 							className="hover:bg-gray-700/30"
 						>
@@ -89,7 +94,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 							<span style={{ color: "#e5e7eb", fontSize: "0.9rem" }}>
 								{opt.label}
 							</span>
-						</div>
+						</button>
 					);
 				})}
 			</div>

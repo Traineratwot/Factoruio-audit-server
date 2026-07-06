@@ -132,7 +132,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 		value: v.version,
 	}));
 
-	const selectedOption =
+	const _selectedOption =
 		versionOptions.find((o) => o.value === current_version) ?? null;
 
 	const isOutdated =
@@ -237,10 +237,14 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
 					<Card className="mb-4">
 						<div className="mb-3">
-							<label className="mb-1 block text-sm font-medium text-gray-300">
+							<label
+								htmlFor="report-version-dropdown-no-report"
+								className="mb-1 block text-sm font-medium text-gray-300"
+							>
 								Version
 							</label>
 							<Dropdown
+								inputId="report-version-dropdown-no-report"
 								value={current_version}
 								options={versionOptions}
 								onChange={handleVersionChange}
@@ -276,7 +280,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	}
 
 	const auditReport = report.raw.report;
-	const modUrl = `https://mods.factorio.com/mod/${mod.name}`;
+	const _modUrl = `https://mods.factorio.com/mod/${mod.name}`;
 	const overallScore = auditReport.score;
 	const overallFillColor =
 		overallScore >= 70 ? "#22c55e" : overallScore >= 40 ? "#f16338" : "#ef4444";
@@ -345,10 +349,14 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
 				{/* Version selector */}
 				<div className="mb-4">
-					<label className="mb-1 block text-sm font-medium text-gray-300">
+					<label
+						htmlFor="report-version-dropdown"
+						className="mb-1 block text-sm font-medium text-gray-300"
+					>
 						Version
 					</label>
 					<Dropdown
+						inputId="report-version-dropdown"
 						value={current_version}
 						options={versionOptions}
 						onChange={handleVersionChange}
@@ -471,8 +479,8 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				{auditReport.errors && auditReport.errors.length > 0 && (
 					<Card title="Errors" className="mb-4 border border-red-500">
 						<ul className="list-disc pl-4 text-red-500">
-							{auditReport.errors.map((err, idx) => (
-								<li key={idx}>{err}</li>
+							{auditReport.errors.map((err) => (
+								<li key={err}>{err}</li>
 							))}
 						</ul>
 					</Card>

@@ -48,8 +48,6 @@ const Release = z.object({
 	sha1: z.string(),
 	version: z.string(),
 });
-type Release = z.infer<typeof Release>;
-
 const baseModInfo = z.object({
 	category: z.string().nullable(),
 	downloads_count: z.number(),
@@ -60,12 +58,10 @@ const baseModInfo = z.object({
 	title: z.string(),
 });
 
-const ModInfo = baseModInfo.extend({
+const _ModInfo = baseModInfo.extend({
 	releases: z.array(Release),
 	thumbnail: z.string(),
 });
-
-type ModInfo = z.infer<typeof ModInfo>;
 
 const ModListItem = baseModInfo.extend({
 	latest_release: Release,
@@ -83,8 +79,6 @@ export const ModList = z.object({
 		})
 		.nullable(),
 });
-type ModList = z.infer<typeof ModList>;
-
 export type rawReport = {
 	report: AuditReport;
 	modInfo: ModListItem;

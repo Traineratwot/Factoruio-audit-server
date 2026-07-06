@@ -15,6 +15,7 @@ export const PopularityColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {
 		<div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
 			{[...Array(5)].map((_, i) => (
 				<i
+					// biome-ignore lint/suspicious/noArrayIndexKey: static 5-star array, order never changes
 					key={i}
 					className="pi pi-star-fill"
 					style={{

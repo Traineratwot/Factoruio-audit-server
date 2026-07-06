@@ -20,8 +20,8 @@ export const PathsCell: React.FC<PathsCellProps> = ({ paths }) => {
 
 	return (
 		<div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-			{displayedPaths.map((p, idx) => (
-				<code key={idx} className="rounded bg-gray-800 text-sm">
+			{displayedPaths.map((p) => (
+				<code key={p} className="rounded bg-gray-800 text-sm">
 					{p}
 				</code>
 			))}

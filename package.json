@@ -5,10 +5,11 @@
 	"scripts": {
 		"build": "vite build && vite build --ssr",
 		"dev": "vite --host=0.0.0.0",
-		"format": "bunx biome format --write resources/",
-		"format:check": "bunx biome format resources/",
-		"lint": "bunx biome check --write .",
-		"lint:check": "bunx biome check .",
+		"format": "biome format --write resources/",
+		"format:check": "biome format resources/",
+		"lint": "biome check --write .",
+		"lint:check": "biome check .",
+		"biome:fix": "biome check . --write --unsafe",
 		"types:check": "tsc --noEmit"
 	},
 	"devDependencies": {

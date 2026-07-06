@@ -39,7 +39,8 @@ export const FactorioVersionFilter: React.FC<FactorioVersionFilterProps> = ({
 					gap: "0.5rem",
 				}}
 			>
-				<div
+				<button
+					type="button"
 					onClick={() => onVersionChange("")}
 					style={{
 						display: "flex",
@@ -52,6 +53,10 @@ export const FactorioVersionFilter: React.FC<FactorioVersionFilterProps> = ({
 							selectedVersion === "" ? "rgba(107,114,128,0.2)" : "transparent",
 						border: `1px solid ${selectedVersion === "" ? "#6b7280" : "#374151"}`,
 						transition: "all 0.2s",
+						width: "100%",
+						textAlign: "left",
+						color: "inherit",
+						font: "inherit",
 					}}
 					className="hover:bg-gray-700/30"
 				>
@@ -63,13 +68,14 @@ export const FactorioVersionFilter: React.FC<FactorioVersionFilterProps> = ({
 						}}
 					/>
 					<span style={{ color: "#e5e7eb", fontSize: "0.9rem" }}>All</span>
-				</div>
+				</button>
 				{versions.map((version) => {
 					const active = selectedVersion === version;
 
 					return (
-						<div
+						<button
 							key={version}
+							type="button"
 							onClick={() => onVersionChange(version)}
 							style={{
 								display: "flex",
@@ -83,6 +89,10 @@ export const FactorioVersionFilter: React.FC<FactorioVersionFilterProps> = ({
 									: "transparent",
 								border: `1px solid ${active ? "#06b6d4" : "#374151"}`,
 								transition: "all 0.2s",
+								width: "100%",
+								textAlign: "left",
+								color: "inherit",
+								font: "inherit",
 							}}
 							className="hover:bg-gray-700/30"
 						>
@@ -96,7 +106,7 @@ export const FactorioVersionFilter: React.FC<FactorioVersionFilterProps> = ({
 							<span style={{ color: "#e5e7eb", fontSize: "0.9rem" }}>
 								{version}
 							</span>
-						</div>
+						</button>
 					);
 				})}
 			</div>

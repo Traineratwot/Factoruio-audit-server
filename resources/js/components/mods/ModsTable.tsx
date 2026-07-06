@@ -170,7 +170,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 							layout:
 								"FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport",
 							RowsPerPageDropdown: false,
-							CurrentPageReport: (options) => {
+							CurrentPageReport: (_options) => {
 								return `Page ${currentPage} from ${mods.meta.last_page}`;
 							},
 						}}
