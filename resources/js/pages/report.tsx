@@ -214,7 +214,13 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 					/>
 					<meta property="og:type" content="article" />
 
-					{mod.image && <meta property="og:image" content={mod.image} />}
+					{mod.image && (
+						<>
+							<meta property="og:image" content={mod.image} />
+							<meta property="og:image:height" content="144" />
+							<meta property="og:image:width" content="144" />
+						</>
+					)}
 					<meta
 						name="twitter:card"
 						content={mod.image ? "summary_large_image" : "summary"}
