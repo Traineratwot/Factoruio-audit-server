@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -35,6 +36,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        if (! $request->session()->has('audit_token')) {
+            $request->session()->put('audit_token', (string) Str::uuid());
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -42,6 +47,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'audit_token' => $request->session()->get('audit_token'),
         ];
     }
 }

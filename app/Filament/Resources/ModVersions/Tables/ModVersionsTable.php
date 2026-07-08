@@ -16,7 +16,7 @@ class ModVersionsTable
             ->defaultSort('released_at', 'desc')
             ->recordActions([
                 ViewAction::make()
-                    ->iconButton()
+                    ->iconButton(),
             ], RecordActionsPosition::BeforeColumns)
             ->columns([
                 TextColumn::make('mod.name')
@@ -48,8 +48,8 @@ class ModVersionsTable
                 TextColumn::make('download_url')
                     ->label('Download URL')
                     ->url(function (ModVersion $record): ?string {
-                        if (!blank($record->download_url)) {
-                            return 'https://mods.factorio.com' . $record->download_url;
+                        if (! blank($record->download_url)) {
+                            return 'https://mods.factorio.com'.$record->download_url;
                         }
 
                         return null;

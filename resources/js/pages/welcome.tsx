@@ -1,14 +1,16 @@
-import { Head } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { PrimeReactProvider } from "primereact/api";
+import { Toast } from "primereact/toast";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
 import { Tooltip } from "primereact/tooltip";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import { CategoryFilter } from "@/components/mods/CategoryFilter";
 import { ModsTable } from "@/components/mods/ModsTable";
 import { ReportFilter } from "@/components/mods/ReportFilter";
 import Container from "@/components/ui/Container";
 import Footer from "@/components/ui/Footer";
+import echo from "@/echo";
 import { useModsFilter } from "@/hooks/useModsFilter";
 import type {
 	Mod,
@@ -41,8 +43,49 @@ export default function Welcome({
 	report_filter = "all",
 	factorio_version = "",
 }: WelcomeProps) {
+	const { audit_token } = usePage().props as unknown as { audit_token: string };
 	const [auditDialogVisible, setAuditDialogVisible] = useState(false);
 	const [auditMod, setAuditMod] = useState<ModSearchResult | null>(null);
+	const toastRef = useRef<Toast>(null);
+
+	useEffect(() => {
+		if (!echo) return;
+		const echoClient = echo;
+		const channel = echoClient.channel(`audit.${audit_token}`);
+
+		channel.listen(
+			".AuditCompleted",
+			(e: {
+				mod_name: string;
+				version: string;
+				report_url: string | null;
+				error: string | null;
+			}) => {
+				if (e.error) {
+					toastRef.current?.show({
+						severity: "error",
+						summary: "Audit Failed",
+						detail: `Failed to audit ${e.mod_name} v${e.version}: ${e.error}`,
+						life: 10000,
+					});
+				} else {
+					toastRef.current?.show({
+						severity: "success",
+						summary: "Audit Complete",
+						detail: `${e.mod_name} v${e.version} audit finished!`,
+						life: 10000,
+					});
+					if (e.report_url) {
+						router.visit(e.report_url);
+					}
+				}
+			},
+		);
+
+		return () => {
+			echoClient.leaveChannel(`audit.${audit_token}`);
+		};
+	}, [audit_token]);
 
 	const {
 		searchQuery,
@@ -102,6 +145,7 @@ export default function Welcome({
 				/>
 			</Head>
 			<PrimeReactProvider>
+				<Toast ref={toastRef} position="bottom-right" />
 				<Tooltip target=".custom-tooltip" />
 				<Container maxWidth="120rem" padding="1.5rem" className="min-h-screen">
 					{/* Header */}

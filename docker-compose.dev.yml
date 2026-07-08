@@ -10,9 +10,11 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
+      - ./docker/app/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf:ro
     ports:
       - "5273:5273"                       # Vite dev server
       - "${PUB_APP_PORT}:9000"            # PHP-FPM / Octane / встроенный сервер
+      - "${PUB_REVERB_PORT:-8080}:8080"   # Reverb WebSocket
     depends_on:
       postgres:
         condition: service_healthy

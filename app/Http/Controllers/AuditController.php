@@ -72,7 +72,9 @@ class AuditController extends Controller
             RateLimiter::hit($key, 3600);
         }
 
-        AuditJob::dispatch($mod->id, $version);
+        $auditToken = $request->session()->get('audit_token');
+
+        AuditJob::dispatch($mod->id, $version, $auditToken);
 
         return response()->json([
             'success' => true,

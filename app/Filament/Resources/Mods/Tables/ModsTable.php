@@ -172,8 +172,7 @@ class ModsTable
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->iconButton()
-                ,
+                    ->iconButton(),
                 Action::make('fetchFullInfo')
                     ->iconButton()
                     ->icon('heroicon-o-arrow-down-tray')

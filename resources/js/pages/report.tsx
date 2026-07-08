@@ -1,4 +1,4 @@
-import { Head, router } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { PrimeReactProvider } from "primereact/api";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
@@ -6,13 +6,15 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { ProgressBar } from "primereact/progressbar";
+import { Toast } from "primereact/toast";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
 import { PathsCell, SeverityTag } from "@/components/AuditReport";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import Container from "@/components/ui/Container";
 import Footer from "@/components/ui/Footer";
+import echo from "@/echo";
 import type { Finding, rawReport } from "@/types/mod";
 import { formatBytes, formatDate } from "@/utils/formatters";
 
@@ -51,8 +53,49 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	reported_versions,
 	current_scanner_version,
 }) => {
+	const { audit_token } = usePage().props as unknown as { audit_token: string };
 	const [auditDialogVisible, setAuditDialogVisible] = useState(false);
 	const [auditVersion, setAuditVersion] = useState<string | null>(null);
+	const toastRef = useRef<Toast>(null);
+
+	useEffect(() => {
+		if (!echo) return;
+		const echoClient = echo;
+		const channel = echoClient.channel(`audit.${audit_token}`);
+
+		channel.listen(
+			".AuditCompleted",
+			(e: {
+				mod_name: string;
+				version: string;
+				report_url: string | null;
+				error: string | null;
+			}) => {
+				if (e.error) {
+					toastRef.current?.show({
+						severity: "error",
+						summary: "Audit Failed",
+						detail: `Failed to audit ${e.mod_name} v${e.version}: ${e.error}`,
+						life: 10000,
+					});
+				} else {
+					toastRef.current?.show({
+						severity: "success",
+						summary: "Audit Complete",
+						detail: `${e.mod_name} v${e.version} audit finished!`,
+						life: 10000,
+					});
+					if (e.report_url) {
+						router.visit(e.report_url);
+					}
+				}
+			},
+		);
+
+		return () => {
+			echoClient.leaveChannel(`audit.${audit_token}`);
+		};
+	}, [audit_token]);
 
 	const hasReport = (v: string) => reported_versions.includes(v);
 
@@ -147,7 +190,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	const isScannerOutdated =
 		report !== null &&
 		current_scanner_version !== null &&
-		report.raw.report.scannerVersion <= parseInt(current_scanner_version, 10);
+		report.raw.report.scannerVersion < parseInt(current_scanner_version, 10);
 
 	const ModHeader = () => (
 		<div className="mb-4 flex items-center gap-4">
@@ -288,6 +331,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
 	return (
 		<PrimeReactProvider>
+			<Toast ref={toastRef} position="bottom-right" />
 			<Head
 				title={`${auditReport.modNameReadable} v${auditReport.version} | Report`}
 			>
