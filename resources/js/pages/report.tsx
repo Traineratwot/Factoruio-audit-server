@@ -225,7 +225,13 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 			)}
 			<div>
 				<h1 className="text-2xl font-bold">
-					{report ? report.raw.report.modNameReadable : mod.title || mod.name}
+					<a
+						href={"https://mods.factorio.com/mod/" + mod.name}
+						target="_blank"
+						rel="noopener"
+					>
+						{report ? report.raw.report.modNameReadable : mod.title || mod.name}
+					</a>
 				</h1>
 				<div className="text-sm text-gray-400">
 					<code>{mod.name}</code>
@@ -476,39 +482,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				)}
 
 				{/* Stat Cards */}
-				<div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-					<Card className="Image" style={{ padding: 0, overflow: "hidden" }}>
-						{mod.image ? (
-							<img
-								src={mod.image}
-								alt={mod.name}
-								style={{
-									width: "100%",
-									aspectRatio: "1",
-									borderRadius: "8px",
-									objectFit: "cover",
-									display: "block",
-								}}
-							/>
-						) : (
-							<div
-								style={{
-									width: "100%",
-									aspectRatio: "1",
-									borderRadius: "8px",
-									background: "linear-gradient(135deg, #06b6d4, #3b82f6)",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									color: "#fff",
-									fontWeight: "bold",
-									fontSize: "1.5rem",
-								}}
-							>
-								{(mod.title || mod.name).charAt(0).toUpperCase()}
-							</div>
-						)}
-					</Card>
+				<div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 					<Card className="shadow-none">
 						<div className="text-xs text-gray-400 uppercase">Overall Score</div>
 						<div

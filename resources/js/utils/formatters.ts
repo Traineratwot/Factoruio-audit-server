@@ -16,5 +16,5 @@ export function formatBytes(
 }
 
 export const formatDate = (timestamp: number): string => {
-	return new Date(timestamp * 1000).toLocaleString();
+	return new Date(timestamp).toLocaleString();
 };
