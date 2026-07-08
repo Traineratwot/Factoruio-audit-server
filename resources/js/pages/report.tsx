@@ -147,7 +147,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	const isScannerOutdated =
 		report !== null &&
 		current_scanner_version !== null &&
-		String(report.raw.report.scannerVersion) !== current_scanner_version;
+		report.raw.report.scannerVersion <= parseInt(current_scanner_version, 10);
 
 	const ModHeader = () => (
 		<div className="mb-4 flex items-center gap-4">
