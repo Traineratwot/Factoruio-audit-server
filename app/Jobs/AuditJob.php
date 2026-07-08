@@ -34,7 +34,7 @@ class AuditJob implements ShouldQueue
         try {
             $report = $mod->runAudit($version);
             if ($report) {
-                $reportUrl = '/report/mod/'.$mod->id.'/version/'.$version;
+                $reportUrl = '/report/mod/'.$mod->name.'/version/'.$version;
             }
         } catch (Throwable $e) {
             $error = $e->getMessage();
