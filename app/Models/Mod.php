@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Scout\Searchable;
 use Throwable;
 
@@ -121,8 +122,8 @@ class Mod extends Model
 
     public function getImage(): ?string
     {
-        if (! blank($this->thumbnail)) {
-            return 'https://assets-mod.factorio.com'.$this->thumbnail;
+        if (!blank($this->thumbnail)) {
+            return 'https://assets-mod.factorio.com' . $this->thumbnail;
         }
 
         return null;
@@ -167,6 +168,7 @@ class Mod extends Model
                 'scanner_version' => $data['report']['scannerVersion'],
             ]
         );
+        Cache::set('scanner.version', $data['report']['scannerVersion'], 3600);
 
         return $report instanceof Report ? $report : null;
     }
