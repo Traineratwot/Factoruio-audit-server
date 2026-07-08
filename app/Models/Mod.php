@@ -114,10 +114,21 @@ class Mod extends Model
     public function getLatestReportVersionAttribute(): ?string
     {
         if ($this->relationLoaded('reports') && $this->reports->isNotEmpty()) {
-            return $this->reports->sortByDesc('created_at')->first()->mod_version;
+            $versions = $this->versions()->get()->keyBy('version');
+
+            return $this->reports
+                ->sortByDesc(fn (Report $report) => $versions->get($report->mod_version)?->released_at)
+                ->first()
+                ?->mod_version;
         }
 
-        return $this->reports()->orderByDesc('created_at')->value('mod_version');
+        return $this->reports()
+            ->join('mod_versions', function ($join) {
+                $join->on('reports.mod_version', '=', 'mod_versions.version')
+                    ->where('mod_versions.mod_id', '=', $this->id);
+            })
+            ->orderByDesc('mod_versions.released_at')
+            ->value('reports.mod_version');
     }
 
     public function getImage(): ?string

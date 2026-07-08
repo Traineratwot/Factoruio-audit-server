@@ -225,7 +225,6 @@ export default function Welcome({
 					</div>
 				</Container>
 				<Footer />
-
 				<AuditDialog
 					visible={auditDialogVisible}
 					onHide={() => {
@@ -234,6 +233,7 @@ export default function Welcome({
 					}}
 					preselectedMod={auditMod}
 				/>
+				\
 			</PrimeReactProvider>
 		</>
 	);
