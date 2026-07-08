@@ -32,4 +32,15 @@ class AuditCompleted implements ShouldBroadcastNow
     {
         return 'AuditCompleted';
     }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'mod_id' => $this->modId,
+            'mod_name' => $this->modName,
+            'version' => $this->version,
+            'report_url' => $this->reportUrl,
+            'error' => $this->error,
+        ];
+    }
 }
