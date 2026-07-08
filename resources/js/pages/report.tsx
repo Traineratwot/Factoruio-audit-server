@@ -10,6 +10,7 @@ import { Toast } from "primereact/toast";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
+import { ChevronLeftIcon } from "primereact/icons/chevronleft";
 import { PathsCell, SeverityTag } from "@/components/AuditReport";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import Container from "@/components/ui/Container";
@@ -223,7 +224,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 					{(mod.title || mod.name).charAt(0).toUpperCase()}
 				</div>
 			)}
-			<div>
+			<div className="flex-1">
 				<h1 className="text-2xl font-bold">
 					<a
 						href={"https://mods.factorio.com/mod/" + mod.name}
@@ -244,6 +245,25 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 					)}
 				</div>
 			</div>
+			<button
+				type="button"
+				onClick={() => router.get("/")}
+				aria-label="Back to mods"
+				style={{
+					flexShrink: 0,
+					width: "2.5rem",
+					height: "2.5rem",
+					borderRadius: "50%",
+					background: "#3f4b5b",
+					border: "none",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					cursor: "pointer",
+				}}
+			>
+				<ChevronLeftIcon />
+			</button>
 		</div>
 	);
 
