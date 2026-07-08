@@ -1,3 +1,4 @@
+import { router } from "@inertiajs/react";
 import type React from "react";
 import type { Mod } from "@/types/mod";
 
@@ -36,9 +37,29 @@ export const NameColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {
 				</div>
 			)}
 			<div>
-				<div style={{ fontWeight: "600", color: "#e5e7eb" }}>
-					{rowData.title || rowData.name}
-				</div>
+				{rowData.reports_count > 0 ? (
+					<button
+						type="button"
+						onClick={() => router.get(`/report/mod/${rowData.name}`)}
+						style={{
+							fontWeight: "600",
+							color: "#06b6d4",
+							background: "none",
+							border: "none",
+							padding: 0,
+							cursor: "pointer",
+							textDecoration: "underline",
+							textDecorationColor: "rgba(6, 182, 212, 0.4)",
+							textUnderlineOffset: "3px",
+						}}
+					>
+						{rowData.title || rowData.name}
+					</button>
+				) : (
+					<div style={{ fontWeight: "600", color: "#e5e7eb" }}>
+						{rowData.title || rowData.name}
+					</div>
+				)}
 				<div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>
 					{rowData.owner && `by ${rowData.owner}`}
 					{rowData.latest_version && ` · v${rowData.latest_version}`}

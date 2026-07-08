@@ -12,6 +12,7 @@ import "primereact/resources/themes/lara-dark-cyan/theme.css";
 import { PathsCell, SeverityTag } from "@/components/AuditReport";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import Container from "@/components/ui/Container";
+import Footer from "@/components/ui/Footer";
 import type { Finding, rawReport } from "@/types/mod";
 import { formatBytes, formatDate } from "@/utils/formatters";
 
@@ -265,6 +266,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 						preselectedVersion={auditVersion}
 					/>
 				</Container>
+				<Footer />
 			</PrimeReactProvider>
 		);
 	}
@@ -584,6 +586,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				})}
 			</Container>
 
+			<Footer />
 			<AuditDialog
 				visible={auditDialogVisible}
 				onHide={() => {

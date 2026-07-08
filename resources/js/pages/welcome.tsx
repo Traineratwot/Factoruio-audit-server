@@ -8,6 +8,7 @@ import { CategoryFilter } from "@/components/mods/CategoryFilter";
 import { ModsTable } from "@/components/mods/ModsTable";
 import { ReportFilter } from "@/components/mods/ReportFilter";
 import Container from "@/components/ui/Container";
+import Footer from "@/components/ui/Footer";
 import { useModsFilter } from "@/hooks/useModsFilter";
 import type {
 	Mod,
@@ -178,22 +179,8 @@ export default function Welcome({
 							/>
 						</div>
 					</div>
-
-					{/* Footer */}
-					<div
-						style={{
-							marginTop: "2rem",
-							textAlign: "center",
-							fontSize: "0.9rem",
-							color: "#6b7280",
-							borderTop: "1px solid #374151",
-							paddingTop: "1.5rem",
-						}}
-					>
-						<i className="pi pi-sync" style={{ marginRight: "0.5rem" }} />
-						Data updates automatically
-					</div>
 				</Container>
+				<Footer />
 
 				<AuditDialog
 					visible={auditDialogVisible}
