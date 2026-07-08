@@ -39,6 +39,7 @@ interface AuditReportViewerProps {
 	current_version: string;
 	latest_version: string | null;
 	reported_versions: string[];
+	current_scanner_version: string | null;
 }
 
 const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
@@ -48,6 +49,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	current_version,
 	latest_version,
 	reported_versions,
+	current_scanner_version,
 }) => {
 	const [auditDialogVisible, setAuditDialogVisible] = useState(false);
 	const [auditVersion, setAuditVersion] = useState<string | null>(null);
@@ -141,6 +143,11 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 		latest_version !== null &&
 		current_version !== latest_version &&
 		!reported_versions.includes(latest_version);
+
+	const isScannerOutdated =
+		report !== null &&
+		current_scanner_version !== null &&
+		String(report.raw.report.scannerVersion) !== current_scanner_version;
 
 	const ModHeader = () => (
 		<div className="mb-4 flex items-center gap-4">
@@ -376,6 +383,43 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 							raised
 							onClick={() => {
 								setAuditVersion(latest_version);
+								setAuditDialogVisible(true);
+							}}
+							style={{
+								borderRadius: "20px",
+								padding: "0.25rem 1rem",
+								whiteSpace: "nowrap",
+							}}
+						/>
+					</div>
+				)}
+
+				{/* Outdated scanner warning */}
+				{isScannerOutdated && (
+					<div
+						className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 px-4 py-3"
+						style={{ background: "rgba(245, 158, 11, 0.08)" }}
+					>
+						<div className="flex items-center gap-2">
+							<i
+								className="pi pi-exclamation-triangle"
+								style={{ color: "#f59e0b" }}
+							/>
+							<span className="text-sm text-amber-200">
+								This report was made with scanner{" "}
+								<strong>v{report.raw.report.scannerVersion}</strong>, current
+								version is <strong>v{current_scanner_version}</strong>.
+							</span>
+						</div>
+						<Button
+							label="Re-audit"
+							icon="pi pi-refresh"
+							size="small"
+							severity="warning"
+							text
+							raised
+							onClick={() => {
+								setAuditVersion(current_version);
 								setAuditDialogVisible(true);
 							}}
 							style={{

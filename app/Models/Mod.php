@@ -164,7 +164,7 @@ class Mod extends Model
                 'mod_version' => $version ?? $data['report']['version'] ?? null,
                 'raw' => $data,
                 'score' => $data['report']['score'],
-                'scannerVersion' => $data['report']['scannerVersion'],
+                'scanner_version' => $data['report']['scannerVersion'],
             ]
         );
 

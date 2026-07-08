@@ -26,7 +26,7 @@ class ReportsTable
                 TextColumn::make('mod_version')
                     ->label('Version'),
 
-                TextColumn::make('raw.report.scannerVersion')
+                TextColumn::make('scanner_version')
                     ->label('Scanner Version'),
 
                 TextColumn::make('score')

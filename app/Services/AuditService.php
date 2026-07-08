@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use WebSocket\Client;
@@ -45,9 +46,24 @@ class AuditService
     }
 
     /**
+     * Получить версию сканнера из кеша (1 час), или запросить если кеш пуст.
+     */
+    public function cachedScannerVersion(): ?string
+    {
+        try {
+            return Cache::remember('scanner.version', 3600, fn () => $this->scannerVersion());
+        } catch (Throwable $e) {
+            Log::warning('Не удалось получить версию сканера', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
+    /**
      * Отправить JSON-RPC 2.0 запрос к WebSocket серверу.
      *
      * @param  array<string, mixed>  $params
+     *
      * @throws Throwable
      */
     private function request(string $method, array $params = []): mixed

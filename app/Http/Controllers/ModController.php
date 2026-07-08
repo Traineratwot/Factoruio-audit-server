@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\AuditService;
 use App\Http\Resources\ModResource;
 use App\Models\Mod;
 use App\Models\Report;
@@ -164,6 +165,7 @@ class ModController extends Controller
             'current_version' => $version,
             'latest_version' => $mod->latest_version,
             'reported_versions' => $reportedVersions,
+            'current_scanner_version' => AuditService::cachedScannerVersion(),
         ]);
     }
 
