@@ -302,9 +302,25 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 						</div>
 
 						<div className="text-center text-gray-400">
-							<p className="mb-3">
+							<p className="mb-4">
 								No audit report for version {current_version}.
 							</p>
+							<Button
+								label={`Audit v${current_version}`}
+								icon="pi pi-play"
+								size="large"
+								severity="info"
+								raised
+								onClick={() => {
+									setAuditVersion(current_version);
+									setAuditDialogVisible(true);
+								}}
+								style={{
+									borderRadius: "24px",
+									padding: "0.75rem 2rem",
+									fontSize: "1.1rem",
+								}}
+							/>
 						</div>
 					</Card>
 
