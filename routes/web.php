@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\AuditCompleted;
 use App\Events\AuditStarted;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ModController;
@@ -27,7 +28,7 @@ Route::get('/dev/broadcast-test', function () {
     $token = request('token', Str::uuid());
 
     // Method A: broadcast() helper
-    broadcast(new AuditStarted(
+    broadcast(new AuditCompleted(
         auditToken: $token,
         modId: 0,
         modName: 'test-mod',
