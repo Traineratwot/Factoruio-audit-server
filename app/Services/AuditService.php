@@ -18,11 +18,44 @@ class AuditService
     {
         Log::info('Запуск аудита', ['name' => $name, 'version' => $version]);
 
+        $result = $this->request('scan', array_filter([
+            'modName' => $name,
+            'version' => $version,
+        ]));
+
+        Log::info('Аудит успешно завершен', ['result' => $result]);
+
+        return $result;
+    }
+
+    /**
+     * Получить версию сканнера.
+     *
+     * @throws Throwable
+     */
+    public function scannerVersion(): string
+    {
+        Log::info('Запрос версии сканера');
+
+        $result = $this->request('scanner_version');
+
+        Log::info('Версия сканера получена', ['version' => $result]);
+
+        return $result['version'];
+    }
+
+    /**
+     * Отправить JSON-RPC 2.0 запрос к WebSocket серверу.
+     *
+     * @param  array<string, mixed>  $params
+     * @throws Throwable
+     */
+    private function request(string $method, array $params = []): mixed
+    {
         try {
             $wsUrl = config('audit.websocket_url', 'ws://127.0.0.1:3000/ws');
             Log::debug('Подключение к WebSocket', ['url' => $wsUrl]);
 
-            // Создаём WebSocket-клиента
             $client = new Client($wsUrl, [
                 'timeout' => 3600,
                 'headers' => [
@@ -30,42 +63,32 @@ class AuditService
                 ],
             ]);
 
-            // Формируем JSON-RPC 2.0 запрос
-            $requestId = uniqid('audit_', true);
+            $requestId = uniqid('rpc_', true);
             $request = [
                 'jsonrpc' => '2.0',
-                'method' => 'scan',
-                'params' => array_filter([
-                    'modName' => $name,
-                    'version' => $version,
-                ]),
+                'method' => $method,
+                'params' => $params,
                 'id' => $requestId,
             ];
 
             Log::debug('Отправка JSON-RPC запроса', ['request' => $request]);
 
-            // Отправляем сообщение
             $client->send(json_encode($request));
 
-            // Получаем ответ
             $responseText = $client->receive();
             Log::debug('Получен сырой ответ', ['responseText' => $responseText]);
 
             $response = json_decode($responseText, true);
             Log::debug('Декодированный ответ', ['response' => $response]);
 
-            // Закрываем соединение
             $client->close();
-            Log::debug('Соединение закрыто');
 
-            // Обрабатываем ошибки JSON-RPC
             if (isset($response['error'])) {
                 $errorMsg = $response['error']['message'] ?? 'Неизвестная ошибка JSON-RPC';
                 Log::error('Ошибка JSON-RPC', ['error' => $response['error']]);
-                throw new Exception("Ошибка при сканировании: {$errorMsg}");
+                throw new Exception("Ошибка JSON-RPC ({$method}): {$errorMsg}");
             }
 
-            // Проверяем соответствие ID запроса (опционально)
             if (isset($response['id']) && $response['id'] !== $requestId) {
                 Log::error('Несоответствие ID ответа запросу', [
                     'expected' => $requestId,
@@ -74,12 +97,10 @@ class AuditService
                 throw new Exception('Несоответствие ID ответа запросу');
             }
 
-            $result = $response['result'] ?? null;
-            Log::info('Аудит успешно завершен', ['result' => $result]);
-
-            return $result;
+            return $response['result'] ?? null;
         } catch (Throwable $e) {
-            Log::error('Исключение при выполнении аудита', [
+            Log::error('Исключение при выполнении JSON-RPC запроса', [
+                'method' => $method,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
