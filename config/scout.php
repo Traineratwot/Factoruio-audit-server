@@ -89,32 +89,32 @@ return [
                 ],
             ],
 
-            ModVersion::class => [
-                'typoTolerance' => [
-                    'enabled' => true,
-                    'minWordSizeForTypos' => [
-                        'oneTypo' => 3,
-                        'twoTypos' => 5,
-                    ],
-                ],
-                'searchableAttributes' => [
-                    'mod_name',
-                    'version',
-                    'file_name',
-                    'factorio_version',
-                ],
-                'filterableAttributes' => [
-                    'mod_id',
-                    'mod_name',
-                    'factorio_version',
-                ],
-                'sortableAttributes' => [
-                    'version',
-                    'factorio_version',
-                    'released_at',
-                    'mod_name',
-                ],
-            ],
+//            ModVersion::class => [
+//                'typoTolerance' => [
+//                    'enabled' => true,
+//                    'minWordSizeForTypos' => [
+//                        'oneTypo' => 3,
+//                        'twoTypos' => 5,
+//                    ],
+//                ],
+//                'searchableAttributes' => [
+//                    'mod_name',
+//                    'version',
+//                    'file_name',
+//                    'factorio_version',
+//                ],
+//                'filterableAttributes' => [
+//                    'mod_id',
+//                    'mod_name',
+//                    'factorio_version',
+//                ],
+//                'sortableAttributes' => [
+//                    'version',
+//                    'factorio_version',
+//                    'released_at',
+//                    'mod_name',
+//                ],
+//            ],
 
             Report::class => [
                 'typoTolerance' => [
