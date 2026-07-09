@@ -87,9 +87,9 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 			<DataTable
 				value={mods.data}
 				loading={loading}
-				tableStyle={{ minWidth: "50rem" }}
-				lazy={true} // <-- отключаем клиентскую сортировку
-				totalRecords={totalRecords} // <-- для корректного отображения
+				tableStyle={{ minWidth: "40rem" }}
+				lazy={true}
+				totalRecords={totalRecords}
 				stripedRows
 				showGridlines={false}
 				emptyMessage="No mods found"
@@ -98,7 +98,6 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 				sortField={sortField}
 				sortOrder={sortOrder}
 				onSort={handleSort}
-				resizableColumns
 			>
 				<Column
 					field="name"
@@ -113,6 +112,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 					body={(rowData: Mod) => <CategoryColumn rowData={rowData} />}
 					sortable
 					style={{ width: "12%" }}
+					className="hidden md:table-cell"
 				/>
 				<Column
 					field="score"
@@ -129,6 +129,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 					body={(rowData: Mod) => <DownloadsColumn rowData={rowData} />}
 					sortable
 					style={{ width: "12%" }}
+					className="hidden lg:table-cell"
 				/>
 				<Column
 					field="popularity"
@@ -136,6 +137,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 					body={(rowData: Mod) => <PopularityColumn rowData={rowData} />}
 					sortable
 					style={{ width: "15%" }}
+					className="hidden lg:table-cell"
 				/>
 				<Column
 					field="created_at"
@@ -143,6 +145,7 @@ export const ModsTable: React.FC<ModsTableProps> = ({
 					body={(rowData: Mod) => <DateColumn rowData={rowData} />}
 					sortable
 					style={{ width: "12%" }}
+					className="hidden md:table-cell"
 				/>
 				<Column
 					header="Actions"

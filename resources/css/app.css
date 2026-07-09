@@ -65,3 +65,19 @@
 .p-paginator .p-paginator-current {
 	color: #9ca3af;
 }
+
+/* Responsive paginator */
+@media (max-width: 640px) {
+	.p-paginator .p-paginator-pages .p-paginator-page {
+		min-width: 2rem;
+		height: 2rem;
+		font-size: 0.8rem;
+	}
+	.p-paginator .p-paginator-first,
+	.p-paginator .p-paginator-prev,
+	.p-paginator .p-paginator-next,
+	.p-paginator .p-paginator-last {
+		min-width: 2rem;
+		height: 2rem;
+	}
+}

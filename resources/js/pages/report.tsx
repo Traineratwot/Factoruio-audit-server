@@ -169,15 +169,15 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 		report.raw.report.scannerVersion < parseInt(current_scanner_version, 10);
 
 	const ModHeader = () => (
-		<div className="mb-4 flex items-center gap-4">
+		<div className="mb-4 flex flex-col sm:flex-row items-center sm:items-center gap-4">
 			<ModAvatar
 				image={mod.image}
 				name={mod.title || mod.name}
 				size="lg"
 				shape="square"
 			/>
-			<div className="flex-1">
-				<h1 className="text-2xl font-bold">
+			<div className="flex-1 text-center sm:text-left">
+				<h1 className="text-xl sm:text-2xl font-bold">
 					<a
 						href={`https://mods.factorio.com/mod/${mod.name}`}
 						target="_blank"
@@ -390,7 +390,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				{/* Outdated report warning */}
 				{isOutdated && (
 					<div
-						className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 px-4 py-3"
+						className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border border-amber-500/40 px-4 py-3"
 						style={{ background: "rgba(245, 158, 11, 0.08)" }}
 					>
 						<div className="flex items-center gap-2">
@@ -419,6 +419,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 								borderRadius: "20px",
 								padding: "0.25rem 1rem",
 								whiteSpace: "nowrap",
+								alignSelf: "flex-end",
 							}}
 						/>
 					</div>
@@ -427,7 +428,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				{/* Outdated scanner warning */}
 				{isScannerOutdated && (
 					<div
-						className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 px-4 py-3"
+						className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border border-amber-500/40 px-4 py-3"
 						style={{ background: "rgba(245, 158, 11, 0.08)" }}
 					>
 						<div className="flex items-center gap-2">
@@ -455,6 +456,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 								borderRadius: "20px",
 								padding: "0.25rem 1rem",
 								whiteSpace: "nowrap",
+								alignSelf: "flex-end",
 							}}
 						/>
 					</div>

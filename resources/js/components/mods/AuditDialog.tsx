@@ -111,7 +111,7 @@ export const AuditDialog: React.FC<AuditDialogProps> = ({
 			visible={visible}
 			onHide={onHide}
 			footer={footer}
-			style={{ width: "500px" }}
+			style={{ width: "min(500px, 90vw)" }}
 			modal
 			closable={!submitting}
 		>

@@ -3,7 +3,7 @@ import { PrimeReactProvider } from "primereact/api";
 import { Toast } from "primereact/toast";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
 import { Tooltip } from "primereact/tooltip";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import { CategoryFilter } from "@/components/mods/CategoryFilter";
 import { ModsTable } from "@/components/mods/ModsTable";
@@ -75,6 +75,7 @@ export default function Welcome({
 	);
 
 	const allCategories = Array.from(new Set(category_all)).sort();
+	const [filtersOpen, setFiltersOpen] = useState(false);
 
 	return (
 		<>
@@ -100,7 +101,7 @@ export default function Welcome({
 			<PrimeReactProvider>
 				<Toast ref={toastRef} position="bottom-right" />
 				<Tooltip target=".custom-tooltip" />
-				<Container maxWidth="120rem" padding="1.5rem" className="min-h-screen">
+				<Container maxWidth="120rem" padding="1rem" className="min-h-screen">
 					{/* Header */}
 					<div
 						style={{
@@ -110,7 +111,7 @@ export default function Welcome({
 					>
 						<h1
 							style={{
-								fontSize: "2.5rem",
+								fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
 								fontWeight: "bold",
 								marginBottom: "0.5rem",
 								background: "linear-gradient(135deg, #06b6d4, #3b82f6)",
@@ -127,6 +128,31 @@ export default function Welcome({
 						</p>
 					</div>
 
+					{/* Mobile filter toggle */}
+					<div className="md:hidden" style={{ marginBottom: "1rem" }}>
+						<button
+							type="button"
+							onClick={() => setFiltersOpen(!filtersOpen)}
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: "0.5rem",
+								padding: "0.5rem 1rem",
+								borderRadius: "8px",
+								border: "1px solid #374151",
+								background: "#1f2937",
+								color: "#e5e7eb",
+								cursor: "pointer",
+								fontSize: "0.9rem",
+							}}
+						>
+							<i
+								className={`pi ${filtersOpen ? "pi-chevron-up" : "pi-chevron-down"}`}
+							/>
+							Filters
+						</button>
+					</div>
+
 					{/* Main layout */}
 					<div
 						style={{
@@ -134,6 +160,7 @@ export default function Welcome({
 							gap: "2rem",
 							alignItems: "flex-start",
 						}}
+						className="flex-col md:flex-row"
 					>
 						<div
 							style={{
@@ -143,16 +170,12 @@ export default function Welcome({
 								flexDirection: "column",
 								gap: "1rem",
 							}}
+							className={filtersOpen ? "block" : "hidden md:block"}
 						>
 							<ReportFilter
 								reportFilter={reportFilter}
 								onFilterChange={handleReportFilterChange}
 							/>
-							{/*<FactorioVersionFilter*/}
-							{/*    versions={factorio_versions}*/}
-							{/*    selectedVersion={factorioVersion}*/}
-							{/*    onVersionChange={handleFactorioVersionChange}*/}
-							{/*/>*/}
 							<CategoryFilter
 								categories={allCategories}
 								categoryFilter={categoryFilter}
@@ -160,7 +183,7 @@ export default function Welcome({
 								onReset={resetFilters}
 							/>
 						</div>
-						<div style={{ flex: 1 }}>
+						<div style={{ flex: 1, minWidth: 0 }}>
 							<ModsTable
 								mods={mods}
 								loading={loading}
@@ -183,7 +206,6 @@ export default function Welcome({
 					onHide={close}
 					preselectedMod={preselectedMod}
 				/>
-				\
 			</PrimeReactProvider>
 		</>
 	);

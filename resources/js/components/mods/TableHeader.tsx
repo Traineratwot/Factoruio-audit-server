@@ -30,14 +30,22 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 				padding: "0.5rem 0 1.5rem 0",
 			}}
 		>
-			<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-				<div style={{ width: "20rem" }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: "1rem",
+					flex: 1,
+					minWidth: 0,
+				}}
+			>
+				<div style={{ flex: 1, maxWidth: "20rem" }}>
 					<IconField iconPosition="left">
 						<InputIcon className="pi pi-search" />
 						<InputText
 							value={searchQuery}
 							onChange={(e) => onSearchChange(e.target.value)}
-							placeholder="Search by name, author, description..."
+							placeholder="Search mods..."
 							style={{
 								width: "100%",
 								borderRadius: "30px",
@@ -52,7 +60,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 				{searchQuery && (
 					<Button
 						icon="pi pi-times"
-						label="Clear"
 						severity="secondary"
 						outlined
 						onClick={onClearSearch}
@@ -63,6 +70,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 			</div>
 			<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
 				<div
+					className="hidden sm:block"
 					style={{
 						color: "#9ca3af",
 						fontSize: "0.9rem",
@@ -76,11 +84,18 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 					{totalRecords} mods
 				</div>
 				<Button
-					label="Audit Mod"
 					icon="pi pi-play"
 					size="small"
 					onClick={onAuditClick}
 					style={{ borderRadius: "30px" }}
+					className="hidden sm:inline-flex"
+				/>
+				<Button
+					icon="pi pi-play"
+					size="small"
+					onClick={onAuditClick}
+					style={{ borderRadius: "30px" }}
+					className="sm:hidden"
 				/>
 			</div>
 		</div>
