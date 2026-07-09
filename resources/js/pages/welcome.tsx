@@ -3,21 +3,17 @@ import { PrimeReactProvider } from "primereact/api";
 import { Toast } from "primereact/toast";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
 import { Tooltip } from "primereact/tooltip";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import { CategoryFilter } from "@/components/mods/CategoryFilter";
 import { ModsTable } from "@/components/mods/ModsTable";
 import { ReportFilter } from "@/components/mods/ReportFilter";
 import Container from "@/components/ui/Container";
 import Footer from "@/components/ui/Footer";
-import echo from "@/echo";
+import { useAuditDialog } from "@/hooks/useAuditDialog";
+import { useAuditEcho } from "@/hooks/useAuditEcho";
 import { useModsFilter } from "@/hooks/useModsFilter";
-import type {
-	Mod,
-	ModSearchResult,
-	PaginatedMods,
-	ReportFilterValue,
-} from "@/types/mod";
+import type { PaginatedMods, ReportFilterValue } from "@/types/mod";
 
 interface WelcomeProps {
 	mods: PaginatedMods;
@@ -44,48 +40,15 @@ export default function Welcome({
 	factorio_version = "",
 }: WelcomeProps) {
 	const { audit_token } = usePage().props as unknown as { audit_token: string };
-	const [auditDialogVisible, setAuditDialogVisible] = useState(false);
-	const [auditMod, setAuditMod] = useState<ModSearchResult | null>(null);
 	const toastRef = useRef<Toast>(null);
+	const { visible, preselectedMod, openForMod, openNew, close } =
+		useAuditDialog();
 
-	useEffect(() => {
-		if (!echo) return;
-		const echoClient = echo;
-		const channel = echoClient.channel(`audit.${audit_token}`);
+	const handleAuditSuccess = useCallback((reportUrl: string) => {
+		router.visit(reportUrl);
+	}, []);
 
-		channel.listen(
-			".AuditCompleted",
-			(e: {
-				mod_name: string;
-				version: string;
-				report_url: string | null;
-				error: string | null;
-			}) => {
-				if (e.error) {
-					toastRef.current?.show({
-						severity: "error",
-						summary: "Audit Failed",
-						detail: `Failed to audit ${e.mod_name} v${e.version}: ${e.error}`,
-						life: 10000,
-					});
-				} else {
-					toastRef.current?.show({
-						severity: "success",
-						summary: "Audit Complete",
-						detail: `${e.mod_name} v${e.version} audit finished!`,
-						life: 10000,
-					});
-					if (e.report_url) {
-						router.visit(e.report_url);
-					}
-				}
-			},
-		);
-
-		return () => {
-			echoClient.leaveChannel(`audit.${audit_token}`);
-		};
-	}, [audit_token]);
+	useAuditEcho(audit_token, { toastRef, onSuccess: handleAuditSuccess });
 
 	const {
 		searchQuery,
@@ -112,16 +75,6 @@ export default function Welcome({
 	);
 
 	const allCategories = Array.from(new Set(category_all)).sort();
-
-	const handleAuditMod = (mod: Mod) => {
-		setAuditMod({ id: mod.id, name: mod.name, title: mod.name });
-		setAuditDialogVisible(true);
-	};
-
-	const handleAuditNew = () => {
-		setAuditMod(null);
-		setAuditDialogVisible(true);
-	};
 
 	return (
 		<>
@@ -218,20 +171,17 @@ export default function Welcome({
 								sortField={sortField}
 								sortDirection={sortDirection}
 								onSortChange={handleSort}
-								onAuditClick={handleAuditNew}
-								onAuditMod={handleAuditMod}
+								onAuditClick={openNew}
+								onAuditMod={(mod) => openForMod(mod)}
 							/>
 						</div>
 					</div>
 				</Container>
 				<Footer />
 				<AuditDialog
-					visible={auditDialogVisible}
-					onHide={() => {
-						setAuditDialogVisible(false);
-						setAuditMod(null);
-					}}
-					preselectedMod={auditMod}
+					visible={visible}
+					onHide={close}
+					preselectedMod={preselectedMod}
 				/>
 				\
 			</PrimeReactProvider>

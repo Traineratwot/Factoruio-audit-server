@@ -8,16 +8,20 @@ import { Dropdown } from "primereact/dropdown";
 import { ProgressBar } from "primereact/progressbar";
 import { Toast } from "primereact/toast";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
 import { ChevronLeftIcon } from "primereact/icons/chevronleft";
 import { PathsCell, SeverityTag } from "@/components/AuditReport";
 import { AuditDialog } from "@/components/mods/AuditDialog";
 import Container from "@/components/ui/Container";
 import Footer from "@/components/ui/Footer";
-import echo from "@/echo";
+import { ModAvatar } from "@/components/ui/ModAvatar";
+import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { useAuditDialog } from "@/hooks/useAuditDialog";
+import { useAuditEcho } from "@/hooks/useAuditEcho";
 import type { Finding, rawReport } from "@/types/mod";
 import { formatBytes, formatDate } from "@/utils/formatters";
+import { getScoreColor } from "@/utils/score";
 
 interface ReportVersion {
 	id: number;
@@ -55,48 +59,20 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	current_scanner_version,
 }) => {
 	const { audit_token } = usePage().props as unknown as { audit_token: string };
-	const [auditDialogVisible, setAuditDialogVisible] = useState(false);
-	const [auditVersion, setAuditVersion] = useState<string | null>(null);
 	const toastRef = useRef<Toast>(null);
+	const {
+		visible,
+		preselectedMod,
+		preselectedVersion,
+		openForModVersion,
+		close,
+	} = useAuditDialog();
 
-	useEffect(() => {
-		if (!echo) return;
-		const echoClient = echo;
-		const channel = echoClient.channel(`audit.${audit_token}`);
+	const handleAuditSuccess = useCallback((reportUrl: string) => {
+		router.visit(reportUrl);
+	}, []);
 
-		channel.listen(
-			".AuditCompleted",
-			(e: {
-				mod_name: string;
-				version: string;
-				report_url: string | null;
-				error: string | null;
-			}) => {
-				if (e.error) {
-					toastRef.current?.show({
-						severity: "error",
-						summary: "Audit Failed",
-						detail: `Failed to audit ${e.mod_name} v${e.version}: ${e.error}`,
-						life: 10000,
-					});
-				} else {
-					toastRef.current?.show({
-						severity: "success",
-						summary: "Audit Complete",
-						detail: `${e.mod_name} v${e.version} audit finished!`,
-						life: 10000,
-					});
-					if (e.report_url) {
-						router.visit(e.report_url);
-					}
-				}
-			},
-		);
-
-		return () => {
-			echoClient.leaveChannel(`audit.${audit_token}`);
-		};
-	}, [audit_token]);
+	useAuditEcho(audit_token, { toastRef, onSuccess: handleAuditSuccess });
 
 	const hasReport = (v: string) => reported_versions.includes(v);
 
@@ -108,8 +84,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 				{ preserveState: true, replace: true },
 			);
 		} else {
-			setAuditVersion(e.value);
-			setAuditDialogVisible(true);
+			openForModVersion(mod, e.value);
 		}
 	};
 
@@ -195,39 +170,16 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
 	const ModHeader = () => (
 		<div className="mb-4 flex items-center gap-4">
-			{mod.image ? (
-				<img
-					src={mod.image}
-					alt={mod.name}
-					style={{
-						width: "4rem",
-						height: "4rem",
-						borderRadius: "8px",
-						objectFit: "cover",
-					}}
-				/>
-			) : (
-				<div
-					style={{
-						width: "4rem",
-						height: "4rem",
-						borderRadius: "8px",
-						background: "linear-gradient(135deg, #06b6d4, #3b82f6)",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						color: "#fff",
-						fontWeight: "bold",
-						fontSize: "1.5rem",
-					}}
-				>
-					{(mod.title || mod.name).charAt(0).toUpperCase()}
-				</div>
-			)}
+			<ModAvatar
+				image={mod.image}
+				name={mod.title || mod.name}
+				size="lg"
+				shape="square"
+			/>
 			<div className="flex-1">
 				<h1 className="text-2xl font-bold">
 					<a
-						href={"https://mods.factorio.com/mod/" + mod.name}
+						href={`https://mods.factorio.com/mod/${mod.name}`}
 						target="_blank"
 						rel="noopener"
 					>
@@ -332,8 +284,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 								severity="info"
 								raised
 								onClick={() => {
-									setAuditVersion(current_version);
-									setAuditDialogVisible(true);
+									openForModVersion(mod, current_version);
 								}}
 								style={{
 									borderRadius: "24px",
@@ -345,17 +296,10 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 					</Card>
 
 					<AuditDialog
-						visible={auditDialogVisible}
-						onHide={() => {
-							setAuditDialogVisible(false);
-							setAuditVersion(null);
-						}}
-						preselectedMod={{
-							id: mod.id,
-							name: mod.name,
-							title: mod.title || mod.name,
-						}}
-						preselectedVersion={auditVersion}
+						visible={visible}
+						onHide={close}
+						preselectedMod={preselectedMod}
+						preselectedVersion={preselectedVersion}
 					/>
 				</Container>
 				<Footer />
@@ -366,8 +310,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 	const auditReport = report.raw.report;
 	const _modUrl = `https://mods.factorio.com/mod/${mod.name}`;
 	const overallScore = auditReport.score;
-	const overallFillColor =
-		overallScore >= 70 ? "#22c55e" : overallScore >= 40 ? "#f16338" : "#ef4444";
+	const overallFillColor = getScoreColor(overallScore);
 	const potentialSavings = auditReport.potentialSavings || 0;
 	const percentageSavings = auditReport.percentageSavings || 0;
 
@@ -468,8 +411,9 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 							text
 							raised
 							onClick={() => {
-								setAuditVersion(latest_version);
-								setAuditDialogVisible(true);
+								if (latest_version) {
+									openForModVersion(mod, latest_version);
+								}
 							}}
 							style={{
 								borderRadius: "20px",
@@ -505,8 +449,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 							text
 							raised
 							onClick={() => {
-								setAuditVersion(current_version);
-								setAuditDialogVisible(true);
+								openForModVersion(mod, current_version);
 							}}
 							style={{
 								borderRadius: "20px",
@@ -607,13 +550,6 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 					</sup>
 				</h2>
 				{auditReport.scanners.map((scanner) => {
-					const scannerScoreColor =
-						scanner.score >= 70
-							? "#22c55e"
-							: scanner.score >= 40
-								? "#f16338"
-								: "#ef4444";
-
 					return (
 						<Card key={scanner.id} className="mb-4 shadow-sm">
 							<div className="mb-2 flex flex-wrap items-start justify-between gap-2">
@@ -621,12 +557,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 									{scanner.id}
 								</h3>
 								<div className="text-right">
-									<div
-										className="text-xl font-bold"
-										style={{ color: scannerScoreColor }}
-									>
-										{scanner.score.toFixed(1)}
-									</div>
+									<ScoreBadge score={scanner.score} size="md" showBar={false} />
 									<div className="text-xs text-gray-400">/ 100</div>
 									<ProgressBar
 										value={scanner.score}
@@ -635,7 +566,7 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 											height: "4px",
 											width: "120px",
 										}}
-										color={scannerScoreColor}
+										color={getScoreColor(scanner.score)}
 									/>
 								</div>
 							</div>
@@ -686,17 +617,10 @@ const AuditReportViewer: React.FC<AuditReportViewerProps> = ({
 
 			<Footer />
 			<AuditDialog
-				visible={auditDialogVisible}
-				onHide={() => {
-					setAuditDialogVisible(false);
-					setAuditVersion(null);
-				}}
-				preselectedMod={{
-					id: mod.id,
-					name: mod.name,
-					title: mod.title || mod.name,
-				}}
-				preselectedVersion={auditVersion}
+				visible={visible}
+				onHide={close}
+				preselectedMod={preselectedMod}
+				preselectedVersion={preselectedVersion}
 			/>
 		</PrimeReactProvider>
 	);
