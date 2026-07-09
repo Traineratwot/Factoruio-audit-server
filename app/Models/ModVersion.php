@@ -8,8 +8,6 @@ use Laravel\Scout\Searchable;
 
 class ModVersion extends Model
 {
-    use Searchable;
-
     protected $guarded = ['id'];
 
     public function getUrl(): ?string
