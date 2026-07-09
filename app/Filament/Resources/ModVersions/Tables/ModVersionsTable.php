@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\ModVersions\Tables;
 
 use App\Models\ModVersion;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
@@ -16,6 +18,8 @@ class ModVersionsTable
             ->defaultSort('released_at', 'desc')
             ->recordActions([
                 ViewAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
                     ->iconButton(),
             ], RecordActionsPosition::BeforeColumns)
             ->columns([
@@ -106,6 +110,9 @@ class ModVersionsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([]);
+            ->filters([])
+            ->toolbarActions([
+                DeleteBulkAction::make(),
+            ]);
     }
 }

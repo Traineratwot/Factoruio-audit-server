@@ -35,6 +35,7 @@ return [
                 'typoTolerance' => [
                     'enabled' => true,
                     'disableOnAttributes' => [
+                        'name'
                     ],
                     'minWordSizeForTypos' => [
                         'oneTypo' => 3,
@@ -44,9 +45,9 @@ return [
                 'searchableAttributes' => [
                     'name',
                     'title',
+                    'owner',
                     'summary',
                     'description',
-                    'owner',
                 ],
                 'filterableAttributes' => [
                     'category',

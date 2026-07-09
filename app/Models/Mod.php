@@ -117,7 +117,7 @@ class Mod extends Model
             $versions = $this->versions()->get()->keyBy('version');
 
             return $this->reports
-                ->sortByDesc(fn (Report $report) => $versions->get($report->mod_version)?->released_at)
+                ->sortByDesc(fn(Report $report) => $versions->get($report->mod_version)?->released_at)
                 ->first()
                 ?->mod_version;
         }
@@ -133,8 +133,8 @@ class Mod extends Model
 
     public function getImage(): ?string
     {
-        if (! blank($this->thumbnail)) {
-            return 'https://assets-mod.factorio.com'.$this->thumbnail;
+        if (!blank($this->thumbnail)) {
+            return 'https://assets-mod.factorio.com' . $this->thumbnail;
         }
 
         return null;

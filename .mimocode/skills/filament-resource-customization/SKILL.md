@@ -1,10 +1,10 @@
 ---
 name: Filament Resource Customization
 description: >
-  Apply consistent changes across Filament v5 resources: remove CRUD actions,
-  add custom action buttons (fetch full info, run audit), unify icons/language,
-  add table filters, and batch actions. Use when the user asks to style, clean
-  up, or add actions to Filament resources.
+  Apply consistent changes across Filament v5 resources: add delete/truncate
+  actions, add custom action buttons (fetch full info, run audit, create report,
+  rerun audit), unify icons/language, add table filters, and batch actions.
+  Use when the user asks to style, clean up, or add actions to Filament resources.
 ---
 
 # Filament Resource Customization
@@ -12,7 +12,7 @@ description: >
 ## When to use
 
 - User asks to clean up / unify Filament admin resources
-- User wants read-only resources (no create/edit/delete)
+- User wants to add delete/bulk delete/truncate actions
 - User wants to add custom actions or batch actions
 - User asks to change icons, language, or style across resources
 
@@ -36,24 +36,38 @@ Each resource typically has:
 
 ## Common patterns
 
-### Remove CRUD actions (read-only admin)
+### Standard record actions
 
-This project's admin is strictly read-only. Remove EditAction, DeleteAction,
-CreateAction, and DeleteBulkAction from all resources. Keep only custom actions
-like "Fetch Full Info" or "Run Audit".
+All resources include `DeleteAction` and `DeleteBulkAction`. Each resource
+also has a `TruncateAction` as a header action on the List page.
 
 ```php
-// In ListX page
-public function table(Table $table): Table
-{
-    return $table
-        ->recordActions([
-            // Custom actions only, no EditAction/DeleteAction
-        ])
-        ->toolbarActions([
-            // Custom bulk actions only, no DeleteBulkAction
-        ]);
-}
+// In Tables/XTable.php
+->recordActions([
+    ViewAction::make()->iconButton(),
+    // ... custom actions ...
+    DeleteAction::make()->iconButton(),
+], RecordActionsPosition::BeforeColumns)
+->toolbarActions([
+    // ... custom bulk actions ...
+    DeleteBulkAction::make(),
+])
+```
+
+```php
+// In Pages/ListX.php — header actions
+Action::make('truncateTable')
+    ->label('Truncate Table')
+    ->icon('heroicon-o-trash')
+    ->color('danger')
+    ->requiresConfirmation()
+    ->modalHeading('Truncate Table')
+    ->modalDescription('Are you sure you want to truncate the X table? ...')
+    ->modalSubmitActionLabel('Truncate')
+    ->action(function (): void {
+        Model::query()->truncate();
+        Notification::make()->title('X table truncated')->success()->send();
+    }),
 ```
 
 ### Action button style
@@ -107,22 +121,72 @@ TernaryFilter::make('has_full_info')
 Common batch actions for this project:
 - Fetch Full Info (dispatches FetchFullInfoJob for selected mods)
 - Run Audit (dispatches AuditJob for selected mods)
+- Delete (built-in `DeleteBulkAction`)
 
 ```php
-Action::make('fetchFullInfo')
+BulkAction::make('fetchFullInfo')
     ->label('Fetch Full Info')
     ->icon('heroicon-o-arrow-down-tray')
-    ->action(fn (Collection $records) => ...)
+    ->action(fn ($records) => ...)
     ->deselectRecordsAfterCompletion(),
+
+DeleteBulkAction::make(),
+```
+
+### Mod-specific actions
+
+**Create Report** — form with version selection dropdown:
+```php
+Action::make('createReport')
+    ->iconButton()
+    ->icon('heroicon-o-document-plus')
+    ->tooltip('Create Report')
+    ->color('success')
+    ->form([
+        Select::make('version')
+            ->label('Version')
+            ->options(function (Mod $record): array {
+                $versions = $record->versions;
+                if ($versions->isEmpty()) {
+                    $record->fetchFullInfo();
+                    $versions = $record->versions;
+                }
+                return $versions->pluck('version', 'version')->toArray();
+            })
+            ->required(),
+    ])
+    ->action(function (Mod $record, array $data): void {
+        AuditJob::dispatch($record->id, $data['version']);
+        Notification::make()->title('Report creation dispatched')->success()->send();
+    }),
+```
+
+### Report-specific actions
+
+**Rerun Audit** — re-dispatches audit for the report's mod/version:
+```php
+Action::make('rerun')
+    ->iconButton()
+    ->icon('heroicon-o-arrow-path')
+    ->tooltip('Rerun Audit')
+    ->color('warning')
+    ->requiresConfirmation()
+    ->modalHeading('Rerun Audit')
+    ->modalDescription('Re-run the audit for this mod version.')
+    ->action(function (Report $record): void {
+        AuditJob::dispatch($record->mod_id, $record->mod_version);
+        Notification::make()->title('Audit rerun dispatched')->success()->send();
+    }),
 ```
 
 ## Checklist
 
 1. Read all resource files under `app/Filament/Resources/`
-2. Identify which resources have CRUD actions that should be removed
-3. Add/verify custom actions per resource
-4. Ensure icons are unique per resource
-5. Ensure all text is in English
-6. Add table filters where useful
-7. Add batch actions where useful
-8. Verify with `composer types:check` (PHPStan level 7)
+2. Ensure `DeleteAction` and `DeleteBulkAction` are present in all table classes
+3. Add `TruncateAction` header action to all List pages
+4. Add/verify custom actions per resource (Create Report for Mods, Rerun for Reports)
+5. Ensure icons are unique per resource
+6. Ensure all text is in English
+7. Add table filters where useful
+8. Add batch actions where useful
+9. Verify with `composer lint:check` and `composer types:check`

@@ -6,7 +6,10 @@ use App\Jobs\AuditJob;
 use App\Models\Mod;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -188,20 +191,52 @@ class ModsTable
                             ->send();
                     }),
 
-                Action::make('audit')
+//                Action::make('audit')
+//                    ->iconButton()
+//                    ->icon('heroicon-o-magnifying-glass')
+//                    ->tooltip('Audit')
+//                    ->color('warning')
+//                    ->action(function (Mod $record): void {
+//                        AuditJob::dispatch($record->id);
+//
+//                        Notification::make()
+//                            ->title('Audit dispatched')
+//                            ->body($record->name)
+//                            ->success()
+//                            ->send();
+//                    }),
+
+                Action::make('createReport')
                     ->iconButton()
-                    ->icon('heroicon-o-magnifying-glass')
-                    ->tooltip('Audit')
-                    ->color('warning')
-                    ->action(function (Mod $record): void {
-                        AuditJob::dispatch($record->id);
+                    ->icon('heroicon-o-document-plus')
+                    ->tooltip('Create Report')
+                    ->color('success')
+                    ->form([
+                        Select::make('version')
+                            ->label('Version')
+                            ->options(function (Mod $record): array {
+                                $versions = $record->versions;
+                                if ($versions->isEmpty()) {
+                                    $record->fetchFullInfo();
+                                    $versions = $record->versions;
+                                }
+
+                                return $versions->pluck('version', 'version')->toArray();
+                            })
+                            ->required(),
+                    ])
+                    ->action(function (Mod $record, array $data): void {
+                        AuditJob::dispatch($record->id, $data['version']);
 
                         Notification::make()
-                            ->title('Audit dispatched')
-                            ->body($record->name)
+                            ->title('Report creation dispatched')
+                            ->body($record->name.' v'.$data['version'])
                             ->success()
                             ->send();
                     }),
+
+                DeleteAction::make()
+                    ->iconButton(),
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkAction::make('fetchFullInfo')
@@ -231,6 +266,8 @@ class ModsTable
                             ->success()
                             ->send();
                     }),
+
+                DeleteBulkAction::make(),
             ]);
     }
 }

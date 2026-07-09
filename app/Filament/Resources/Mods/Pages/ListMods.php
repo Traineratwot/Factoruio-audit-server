@@ -6,6 +6,7 @@ use App\Filament\Resources\Mods\ModResource;
 use App\Filament\Traits\InteractsWithScout;
 use App\Jobs\FetchFullInfoJob;
 use App\Jobs\SyncModsJob;
+use App\Models\Mod;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -58,6 +59,22 @@ class ListMods extends ListRecords
 
                     Notification::make()
                         ->title('SyncModsJob dispatched')
+                        ->success()
+                        ->send();
+                }),
+            Action::make('truncateTable')
+                ->label('Truncate Table')
+                ->icon('heroicon-o-trash')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->modalHeading('Truncate Table')
+                ->modalDescription('Are you sure you want to truncate the mods table? This will delete ALL records and cannot be undone.')
+                ->modalSubmitActionLabel('Truncate')
+                ->action(function (): void {
+                    Mod::query()->truncate();
+
+                    Notification::make()
+                        ->title('Mods table truncated')
                         ->success()
                         ->send();
                 }),
