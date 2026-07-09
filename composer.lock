@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9327c8d2c68715cbbb7ff4452d3efdb7",
+    "content-hash": "6f51501611c8a34720973ca424e1006c",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2350,6 +2350,81 @@
                 "source": "https://github.com/inertiajs/inertia-laravel/tree/v3.1.1"
             },
             "time": "2026-07-02T12:45:54+00:00"
+        },
+        {
+            "name": "jccoca/filament-json-column",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JCCoca/filament-json-column.git",
+                "reference": "a058d3b5e89096ad9eb4b823a7bc7b3464af53fc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JCCoca/filament-json-column/zipball/a058d3b5e89096ad9eb4b823a7bc7b3464af53fc",
+                "reference": "a058d3b5e89096ad9eb4b823a7bc7b3464af53fc",
+                "shasum": ""
+            },
+            "require": {
+                "filament/forms": "^5.0",
+                "filament/infolists": "^5.0",
+                "filament/notifications": "^5.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^9.0",
+                "nunomaduro/larastan": "^3.0",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-arch": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "JCCoca\\FilamentJsonColumn\\FilamentJsonColumnServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JCCoca\\FilamentJsonColumn\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "José Coca",
+                    "email": "jccoca.dev@gmail.com",
+                    "role": "Maintainer / Developer"
+                },
+                {
+                    "name": "valentin-morice",
+                    "email": "valentinmorice1@gmail.com",
+                    "role": "Original Author"
+                }
+            ],
+            "description": "A simple package to view and edit your JSON columns in Filament",
+            "homepage": "https://github.com/jccoca/filament-json-column",
+            "keywords": [
+                "filament-json-column",
+                "jccoca",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/jccoca/filament-json-column/issues",
+                "source": "https://github.com/jccoca/filament-json-column"
+            },
+            "time": "2026-06-10T20:08:03+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",

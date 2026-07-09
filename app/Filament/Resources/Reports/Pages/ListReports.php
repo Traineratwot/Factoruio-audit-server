@@ -8,8 +8,6 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListReports extends ListRecords
 {
-    use InteractsWithScout;
-
     protected static string $resource = ReportResource::class;
 
     protected function getHeaderActions(): array
