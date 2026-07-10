@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Laravel\Scout\Searchable;
 use Throwable;
 
@@ -75,13 +76,15 @@ class Mod extends Model
     public function fetchFullInfo(): bool
     {
         try {
+            Context::add('requestlog.subject', $this);
             $data = FactorioService::modFull($this->name);
         } catch (ConnectionException $e) {
             $this->update([
                 'fetch_full_info_error' => $e->getMessage(),
             ]);
-
             return false;
+        } finally {
+            Context::forget('requestlog.subject');
         }
 
         if ($data === null) {

@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Casts\Json;
+use JCCoca\FilamentJsonColumn\JsonColumn;
 
 class RequestLogForm
 {
@@ -20,53 +21,35 @@ class RequestLogForm
         $request = [];
         $response = [];
 
-        $request[] = CodeEditor::make('request_head')
-            ->wrap()
-            ->formatStateUsing(fn () => Json::encode($record->request_head, JSON_PRETTY_PRINT))
-            ->language(Language::Json);
+        $request[] = JsonColumn::make('request_head');
 
-        $response[] = CodeEditor::make('response_head')
-            ->wrap()
-            ->formatStateUsing(fn () => Json::encode($record->response_head, JSON_PRETTY_PRINT))
-            ->language(Language::Json);
+        $response[] = JsonColumn::make('response_head');
 
         $request_body = $record->getRequestBody();
         $request_query = $record->getRequestQuery();
         $response_body = $record->getResponseBody();
 
         if (is_array($request_query)) {
-            $request[] = CodeEditor::make('request_query')
-                ->wrap()
-                ->language(Language::Json)
-                ->formatStateUsing(fn () => Json::encode($request_query, JSON_PRETTY_PRINT))
+            $request[] = JsonColumn::make('request_query')
                 ->label('Request Query');
         } else {
-            $request[] = CodeEditor::make('request_query')
-                ->wrap()
+            $request[] = JsonColumn::make('request_query')
                 ->label('Request Query');
         }
 
         if (is_array($request_body)) {
-            $request[] = CodeEditor::make('request_body')
-                ->wrap()
-                ->language(Language::Json)
-                ->formatStateUsing(fn () => Json::encode($request_body, JSON_PRETTY_PRINT))
+            $request[] = JsonColumn::make('request_body')
                 ->label('Request Body');
         } else {
-            $request[] = CodeEditor::make('request_body')
-                ->wrap()
+            $request[] = JsonColumn::make('request_body')
                 ->label('Request Body');
         }
 
         if (is_array($response_body)) {
-            $response[] = CodeEditor::make('response_body')
-                ->wrap()
-                ->language(Language::Json)
-                ->formatStateUsing(fn () => Json::encode($response_body, JSON_PRETTY_PRINT))
+            $response[] = JsonColumn::make('response_body')
                 ->label('Response Body');
         } else {
-            $response[] = CodeEditor::make('response_body')
-                ->wrap()
+            $response[] = JsonColumn::make('response_body')
                 ->label('Response Body');
         }
 
