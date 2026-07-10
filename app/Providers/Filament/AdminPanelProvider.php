@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Modules\RequestLog\Filament\Resources\RequestLogs\RequestLogResource;
 use Croustibat\FilamentJobsMonitor\FilamentJobsMonitorPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -33,6 +34,9 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->resources([
+                RequestLogResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,

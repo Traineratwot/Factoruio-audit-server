@@ -11,7 +11,8 @@ class FactorioService
 {
     public function client(): PendingRequest
     {
-        return Http::baseUrl('https://mods.factorio.com/api/');
+        return Http::withLog()
+            ->baseUrl('https://mods.factorio.com/api/');
     }
 
     /**
