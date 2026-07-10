@@ -69,7 +69,7 @@ class AuditController extends Controller
                     'rate_limit' => "Rate limit exceeded. Try again in {$seconds} seconds.",
                 ]);
             }
-            RateLimiter::hit($key, 3600);
+            RateLimiter::hit($key, 600);
         }
 
         $auditToken = $request->session()->get('audit_token');
