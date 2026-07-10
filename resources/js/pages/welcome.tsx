@@ -2,6 +2,7 @@ import { Head, router, usePage } from "@inertiajs/react";
 import { PrimeReactProvider } from "primereact/api";
 import { Toast } from "primereact/toast";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
+import "primeicons/primeicons.css";
 import { Tooltip } from "primereact/tooltip";
 import { useCallback, useRef, useState } from "react";
 import { AuditDialog } from "@/components/mods/AuditDialog";

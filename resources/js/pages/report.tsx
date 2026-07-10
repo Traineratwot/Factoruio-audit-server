@@ -10,6 +10,7 @@ import { Toast } from "primereact/toast";
 import type React from "react";
 import { useCallback, useRef } from "react";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
+import "primeicons/primeicons.css";
 import { ChevronLeftIcon } from "primereact/icons/chevronleft";
 import { PathsCell, SeverityTag } from "@/components/AuditReport";
 import { AuditDialog } from "@/components/mods/AuditDialog";

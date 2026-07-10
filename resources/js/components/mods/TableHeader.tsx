@@ -84,6 +84,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 					{totalRecords} mods
 				</div>
 				<Button
+					icon="pi pi-play"
 					size="small"
 					onClick={onAuditClick}
 					style={{ borderRadius: "30px" }}

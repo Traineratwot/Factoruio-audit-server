@@ -18,6 +18,7 @@ export const NameColumn: React.FC<{ rowData: Mod }> = ({ rowData }) => {
 						type="button"
 						onClick={() => router.get(`/report/mod/${rowData.name}`)}
 						style={{
+							textAlign: "left",
 							fontWeight: "600",
 							color: "#06b6d4",
 							background: "none",
