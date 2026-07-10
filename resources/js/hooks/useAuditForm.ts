@@ -1,6 +1,18 @@
 import { useCallback, useRef, useState } from "react";
 import type { ModSearchResult, ModVersion } from "@/types/mod";
 
+async function trackEvent(name: string) {
+	fetch("https://probable.aidan647.dev/api/event", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			name,
+			url: window.location.href,
+			domain: window.location.hostname,
+		}),
+	}).catch(() => {});
+}
+
 interface AuditFormState {
 	searchQuery: string;
 	searchResults: ModSearchResult[];
@@ -133,6 +145,7 @@ export const useAuditForm = () => {
 			const data = await res.json();
 
 			if (res.ok) {
+				trackEvent("audit");
 				setState((s) => ({
 					...s,
 					submitting: false,
