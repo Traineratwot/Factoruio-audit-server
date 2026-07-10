@@ -84,19 +84,13 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 					{totalRecords} mods
 				</div>
 				<Button
-					icon="pi pi-play"
 					size="small"
 					onClick={onAuditClick}
 					style={{ borderRadius: "30px" }}
 					className="hidden sm:inline-flex"
-				/>
-				<Button
-					icon="pi pi-play"
-					size="small"
-					onClick={onAuditClick}
-					style={{ borderRadius: "30px" }}
-					className="sm:hidden"
-				/>
+				>
+					Audit mod
+				</Button>
 			</div>
 		</div>
 	);
